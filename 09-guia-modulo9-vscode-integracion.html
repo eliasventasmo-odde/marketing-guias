@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Módulo 9 — Integración VS Code · Claude Code</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #e8f4fd; --bg2: #d0e9f8; --card: #ffffff;
+    --celeste: #4db8e8; --celeste-dark: #1a8bbf; --celeste-light: #b8dff5;
+    --verde: #27ae60; --verde-bg: #eafaf1; --verde-border: #a9dfbf;
+    --rojo: #e74c3c; --rojo-bg: #fdf2f2; --rojo-border: #f5c6c0;
+    --naranja: #f39c12; --naranja-bg: #fef9e7;
+    --morado: #7c3aed; --morado-bg: #f3f0ff; --morado-border: #c4b5fd;
+    --texto: #1a2a3a; --texto-suave: #4a6a8a; --borde: #c5dff0;
+    --codigo-bg: #1e3a4a; --codigo-texto: #7dd3fc;
+    --sombra: 0 4px 20px rgba(77,184,232,0.15);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--texto); line-height: 1.7; background-image: radial-gradient(circle at 20% 20%, rgba(77,184,232,0.08) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(39,174,96,0.05) 0%, transparent 50%); }
+
+  .header { background: linear-gradient(135deg, #1a3a5c 0%, #1a8bbf 50%, #27ae60 100%); color: white; padding: 60px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 40px 40px; }
+  .header-badge { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); padding: 6px 20px; border-radius: 50px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 900; margin-bottom: 12px; }
+  .header h1 span { color: #7dd3fc; }
+  .header p { font-size: 17px; opacity: 0.85; font-weight: 300; max-width: 600px; margin: 0 auto 30px; }
+  .header-meta { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+  .header-meta span { background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-size: 13px; border: 1px solid rgba(255,255,255,0.2); }
+  .header-meta span strong { color: #7dd3fc; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  .banner-agencia { background: linear-gradient(135deg, #1a3a5c, #1a8bbf); border-radius: 16px; padding: 30px 40px; margin-bottom: 30px; color: white; display: flex; align-items: center; gap: 20px; }
+  .banner-icon { font-size: 48px; flex-shrink: 0; }
+  .banner-texto h2 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 8px; }
+  .banner-texto p { font-size: 14px; opacity: 0.85; margin: 0; }
+
+  .resumen-modulo { background: var(--card); border-radius: 16px; padding: 30px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); }
+  .resumen-modulo h2 { font-family: 'Playfair Display', serif; color: var(--celeste-dark); font-size: 22px; margin-bottom: 20px; }
+  .resumen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .resumen-item { background: var(--bg); border: 1px solid var(--borde); border-radius: 10px; padding: 14px; text-align: center; }
+  .resumen-item .r-icon { font-size: 26px; margin-bottom: 6px; }
+  .resumen-item .r-titulo { font-weight: 600; font-size: 13px; color: var(--celeste-dark); }
+  .resumen-item .r-desc { font-size: 12px; color: var(--texto-suave); margin-top: 4px; }
+
+  .indice { background: var(--card); border-radius: 16px; padding: 30px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); }
+  .indice h2 { font-family: 'Playfair Display', serif; color: var(--celeste-dark); font-size: 22px; margin-bottom: 20px; }
+  .indice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .indice a { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg); border-radius: 10px; text-decoration: none; color: var(--texto); font-size: 14px; font-weight: 500; border: 1px solid var(--borde); transition: all 0.2s; }
+  .indice a:hover { background: var(--celeste-light); border-color: var(--celeste); }
+  .num { background: var(--celeste); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+
+  .seccion { background: var(--card); border-radius: 16px; padding: 40px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); position: relative; overflow: hidden; }
+  .seccion::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--celeste), var(--verde)); }
+  .seccion h2 { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--texto); margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+  .seccion h2 .icon { background: linear-gradient(135deg, var(--celeste), var(--celeste-dark)); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .seccion-subtitulo { color: var(--texto-suave); font-size: 15px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--bg2); }
+
+  .codigo { background: var(--codigo-bg); color: var(--codigo-texto); padding: 14px 18px; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 13px; margin: 10px 0; border-left: 3px solid var(--celeste); overflow-x: auto; line-height: 1.9; }
+  .codigo .comentario { color: #64748b; font-style: italic; }
+  .codigo .comando { color: #7dd3fc; }
+  .codigo .valor { color: #86efac; }
+  .codigo .resultado { color: #fbbf24; }
+  .codigo .texto-normal { color: #e2e8f0; }
+
+  .alerta { padding: 16px 20px; border-radius: 12px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; font-size: 14px; line-height: 1.6; }
+  .alerta-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .alerta-verde { background: var(--verde-bg); border: 1px solid var(--verde-border); color: #1a5c35; }
+  .alerta-verde .alerta-icon { color: var(--verde); }
+  .alerta-rojo { background: var(--rojo-bg); border: 1px solid var(--rojo-border); color: #7b1c14; }
+  .alerta-rojo .alerta-icon { color: var(--rojo); }
+  .alerta-celeste { background: #e8f4fd; border: 1px solid var(--celeste-light); color: #1a4a6a; }
+  .alerta-celeste .alerta-icon { color: var(--celeste-dark); }
+  .alerta-naranja { background: var(--naranja-bg); border: 1px solid #f9d98a; color: #7a4f00; }
+  .alerta-naranja .alerta-icon { color: var(--naranja); }
+  .alerta strong { font-weight: 600; }
+
+  .tabla-wrapper { overflow-x: auto; margin: 16px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { background: linear-gradient(135deg, var(--celeste-dark), var(--celeste)); color: white; padding: 12px 16px; text-align: left; font-weight: 600; }
+  th:first-child { border-radius: 8px 0 0 0; }
+  th:last-child { border-radius: 0 8px 0 0; }
+  td { padding: 12px 16px; border-bottom: 1px solid var(--bg2); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--bg); }
+  tr:last-child td { border-bottom: none; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--celeste-light); color: var(--celeste-dark); padding: 2px 6px; border-radius: 4px; }
+
+  .practica-card { background: var(--verde-bg); border: 1px solid var(--verde-border); border-radius: 12px; padding: 20px; margin: 12px 0; display: flex; gap: 14px; align-items: flex-start; }
+  .practica-card .p-icon { font-size: 24px; flex-shrink: 0; }
+  .practica-card h4 { color: var(--verde); font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .practica-card p { font-size: 13px; color: #2d6a4a; margin: 0; }
+
+  /* ATAJOS */
+  .atajos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 16px 0; }
+  .atajo-item { background: var(--bg); border: 1px solid var(--borde); border-radius: 12px; padding: 16px; }
+  .atajo-categoria { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--celeste-dark); margin-bottom: 10px; }
+  .atajo-linea { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .atajo-tecla { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: white; background: var(--celeste-dark); padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+  .atajo-desc { font-size: 13px; color: var(--texto-suave); text-align: right; }
+
+  /* FLUJO DE APRENDIZAJE */
+  .aprendizaje { background: linear-gradient(135deg, #0f2030, #1a3a5c); border-radius: 16px; padding: 36px; margin: 20px 0; border: 1px solid #2a4a6a; }
+  .ap-titulo { font-family: 'Playfair Display', serif; color: #7dd3fc; font-size: 22px; margin-bottom: 24px; }
+  .ap-fase { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 24px; }
+  .ap-num { background: linear-gradient(135deg, var(--celeste), var(--verde)); color: white; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; flex-shrink: 0; }
+  .ap-contenido { flex: 1; }
+  .ap-fase-titulo { color: #7dd3fc; font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .ap-fase-desc { color: #94a3b8; font-size: 14px; margin-bottom: 8px; }
+  .ap-fase-accion { color: #86efac; font-size: 13px; font-style: italic; }
+  .ap-sep { border: none; border-top: 1px solid #2a4a6a; margin: 16px 0; }
+
+  /* MODOS DE TRABAJO */
+  .modos-trabajo { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .modo-terminal { background: var(--codigo-bg); border: 2px solid var(--celeste); border-radius: 12px; padding: 20px; }
+  .modo-vscode { background: linear-gradient(135deg, #1a2a3a, #1a3a5c); border: 2px solid var(--verde); border-radius: 12px; padding: 20px; }
+  .mt-titulo { font-weight: 700; font-size: 15px; margin-bottom: 12px; }
+  .modo-terminal .mt-titulo { color: var(--celeste); }
+  .modo-vscode .mt-titulo { color: var(--verde); }
+  .mt-item { font-size: 13px; margin-bottom: 6px; padding-left: 16px; position: relative; }
+  .modo-terminal .mt-item { color: #94a3b8; }
+  .modo-terminal .mt-item::before { content: '→'; position: absolute; left: 0; color: var(--celeste); }
+  .modo-vscode .mt-item { color: #94a3b8; }
+  .modo-vscode .mt-item::before { content: '→'; position: absolute; left: 0; color: var(--verde); }
+
+  /* AGENTES MODIFICABLES */
+  .agente-modificar { border-radius: 14px; padding: 24px; margin-bottom: 16px; border: 2px solid; }
+  .am-bac { background: linear-gradient(135deg, #eafaf1, #d5f5e3); border-color: var(--verde); }
+  .am-adm { background: linear-gradient(135deg, #e8f4fd, #d0e9f8); border-color: var(--celeste); }
+  .am-aci { background: linear-gradient(135deg, #f3f0ff, #e9e2ff); border-color: var(--morado); }
+  .am-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .am-icono { font-size: 28px; }
+  .am-nombre { font-weight: 700; font-size: 17px; }
+  .am-bac .am-nombre { color: var(--verde); }
+  .am-adm .am-nombre { color: var(--celeste-dark); }
+  .am-aci .am-nombre { color: var(--morado); }
+  .am-archivo { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--texto-suave); margin-bottom: 12px; }
+  .am-modificaciones { font-size: 13px; }
+  .am-bac .am-modificaciones { color: #1a5c35; }
+  .am-adm .am-modificaciones { color: #1a4a6a; }
+  .am-aci .am-modificaciones { color: #4c1d95; }
+  .am-ejemplo { background: var(--codigo-bg); border-radius: 8px; padding: 10px 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #86efac; line-height: 1.8; margin-top: 10px; }
+
+  /* ARRANQUE DIARIO */
+  .arranque-opciones { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .ao-terminal { background: var(--codigo-bg); border: 2px solid var(--celeste); border-radius: 12px; padding: 20px; }
+  .ao-vscode { background: var(--morado-bg); border: 2px solid var(--morado); border-radius: 12px; padding: 20px; }
+  .ao-titulo { font-weight: 700; font-size: 15px; margin-bottom: 12px; }
+  .ao-terminal .ao-titulo { color: var(--celeste); }
+  .ao-vscode .ao-titulo { color: var(--morado); }
+  .ao-paso { font-size: 13px; margin-bottom: 8px; }
+  .ao-terminal .ao-paso { color: #94a3b8; }
+  .ao-vscode .ao-paso { color: #4c1d95; }
+  .ao-codigo { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #7dd3fc; background: rgba(77,184,232,0.1); padding: 3px 8px; border-radius: 4px; display: inline-block; margin: 2px 0; }
+
+  .sep { height: 1px; background: linear-gradient(90deg, transparent, var(--celeste), transparent); margin: 24px 0; }
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  .tag-verde { background: var(--verde-bg); color: var(--verde); border: 1px solid var(--verde-border); }
+  .tag-rojo { background: var(--rojo-bg); color: var(--rojo); border: 1px solid var(--rojo-border); }
+  .tag-celeste { background: var(--celeste-light); color: var(--celeste-dark); }
+  .ruta { background: var(--bg); border: 1px solid var(--borde); border-radius: 10px; padding: 12px 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--celeste-dark); margin: 8px 0; }
+  .ruta::before { content: '📁 '; }
+
+  h3 { color: var(--celeste-dark); font-size: 18px; margin: 20px 0 12px; font-weight: 600; }
+  p { margin-bottom: 10px; color: var(--texto); font-size: 15px; }
+  ul, ol { padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 6px; font-size: 14px; color: var(--texto-suave); }
+  li strong { color: var(--texto); }
+
+  .footer { background: linear-gradient(135deg, #1a3a5c, #1a8bbf); color: white; text-align: center; padding: 40px; }
+  .footer h3 { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 10px; }
+  .footer p { opacity: 0.7; font-size: 14px; }
+  .footer .firma { margin-top: 16px; font-size: 12px; opacity: 0.4; font-style: italic; }
+
+  @media (max-width: 600px) {
+    .header h1 { font-size: 30px; }
+    .seccion { padding: 24px 16px; }
+    .modos-trabajo { grid-template-columns: 1fr; }
+    .arranque-opciones { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">📘 Módulo 9 de 9+Final</div>
+  <h1>Integración con <span>VS Code</span></h1>
+  <p>Tu entorno de trabajo visual conectado con Claude Code. Edita agentes, modifica archivos y ve los cambios en tiempo real.</p>
+  <div class="header-meta">
+    <span>👤 <strong>Mónico Nieto</strong> · MarketingMo</span>
+    <span>📁 <strong>claudecode-practicas</strong></span>
+    <span>✅ <strong>Módulos 1 al 8</strong> completados</span>
+    <span>🎓 <strong>Penúltimo módulo</strong></span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- BANNER -->
+  <div class="banner-agencia">
+    <div class="banner-icon">💻</div>
+    <div class="banner-texto">
+      <h2>VS Code es tu centro de mando visual</h2>
+      <p>El terminal ejecuta. VS Code muestra. Juntos son el entorno de trabajo completo — ves cada cambio que hace Claude Code en tiempo real y puedes editar tú directamente cuando quieras.</p>
+    </div>
+  </div>
+
+  <!-- RESUMEN -->
+  <div class="resumen-modulo">
+    <h2>🎯 ¿Qué aprendes en este módulo?</h2>
+    <div class="resumen-grid">
+      <div class="resumen-item">
+        <div class="r-icon">🔗</div>
+        <div class="r-titulo">Cómo conectar VS Code</div>
+        <div class="r-desc">La extensión oficial y cómo vincularla con el terminal</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">⌨️</div>
+        <div class="r-titulo">Atajos de teclado</div>
+        <div class="r-desc">Los 20 atajos más útiles para trabajar más rápido</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">🚀</div>
+        <div class="r-titulo">Cómo arrancar cada día</div>
+        <div class="r-desc">Desde terminal, desde VS Code — los dos métodos</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">✏️</div>
+        <div class="r-titulo">Cómo modificar archivos</div>
+        <div class="r-desc">Editar directamente o con Claude Code — cuándo usar cada uno</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">🤖</div>
+        <div class="r-titulo">Modificar los agentes</div>
+        <div class="r-desc">Cómo editar B.A.C., A.D.M. y A.C.I. desde VS Code</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">📚</div>
+        <div class="r-titulo">Método de aprendizaje</div>
+        <div class="r-desc">La mejor forma de consolidar todo lo aprendido</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÍNDICE -->
+  <div class="indice">
+    <h2>📋 Contenido de este módulo</h2>
+    <div class="indice-grid">
+      <a href="#que-es"><span class="num">1</span> Qué es VS Code y para qué sirve</a>
+      <a href="#conectar"><span class="num">2</span> Cómo conectarlo con Claude Code</a>
+      <a href="#arranque"><span class="num">3</span> Cómo arrancar cada día</a>
+      <a href="#terminal-vs-vscode"><span class="num">4</span> Terminal vs VS Code — cuándo usar cada uno</a>
+      <a href="#atajos"><span class="num">5</span> Atajos de teclado completos</a>
+      <a href="#modificar"><span class="num">6</span> Cómo modificar cualquier archivo</a>
+      <a href="#agentes"><span class="num">7</span> Modificar los agentes B.A.C., A.D.M., A.C.I.</a>
+      <a href="#aprendizaje"><span class="num">8</span> La mejor forma de aprender todo esto</a>
+      <a href="#practicaste"><span class="num">9</span> Lo que practicaste</a>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 1: QUÉ ES VS CODE -->
+  <div class="seccion" id="que-es">
+    <h2><span class="icon">💻</span> Qué es VS Code y para qué sirve</h2>
+    <p class="seccion-subtitulo">El editor que convierte el trabajo invisible del terminal en algo visible</p>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>Definición simple:</strong> VS Code (Visual Studio Code) es un editor de texto avanzado creado por Microsoft. Es gratuito y se usa para ver, editar y gestionar archivos de cualquier tipo — Markdown, JSON, código, scripts. Con la extensión de Claude Code instalada, se convierte en el panel visual de todo lo que hace el terminal.</div>
+    </div>
+
+    <h3>La diferencia entre trabajar con y sin VS Code</h3>
+    <div class="modos-trabajo">
+      <div class="modo-terminal">
+        <div class="mt-titulo">🖥️ Solo con terminal</div>
+        <div class="mt-item">Claude Code modifica archivos</div>
+        <div class="mt-item">No ves qué cambió exactamente</div>
+        <div class="mt-item">Tienes que abrir el archivo manualmente</div>
+        <div class="mt-item">Editas desde línea de comandos</div>
+        <div class="mt-item">Sin resaltado de sintaxis</div>
+      </div>
+      <div class="modo-vscode">
+        <div class="mt-titulo">💻 Terminal + VS Code</div>
+        <div class="mt-item">Claude Code modifica archivos</div>
+        <div class="mt-item">VS Code muestra el cambio en tiempo real</div>
+        <div class="mt-item">Ves exactamente qué líneas cambiaron</div>
+        <div class="mt-item">Editas haciendo clic y escribiendo</div>
+        <div class="mt-item">Colores y formato automático</div>
+      </div>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">🎯</span>
+      <div><strong>Para MarketingMo:</strong> VS Code es donde lees y editas los briefs de clientes, los prompts de tus agentes, los informes ADM y el CLAUDE.md. El terminal es donde Claude Code trabaja. VS Code es donde tú revisas y ajustas.</div>
+    </div>
+
+    <h3>Qué ves en VS Code de claudecode-practicas</h3>
+    <div class="codigo">
+<span class="resultado">CLAUDECODE-PRACTICAS/</span>
+├── <span class="resultado">.claude/</span>
+│   ├── <span class="valor">commands/</span>        <span class="comentario">← Tus slash commands: brief-cliente, informe-adm, auditoria-aci</span>
+│   ├── <span class="valor">hooks/</span>           <span class="comentario">← Script registrar-edicion.ps1</span>
+│   └── <span class="valor">settings.json</span>   <span class="comentario">← Configuración del proyecto</span>
+├── <span class="resultado">clientes/</span>
+│   ├── <span class="valor">cuidama/</span>         <span class="comentario">← Con informe-adm.md y metricool PDF</span>
+│   ├── <span class="valor">eli-nails/</span>
+│   └── <span class="comentario">... 10 carpetas más</span>
+├── <span class="valor">CLAUDE.md</span>           <span class="comentario">← Memoria completa de MarketingMo</span>
+├── <span class="valor">log.txt</span>             <span class="comentario">← Registro automático de cambios (hook)</span>
+└── <span class="valor">prueba.txt</span>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 2: CÓMO CONECTAR -->
+  <div class="seccion" id="conectar">
+    <h2><span class="icon">🔗</span> Cómo conectar VS Code con Claude Code</h2>
+    <p class="seccion-subtitulo">El proceso completo que seguiste hoy — documentado para repetirlo</p>
+
+    <h3>Paso 1 — Instalar la extensión oficial</h3>
+    <div class="codigo">
+<span class="comentario"># En VS Code:</span>
+<span class="texto-normal">Ctrl+Shift+X → buscar "Claude Code" → instalar la de Anthropic (7.9M descargas)</span>
+<span class="comentario"># Confirmar: "Trust Publisher & Install"</span>
+    </div>
+
+    <h3>Paso 2 — Abrir VS Code en tu carpeta de trabajo</h3>
+    <div class="codigo">
+<span class="comentario"># Opción A — Desde el terminal de Claude Code:</span>
+<span class="valor">code</span>   <span class="comentario">← escribe "code" en el prompt > y Claude Code abre VS Code en la carpeta actual</span>
+
+<span class="comentario"># Opción B — Desde PowerShell:</span>
+<span class="comando">cd C:\Users\elias\claudecode-practicas</span>
+<span class="comando">code .</span>   <span class="comentario">← el punto significa "abrir esta carpeta"</span>
+
+<span class="comentario"># Opción C — Desde VS Code manualmente:</span>
+<span class="texto-normal">Archivo → Abrir carpeta → seleccionar claudecode-practicas</span>
+    </div>
+
+    <h3>Paso 3 — Conectar el terminal con VS Code</h3>
+    <div class="codigo">
+<span class="comentario"># Dentro de Claude Code (terminal):</span>
+<span class="valor">/ide</span>
+<span class="comentario"># Seleccionar "Visual Studio Code"</span>
+<span class="comentario"># Aparece: "Connected to Visual Studio Code"</span>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>Verificación:</strong> En el terminal aparece <code>Connected to Visual Studio Code</code> y en VS Code se abre el panel CHAT en la barra derecha. Los dos están sincronizados — lo que hace Claude Code en el terminal se refleja en VS Code.</div>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Importante:</strong> La conexión /ide hay que hacerla en cada sesión nueva. No es permanente. Pero puedes activar la auto-conexión escribiendo en Claude Code: <em>"Activa la auto-conexión al IDE en mi configuración"</em>.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 3: CÓMO ARRANCAR CADA DÍA -->
+  <div class="seccion" id="arranque">
+    <h2><span class="icon">🌅</span> Cómo arrancar cada día</h2>
+    <p class="seccion-subtitulo">Los dos flujos de trabajo posibles — elige el que más te convenga</p>
+
+    <div class="arranque-opciones">
+      <div class="ao-terminal">
+        <div class="ao-titulo">🖥️ Flujo A — Primero el terminal</div>
+        <div class="ao-paso">1. Abre PowerShell</div>
+        <div class="ao-codigo">cd C:\Users\elias\claudecode-practicas</div>
+        <div class="ao-paso">2. Abre Claude Code</div>
+        <div class="ao-codigo">claude</div>
+        <div class="ao-paso">3. Abre VS Code desde Claude Code</div>
+        <div class="ao-codigo">code</div>
+        <div class="ao-paso">4. Conecta los dos</div>
+        <div class="ao-codigo">/ide → Visual Studio Code</div>
+        <div class="ao-paso" style="margin-top:10px; color:#86efac">✓ Recomendado para trabajo intensivo</div>
+      </div>
+      <div class="ao-vscode">
+        <div class="ao-titulo">💻 Flujo B — Primero VS Code</div>
+        <div class="ao-paso">1. Abre VS Code</div>
+        <div class="ao-paso">2. Archivo → Abrir carpeta → claudecode-practicas</div>
+        <div class="ao-paso">3. Abre el terminal integrado de VS Code</div>
+        <div class="ao-codigo">Ctrl+` (tecla debajo de Esc)</div>
+        <div class="ao-paso">4. Navega y abre Claude Code</div>
+        <div class="ao-codigo">claude</div>
+        <div class="ao-paso">5. Conecta</div>
+        <div class="ao-codigo">/ide → Visual Studio Code</div>
+        <div class="ao-paso" style="margin-top:10px; color:#7c3aed">✓ Recomendado si prefieres trabajar visualmente</div>
+      </div>
+    </div>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>¿Cuál es mejor para ti?</strong> El Flujo A es más directo y el que ya practicaste. El Flujo B es más visual y cómodo si prefieres tener todo en una sola ventana. Ambos dan el mismo resultado — elige el que más te convenga y conviértelo en tu rutina diaria.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 4: TERMINAL VS VSCODE -->
+  <div class="seccion" id="terminal-vs-vscode">
+    <h2><span class="icon">⚖️</span> Terminal vs VS Code — cuándo usar cada uno</h2>
+    <p class="seccion-subtitulo">La regla de oro para saber dónde hacer cada cosa</p>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Tarea</th><th>Dónde hacerlo</th><th>Por qué</th></tr></thead>
+        <tbody>
+          <tr><td>Crear carpetas de clientes</td><td><span class="tag tag-celeste">Terminal</span></td><td>Claude Code lo hace más rápido con lenguaje natural</td></tr>
+          <tr><td>Generar briefs con /brief-cliente</td><td><span class="tag tag-celeste">Terminal</span></td><td>Es un slash command — solo funciona desde el terminal</td></tr>
+          <tr><td>Leer un informe generado</td><td><span class="tag tag-verde">VS Code</span></td><td>Más cómodo visualmente con formato y colores</td></tr>
+          <tr><td>Editar una línea del CLAUDE.md</td><td><span class="tag tag-verde">VS Code</span></td><td>Más rápido hacer clic y editar directamente</td></tr>
+          <tr><td>Modificar el prompt de un agente</td><td><span class="tag tag-verde">VS Code</span></td><td>Ves todo el contexto, editas con precisión</td></tr>
+          <tr><td>Cambios masivos en muchos archivos</td><td><span class="tag tag-celeste">Terminal</span></td><td>Claude Code hace 50 cambios en segundos</td></tr>
+          <tr><td>Revisar el log.txt de cambios</td><td><span class="tag tag-verde">VS Code</span></td><td>Lectura más cómoda con colores</td></tr>
+          <tr><td>Ejecutar hooks o scripts</td><td><span class="tag tag-celeste">Terminal</span></td><td>Los hooks solo funcionan desde Claude Code</td></tr>
+          <tr><td>Enviar informe a Notion</td><td><span class="tag tag-celeste">Terminal</span></td><td>Los MCP servers solo funcionan desde el terminal</td></tr>
+          <tr><td>Añadir un cliente nuevo al CLAUDE.md</td><td>Cualquiera</td><td>Si es un cambio pequeño — VS Code. Si son muchos — terminal</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">🎯</span>
+      <div><strong>Regla simple:</strong> Si necesitas que Claude Code haga algo por ti — usa el terminal. Si necesitas revisar, leer o editar tú manualmente — usa VS Code. Los dos se complementan, no se excluyen.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 5: ATAJOS DE TECLADO -->
+  <div class="seccion" id="atajos">
+    <h2><span class="icon">⌨️</span> Atajos de teclado completos</h2>
+    <p class="seccion-subtitulo">Los 20 atajos más útiles para VS Code + Claude Code en Windows</p>
+
+    <div class="atajos-grid">
+      <div class="atajo-item">
+        <div class="atajo-categoria">📁 Archivos y navegación</div>
+        <div class="atajo-linea"><span class="atajo-tecla">Ctrl+S</span><span class="atajo-desc">Guardar archivo</span></div>
+        <div class="atajo-linea"><span class="atajo-tecla">Ctrl+Z</span><span class="atajo-desc">Deshacer último cambio</span></div>
+        <div class="atajo-linea"><span class="atajo-tecla">Ctrl+Y</span><span class="atajo-desc">Rehacer (deshacer el deshacer)</span></div>
+        <div class="atajo-linea"><span class="atajo-tecla">Ctrl+P</span><span class="atajo-desc">Buscar y abrir archivo rápido</span></div>
+        <div class="atajo-linea"><span class="atajo-tecla">Ctrl+W</span><span class="atajo-desc">Cerrar pestaña activa</span></div>
+      </div>
+      <div class="atajo-item">
+        <div class="atajo-categoria">✏️ Edición de texto</div>
+        <div class="atajo-linea"><span class="atajo-tecla">Ctrl+C</span><span class="atajo-desc">Copiar texto seleccionado</span></div>
+        <div class="atajo-linea"><span class="atajo-tecla">Ctrl+X</span><span class="atajo-desc">Cortar texto seleccionado</span></div>
+        <div class="atajo-linea"><span class="atajo-tecla">Ctrl+V</span><span class="atajo-desc">Pegar texto copiado</span></div>
+        <div class="atajo-linea"><span class="atajo-tecla">Ctrl+A</span><span class="atajo-desc">Seleccionar todo el texto</span></div>
+        <div class="atajo-linea"><span class="atajo-tecla">Ctrl+F</span><span class="atajo-desc">Buscar texto en el archivo</span></div>
+      </div>
+      <div class="atajo-item">
+        <div class="atajo-categoria">🔍 Búsqueda y comandos</div>
+        <div class="atajo-linea"><span class="atajo-tecla">Ctrl+H</span><span class="atajo-desc">Buscar y reemplazar texto</span></div>
+        <div class="atajo-linea"><span class="atajo-tecla">Ctrl+Shift+F</span><span class="atajo-desc">Buscar en todos los archivos</span></div>
+        <div class="atajo-linea"><span class="atajo-tecla">Ctrl+Shift+P</span><span class="atajo-desc">Paleta de comandos (todo)</span></div>
+        <div class="atajo-linea"><span class="atajo-tecla">Ctrl+Shift+E</span><span class="atajo-desc">Ver explorador de archivos</span></div>
+        <div class="atajo-linea"><span class="atajo-tecla">Ctrl+Shift+X</span><span class="atajo-desc">Ver extensiones instaladas</span></div>
+      </div>
+      <div class="atajo-item">
+        <div class="atajo-categoria">💻 Terminal y Claude Code</div>
+        <div class="atajo-linea"><span class="atajo-tecla">Ctrl+`</span><span class="atajo-desc">Abrir/cerrar terminal integrado</span></div>
+        <div class="atajo-linea"><span class="atajo-tecla">Ctrl+Esc</span><span class="atajo-desc">Abrir/cerrar panel Claude Code</span></div>
+        <div class="atajo-linea"><span class="atajo-tecla">Ctrl+B</span><span class="atajo-desc">Mostrar/ocultar barra lateral</span></div>
+        <div class="atajo-linea"><span class="atajo-tecla">Ctrl+Shift+`</span><span class="atajo-desc">Crear nuevo terminal</span></div>
+        <div class="atajo-linea"><span class="atajo-tecla">Alt+Z</span><span class="atajo-desc">Activar/desactivar ajuste de línea</span></div>
+      </div>
+    </div>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>Los 5 que más usarás:</strong> <code>Ctrl+S</code> (guardar siempre), <code>Ctrl+Z</code> (deshacer si te equivocas), <code>Ctrl+P</code> (abrir cualquier archivo rápido), <code>Ctrl+`</code> (terminal integrado) y <code>Ctrl+F</code> (buscar en el archivo). Con estos 5 ya eres productivo.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 6: CÓMO MODIFICAR -->
+  <div class="seccion" id="modificar">
+    <h2><span class="icon">✏️</span> Cómo modificar cualquier archivo</h2>
+    <p class="seccion-subtitulo">Los tres métodos para editar — con ejemplos concretos</p>
+
+    <h3>Método 1 — Editar directamente en VS Code (más rápido para cambios pequeños)</h3>
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>Cuándo usarlo:</strong> Para cambios pequeños y puntuales — corregir un dato de un cliente, añadir una nota, cambiar un precio, actualizar un plan de servicio.</div>
+    </div>
+    <div class="codigo">
+<span class="comentario"># Proceso:</span>
+<span class="texto-normal">1. En VS Code, haz clic en el archivo en el panel izquierdo</span>
+<span class="texto-normal">2. El archivo se abre en el editor central</span>
+<span class="texto-normal">3. Haz clic donde quieres editar</span>
+<span class="texto-normal">4. Escribe el cambio</span>
+<span class="texto-normal">5. Ctrl+S para guardar</span>
+
+<span class="comentario"># Ejemplo — cambiar el plan de La Tiendologia en CLAUDE.md:</span>
+<span class="texto-normal">Clic en CLAUDE.md → buscar "La Tiendologia" → cambiar "Plan: Básico" a "Plan: Crecimiento" → Ctrl+S</span>
+    </div>
+
+    <h3>Método 2 — Pedir el cambio a Claude Code (mejor para cambios complejos)</h3>
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>Cuándo usarlo:</strong> Para cambios que implican lógica, múltiples archivos o cuando no sabes exactamente dónde está lo que quieres cambiar.</div>
+    </div>
+    <div class="codigo">
+<span class="comentario"># En el terminal de Claude Code:</span>
+<span class="texto-normal">"Actualiza en el CLAUDE.md el plan de La Tiendologia a Plan Crecimiento"</span>
+<span class="texto-normal">"Añade un nuevo cliente al CLAUDE.md: Restaurante El Rincón, sector hostelería, Plan Básico"</span>
+<span class="texto-normal">"Cambia en todos los archivos de clientes la fecha de creación de marzo a abril 2026"</span>
+    </div>
+
+    <h3>Método 3 — Usar Ctrl+H para buscar y reemplazar en VS Code</h3>
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>Cuándo usarlo:</strong> Para cambiar la misma palabra en múltiples partes de un archivo. Por ejemplo, cambiar "Mónico" por "Elias" en todo el documento de una vez.</div>
+    </div>
+    <div class="codigo">
+<span class="comentario"># Proceso con Ctrl+H:</span>
+<span class="texto-normal">1. Ctrl+H → se abre el panel de buscar/reemplazar</span>
+<span class="texto-normal">2. En "Buscar" escribe el texto actual</span>
+<span class="texto-normal">3. En "Reemplazar" escribe el texto nuevo</span>
+<span class="texto-normal">4. "Reemplazar todo" para cambiarlo de golpe</span>
+<span class="texto-normal">5. Ctrl+S para guardar</span>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 7: MODIFICAR AGENTES -->
+  <div class="seccion" id="agentes">
+    <h2><span class="icon">🤖</span> Cómo modificar los agentes B.A.C., A.D.M. y A.C.I.</h2>
+    <p class="seccion-subtitulo">Tus agentes son archivos — puedes editarlos cuando quieras desde VS Code</p>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>Clave importante:</strong> Tus agentes viven en dos lugares — sus prompts maestros en Notion, y sus slash commands en <code>.claude/commands/</code>. Puedes modificar los slash commands directamente desde VS Code en cualquier momento. Los cambios aplican en la siguiente sesión de Claude Code.</div>
+    </div>
+
+    <div class="agente-modificar am-bac">
+      <div class="am-header">
+        <div class="am-icono">📋</div>
+        <div>
+          <div class="am-nombre">Agente B.A.C. — Briefing · Acción · Contenido</div>
+          <div class="am-archivo">.claude/commands/brief-cliente.md</div>
+        </div>
+      </div>
+      <p class="am-modificaciones">Puedes modificar en VS Code: el número de bloques del brief, las preguntas de cada bloque, el tono de las instrucciones, el formato del documento generado, añadir nuevas secciones.</p>
+      <div class="am-ejemplo">
+# Para modificarlo en VS Code:
+1. Panel izquierdo → .claude → commands → brief-cliente.md
+2. Clic para abrir el archivo
+3. Edita el contenido entre los --- y ---
+4. Ctrl+S para guardar
+5. Reinicia Claude Code para que detecte el cambio
+
+# Ejemplo de modificación — añadir bloque de redes sociales:
+Abre brief-cliente.md → después del Bloque 5 añade:
+## BLOQUE 6 — REDES SOCIALES ACTUALES
+- ¿Qué redes tiene activas?
+- ¿Con qué frecuencia publica?
+- ¿Cuál es su red principal?
+      </div>
+    </div>
+
+    <div class="agente-modificar am-adm">
+      <div class="am-header">
+        <div class="am-icono">📊</div>
+        <div>
+          <div class="am-nombre">Agente A.D.M. — Auditoría de Métricas</div>
+          <div class="am-archivo">.claude/commands/informe-adm.md</div>
+        </div>
+      </div>
+      <p class="am-modificaciones">Puedes modificar en VS Code: las tablas de métricas, los benchmarks de cada plan, las secciones del informe, las recomendaciones automáticas, el formato de exportación a Notion.</p>
+      <div class="am-ejemplo">
+# Ejemplo de modificación — añadir métricas de TikTok:
+Abre informe-adm.md → después de la sección Facebook añade:
+
+## 📱 MÉTRICAS TIKTOK (si aplica)
+| Métrica | Valor actual | Mes anterior | Variación |
+|---|---|---|---|
+| Seguidores | | | |
+| Vídeos publicados | | | |
+| Views totales | | | |
+| Engagement rate | | | |
+      </div>
+    </div>
+
+    <div class="agente-modificar am-aci">
+      <div class="am-header">
+        <div class="am-icono">🔍</div>
+        <div>
+          <div class="am-nombre">Agente A.C.I. — Auditoría de Cliente Inicial</div>
+          <div class="am-archivo">.claude/commands/auditoria-aci.md</div>
+        </div>
+      </div>
+      <p class="am-modificaciones">Puedes modificar en VS Code: las 9 secciones de la auditoría, los criterios de evaluación, los planes recomendados, la puntuación del diagnóstico, el formato del baseline Día 0.</p>
+      <div class="am-ejemplo">
+# Ejemplo de modificación — añadir puntuación al diagnóstico:
+Abre auditoria-aci.md → en la Sección 6 añade:
+
+## 🎯 PUNTUACIÓN DIGITAL (0-100)
+| Área | Puntos (máx 20) |
+|---|---|
+| Presencia web | |
+| Instagram | |
+| Facebook | |
+| Contenido y consistencia | |
+| Posicionamiento local | |
+| **TOTAL** | **/100** |
+      </div>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Recuerda siempre:</strong> Después de modificar un slash command en VS Code hay que reiniciar Claude Code para que detecte el cambio. Escribe <code>/exit</code> y vuelve a abrir con <code>claude</code>.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 8: MÉTODO DE APRENDIZAJE -->
+  <div class="seccion" id="aprendizaje">
+    <h2><span class="icon">📚</span> La mejor forma de aprender todo esto</h2>
+    <p class="seccion-subtitulo">El método que maximiza la retención y la aplicación práctica</p>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>La verdad sobre el aprendizaje técnico:</strong> No se aprende leyendo — se aprende haciendo. Estas guías son tu referencia, no tu escuela. La escuela es el trabajo diario con tus clientes reales usando Claude Code.</div>
+    </div>
+
+    <div class="aprendizaje">
+      <div class="ap-titulo">🎓 Plan de consolidación — 4 semanas</div>
+
+      <div class="ap-fase">
+        <div class="ap-num">1</div>
+        <div class="ap-contenido">
+          <div class="ap-fase-titulo">Semana 1 — Rutina básica diaria</div>
+          <div class="ap-fase-desc">Usa Claude Code todos los días aunque sea 15 minutos. Abre la carpeta, conecta VS Code y haz una tarea pequeña — actualizar un cliente, revisar el CLAUDE.md, leer el log.txt.</div>
+          <div class="ap-fase-accion">→ Objetivo: que el arranque diario sea automático sin mirar la guía</div>
+        </div>
+      </div>
+      <div class="ap-sep"></div>
+
+      <div class="ap-fase">
+        <div class="ap-num">2</div>
+        <div class="ap-contenido">
+          <div class="ap-fase-titulo">Semana 2 — Integrar con clientes reales</div>
+          <div class="ap-fase-desc">Usa /brief-cliente con un cliente nuevo real. Usa /informe-adm con el export de Metricool de un cliente activo. Envía el informe a Notion. Comprueba que funciona.</div>
+          <div class="ap-fase-accion">→ Objetivo: completar el flujo completo Metricool → Claude Code → Notion una vez</div>
+        </div>
+      </div>
+      <div class="ap-sep"></div>
+
+      <div class="ap-fase">
+        <div class="ap-num">3</div>
+        <div class="ap-contenido">
+          <div class="ap-fase-titulo">Semana 3 — Personalizar y mejorar</div>
+          <div class="ap-fase-desc">Modifica los slash commands según lo que veas que falta. Añade un nuevo bloque al brief del Agente B.A.C. Prueba un skill nuevo (@competitive-analysis con un cliente). Crea un comando nuevo.</div>
+          <div class="ap-fase-accion">→ Objetivo: que el sistema sea tuyo, no una copia de lo que aprendiste</div>
+        </div>
+      </div>
+      <div class="ap-sep"></div>
+
+      <div class="ap-fase">
+        <div class="ap-num">4</div>
+        <div class="ap-contenido">
+          <div class="ap-fase-titulo">Semana 4 — Automatizar lo repetitivo</div>
+          <div class="ap-fase-desc">Identifica qué haces manualmente cada semana que podrías automatizar. Crea un nuevo hook. Añade un skill a tu workflow. Conecta otro MCP server si lo necesitas.</div>
+          <div class="ap-fase-accion">→ Objetivo: tener al menos 3 procesos de la agencia automatizados con Claude Code</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Cómo usar las guías como referencia</h3>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Si necesitas...</th><th>Ve a la guía del...</th></tr></thead>
+        <tbody>
+          <tr><td>Recordar cómo arrancar Claude Code</td><td>Módulo 1</td></tr>
+          <tr><td>Usar un flag como -p o -s</td><td>Módulo 2</td></tr>
+          <tr><td>Actualizar el CLAUDE.md con un cliente nuevo</td><td>Módulo 3</td></tr>
+          <tr><td>Cambiar el modelo o el idioma</td><td>Módulo 4</td></tr>
+          <tr><td>Entender un aviso de permisos</td><td>Módulo 5</td></tr>
+          <tr><td>Crear un slash command nuevo</td><td>Módulo 6</td></tr>
+          <tr><td>Añadir un hook para automatizar algo</td><td>Módulo 7</td></tr>
+          <tr><td>Conectar un servicio nuevo o usar Notion</td><td>Módulo 8</td></tr>
+          <tr><td>Modificar un agente o usar VS Code</td><td>Módulo 9 (este)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Los 3 errores más comunes al principio</h3>
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>Error 1 — Querer usarlo todo de golpe.</strong> Claude Code tiene muchas funciones. No necesitas usar hooks, MCP servers, skills y slash commands el primer día. Empieza con lo básico — abrir, hacer una tarea, cerrar. Lo demás llega solo con la práctica.</div>
+    </div>
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>Error 2 — No guardar con Ctrl+S después de editar en VS Code.</strong> Si editas un archivo en VS Code y no guardas, Claude Code sigue viendo la versión anterior. Siempre Ctrl+S después de cualquier cambio manual.</div>
+    </div>
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>Error 3 — Olvidar reiniciar Claude Code después de cambiar un slash command.</strong> Si modificas brief-cliente.md en VS Code y ejecutas /brief-cliente sin reiniciar, usará la versión antigua. Siempre /exit + claude después de editar commands.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 9: LO QUE PRACTICASTE -->
+  <div class="seccion" id="practicaste">
+    <h2><span class="icon">✅</span> Lo que practicaste en este módulo</h2>
+
+    <div class="practica-card">
+      <div class="p-icon">1️⃣</div>
+      <div><h4>Instalaste la extensión oficial Claude Code for VS Code</h4><p>Instalaste la extensión de Anthropic (7.9M descargas) desde el marketplace de VS Code y confiaste en el publicador verificado.</p></div>
+    </div>
+    <div class="practica-card">
+      <div class="p-icon">2️⃣</div>
+      <div><h4>Abriste VS Code en tu carpeta de prácticas</h4><p>Usaste el comando <code>code</code> desde Claude Code para abrir VS Code directamente en <code>claudecode-practicas</code> con todos los archivos visibles.</p></div>
+    </div>
+    <div class="practica-card">
+      <div class="p-icon">3️⃣</div>
+      <div><h4>Conectaste el terminal con VS Code con /ide</h4><p>Ejecutaste <code>/ide</code> en Claude Code, seleccionaste Visual Studio Code y confirmaste la conexión. Apareció el mensaje "Connected to Visual Studio Code".</p></div>
+    </div>
+    <div class="practica-card">
+      <div class="p-icon">4️⃣</div>
+      <div><h4>Verificaste la integración en tiempo real</h4><p>Pediste a Claude Code que añadiera una línea al CLAUDE.md — "VS Code integrado correctamente - 26/03/2026" — y viste el cambio reflejado en VS Code en la línea 91 del archivo.</p></div>
+    </div>
+  </div>
+
+  <!-- PROGRESO -->
+  <div class="seccion">
+    <h2><span class="icon">🗺️</span> Tu progreso — estado final antes del módulo especial</h2>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Módulo</th><th>Tema</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1</strong></td><td>Instalación completa + primer arranque</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>2</strong></td><td>Comandos y Flags del CLI</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>3</strong></td><td>CLAUDE.md y Memoria del Proyecto</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>4</strong></td><td>Configuración y Settings</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>5</strong></td><td>Permisos y Seguridad</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>6</strong></td><td>Skills y Slash Commands personalizados</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>7</strong></td><td>Hooks — automatización por eventos</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>8</strong></td><td>MCP Servers — Notion, Gmail, Calendar, Canva, GitHub</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>9</strong></td><td>Integración con VS Code</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>🎓</strong></td><td>Arquitecto de Agentes — Multi-agente, Worktrees, Paralelismo</td><td><span class="tag tag-celeste">⏳ Siguiente</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="alerta alerta-verde" style="margin-top:20px">
+      <span class="alerta-icon">🎓</span>
+      <div><strong>Módulo Final — Arquitecto de Agentes:</strong> El módulo donde todo converge. Aprenderás cómo los agentes B.A.C., A.D.M. y A.C.I. pueden trabajar en paralelo, cómo orquestar múltiples subagentes para tareas complejas, cómo usar worktrees para proyectos aislados y los patrones de uso avanzado que convierten Claude Code en el cerebro operativo de MarketingMo.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <h3>Módulo 9 completado ✅ · 9 de 9 módulos dominados · Preparado para el módulo final</h3>
+  <p>VS Code conectado · 20 atajos documentados · Agentes modificables · Método de aprendizaje de 4 semanas</p>
+  <div class="firma">Guía Módulo 9 · 26 de Marzo 2026 · Mónico Nieto · MarketingMo · @marketingMo · nietomonica.com</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Módulo 3 — CLAUDE.md y Memoria del Proyecto · Claude Code</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #e8f4fd;
+    --bg2: #d0e9f8;
+    --card: #ffffff;
+    --celeste: #4db8e8;
+    --celeste-dark: #1a8bbf;
+    --celeste-light: #b8dff5;
+    --verde: #27ae60;
+    --verde-bg: #eafaf1;
+    --verde-border: #a9dfbf;
+    --rojo: #e74c3c;
+    --rojo-bg: #fdf2f2;
+    --rojo-border: #f5c6c0;
+    --naranja: #f39c12;
+    --naranja-bg: #fef9e7;
+    --texto: #1a2a3a;
+    --texto-suave: #4a6a8a;
+    --borde: #c5dff0;
+    --codigo-bg: #1e3a4a;
+    --codigo-texto: #7dd3fc;
+    --sombra: 0 4px 20px rgba(77,184,232,0.15);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--texto);
+    line-height: 1.7;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(77,184,232,0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(39,174,96,0.05) 0%, transparent 50%);
+  }
+  .header {
+    background: linear-gradient(135deg, #1a3a5c 0%, #1a8bbf 50%, #27ae60 100%);
+    color: white;
+    padding: 60px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .header-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 6px 20px;
+    border-radius: 50px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 900; margin-bottom: 12px; }
+  .header h1 span { color: #7dd3fc; }
+  .header p { font-size: 17px; opacity: 0.85; font-weight: 300; max-width: 600px; margin: 0 auto 30px; }
+  .header-meta { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+  .header-meta span { background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-size: 13px; border: 1px solid rgba(255,255,255,0.2); }
+  .header-meta span strong { color: #7dd3fc; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  .resumen-modulo { background: var(--card); border-radius: 16px; padding: 30px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); }
+  .resumen-modulo h2 { font-family: 'Playfair Display', serif; color: var(--celeste-dark); font-size: 22px; margin-bottom: 20px; }
+  .resumen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .resumen-item { background: var(--bg); border: 1px solid var(--borde); border-radius: 10px; padding: 14px; text-align: center; }
+  .resumen-item .r-icon { font-size: 26px; margin-bottom: 6px; }
+  .resumen-item .r-titulo { font-weight: 600; font-size: 13px; color: var(--celeste-dark); }
+  .resumen-item .r-desc { font-size: 12px; color: var(--texto-suave); margin-top: 4px; }
+
+  .indice { background: var(--card); border-radius: 16px; padding: 30px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); }
+  .indice h2 { font-family: 'Playfair Display', serif; color: var(--celeste-dark); font-size: 22px; margin-bottom: 20px; }
+  .indice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .indice a { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg); border-radius: 10px; text-decoration: none; color: var(--texto); font-size: 14px; font-weight: 500; border: 1px solid var(--borde); transition: all 0.2s; }
+  .indice a:hover { background: var(--celeste-light); border-color: var(--celeste); }
+  .num { background: var(--celeste); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+
+  .seccion { background: var(--card); border-radius: 16px; padding: 40px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); position: relative; overflow: hidden; }
+  .seccion::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--celeste), var(--verde)); }
+  .seccion h2 { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--texto); margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+  .seccion h2 .icon { background: linear-gradient(135deg, var(--celeste), var(--celeste-dark)); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .seccion-subtitulo { color: var(--texto-suave); font-size: 15px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--bg2); }
+
+  .codigo { background: var(--codigo-bg); color: var(--codigo-texto); padding: 14px 18px; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 13px; margin: 10px 0; border-left: 3px solid var(--celeste); overflow-x: auto; line-height: 1.9; }
+  .codigo .comentario { color: #64748b; font-style: italic; }
+  .codigo .comando { color: #7dd3fc; }
+  .codigo .valor { color: #86efac; }
+  .codigo .resultado { color: #fbbf24; }
+  .codigo .texto-normal { color: #e2e8f0; }
+  .codigo .seccion-md { color: #c084fc; }
+  .codigo .clave { color: #fb923c; }
+
+  .alerta { padding: 16px 20px; border-radius: 12px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; font-size: 14px; line-height: 1.6; }
+  .alerta-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .alerta-verde { background: var(--verde-bg); border: 1px solid var(--verde-border); color: #1a5c35; }
+  .alerta-verde .alerta-icon { color: var(--verde); }
+  .alerta-rojo { background: var(--rojo-bg); border: 1px solid var(--rojo-border); color: #7b1c14; }
+  .alerta-rojo .alerta-icon { color: var(--rojo); }
+  .alerta-celeste { background: #e8f4fd; border: 1px solid var(--celeste-light); color: #1a4a6a; }
+  .alerta-celeste .alerta-icon { color: var(--celeste-dark); }
+  .alerta-naranja { background: var(--naranja-bg); border: 1px solid #f9d98a; color: #7a4f00; }
+  .alerta-naranja .alerta-icon { color: var(--naranja); }
+  .alerta strong { font-weight: 600; }
+
+  .tabla-wrapper { overflow-x: auto; margin: 16px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { background: linear-gradient(135deg, var(--celeste-dark), var(--celeste)); color: white; padding: 12px 16px; text-align: left; font-weight: 600; }
+  th:first-child { border-radius: 8px 0 0 0; }
+  th:last-child { border-radius: 0 8px 0 0; }
+  td { padding: 12px 16px; border-bottom: 1px solid var(--bg2); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--bg); }
+  tr:last-child td { border-bottom: none; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--celeste-light); color: var(--celeste-dark); padding: 2px 6px; border-radius: 4px; }
+
+  .practica-card { background: var(--verde-bg); border: 1px solid var(--verde-border); border-radius: 12px; padding: 20px; margin: 12px 0; display: flex; gap: 14px; align-items: flex-start; }
+  .practica-card .p-icon { font-size: 24px; flex-shrink: 0; }
+  .practica-card h4 { color: var(--verde); font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .practica-card p { font-size: 13px; color: #2d6a4a; margin: 0; }
+
+  .ubicacion-card { background: var(--bg); border: 1px solid var(--borde); border-radius: 12px; padding: 18px 20px; margin: 10px 0; display: flex; gap: 14px; align-items: flex-start; }
+  .ubicacion-card .u-icon { font-size: 22px; flex-shrink: 0; }
+  .ubicacion-card .u-ruta { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--celeste-dark); font-weight: 600; margin-bottom: 4px; }
+  .ubicacion-card .u-desc { font-size: 13px; color: var(--texto-suave); }
+  .u-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-left: 8px; }
+  .u-tag-verde { background: var(--verde-bg); color: var(--verde); }
+  .u-tag-celeste { background: var(--celeste-light); color: var(--celeste-dark); }
+  .u-tag-naranja { background: var(--naranja-bg); color: var(--naranja); }
+
+  .estructura { background: var(--codigo-bg); border-radius: 12px; padding: 20px 24px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 2; margin: 16px 0; }
+  .e-carpeta { color: #fbbf24; }
+  .e-archivo { color: #86efac; }
+  .e-desc { color: #64748b; }
+  .e-especial { color: #f472b6; }
+
+  .comparativa { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .comp-item { border-radius: 12px; padding: 20px; }
+  .comp-sin { background: var(--rojo-bg); border: 1px solid var(--rojo-border); }
+  .comp-con { background: var(--verde-bg); border: 1px solid var(--verde-border); }
+  .comp-item h4 { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+  .comp-sin h4 { color: var(--rojo); }
+  .comp-con h4 { color: var(--verde); }
+  .comp-item li { font-size: 13px; margin-bottom: 6px; list-style: none; padding-left: 20px; position: relative; }
+  .comp-sin li::before { content: '✗'; position: absolute; left: 0; color: var(--rojo); }
+  .comp-con li::before { content: '✓'; position: absolute; left: 0; color: var(--verde); }
+
+  .seccion-md-preview { background: #0f2030; border-radius: 12px; padding: 24px; margin: 16px 0; border: 1px solid #2a4a6a; }
+  .md-titulo { color: #c084fc; font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .md-subtitulo { color: #7dd3fc; font-family: 'JetBrains Mono', monospace; font-size: 13px; margin: 12px 0 4px; }
+  .md-texto { color: #e2e8f0; font-size: 13px; margin: 2px 0; }
+  .md-negrita { color: #fbbf24; }
+  .md-item { color: #86efac; font-size: 13px; margin: 2px 0; padding-left: 16px; }
+  .md-sep { border: none; border-top: 1px solid #2a4a6a; margin: 12px 0; }
+
+  .cliente-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 16px 0; }
+  .cliente-item { background: var(--bg); border: 1px solid var(--borde); border-radius: 10px; padding: 14px; }
+  .cliente-nombre { font-weight: 600; font-size: 14px; color: var(--texto); margin-bottom: 6px; }
+  .cliente-info { font-size: 12px; color: var(--texto-suave); }
+  .cliente-plan { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-top: 6px; }
+  .plan-basico { background: var(--celeste-light); color: var(--celeste-dark); }
+  .plan-crecimiento { background: var(--verde-bg); color: var(--verde); border: 1px solid var(--verde-border); }
+  .plan-premium { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+
+  .sep { height: 1px; background: linear-gradient(90deg, transparent, var(--celeste), transparent); margin: 24px 0; }
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  .tag-verde { background: var(--verde-bg); color: var(--verde); border: 1px solid var(--verde-border); }
+  .tag-rojo { background: var(--rojo-bg); color: var(--rojo); border: 1px solid var(--rojo-border); }
+  .tag-celeste { background: var(--celeste-light); color: var(--celeste-dark); }
+  .ruta { background: var(--bg); border: 1px solid var(--borde); border-radius: 10px; padding: 12px 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--celeste-dark); margin: 8px 0; }
+  .ruta::before { content: '📁 '; }
+
+  h3 { color: var(--celeste-dark); font-size: 18px; margin: 20px 0 12px; font-weight: 600; }
+  p { margin-bottom: 10px; color: var(--texto); font-size: 15px; }
+  ul, ol { padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 6px; font-size: 14px; color: var(--texto-suave); }
+  li strong { color: var(--texto); }
+
+  .footer { background: linear-gradient(135deg, #1a3a5c, #1a8bbf); color: white; text-align: center; padding: 40px; }
+  .footer h3 { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 10px; }
+  .footer p { opacity: 0.7; font-size: 14px; }
+  .footer .firma { margin-top: 16px; font-size: 12px; opacity: 0.4; font-style: italic; }
+
+  @media (max-width: 600px) {
+    .header h1 { font-size: 30px; }
+    .seccion { padding: 24px 16px; }
+    .comparativa { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">📘 Módulo 3 de 9</div>
+  <h1>CLAUDE.md y <span>Memoria</span> del Proyecto</h1>
+  <p>El sistema que hace que Claude Code recuerde quién eres, tu agencia y tus clientes — para siempre, sin repetirlo en cada sesión.</p>
+  <div class="header-meta">
+    <span>👤 <strong>Elias</strong> · MarketingMo</span>
+    <span>📁 <strong>claudecode-practicas</strong></span>
+    <span>✅ <strong>Módulos 1 y 2</strong> completados</span>
+    <span>⏳ <strong>35 min</strong> este módulo</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- RESUMEN -->
+  <div class="resumen-modulo">
+    <h2>🎯 ¿Qué aprendes en este módulo?</h2>
+    <div class="resumen-grid">
+      <div class="resumen-item">
+        <div class="r-icon">🧠</div>
+        <div class="r-titulo">Qué es CLAUDE.md</div>
+        <div class="r-desc">El archivo de memoria permanente que Claude Code lee al arrancar</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">📍</div>
+        <div class="r-titulo">Dónde se guarda</div>
+        <div class="r-desc">Todas las ubicaciones válidas y su jerarquía de prioridad</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">⌨️</div>
+        <div class="r-titulo">Cómo crearlo</div>
+        <div class="r-desc">Con /init automático o manualmente desde el terminal</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">✏️</div>
+        <div class="r-titulo">Cómo editarlo</div>
+        <div class="r-desc">Desde Claude Code en lenguaje natural o desde VS Code</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">🏢</div>
+        <div class="r-titulo">Tu CLAUDE.md real</div>
+        <div class="r-desc">El tuyo con MarketingMo, 3 agentes y 12 clientes activos</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">📂</div>
+        <div class="r-titulo">Estructura de clientes</div>
+        <div class="r-desc">12 carpetas creadas con sus archivos base en segundos</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÍNDICE -->
+  <div class="indice">
+    <h2>📋 Contenido de este módulo</h2>
+    <div class="indice-grid">
+      <a href="#que-es"><span class="num">1</span> ¿Qué es CLAUDE.md?</a>
+      <a href="#como-funciona"><span class="num">2</span> Cómo lo usa Claude Code</a>
+      <a href="#ubicaciones"><span class="num">3</span> Ubicaciones y jerarquía</a>
+      <a href="#crear"><span class="num">4</span> Cómo crearlo con /init</a>
+      <a href="#estructura"><span class="num">5</span> Estructura y sintaxis</a>
+      <a href="#tu-claude-md"><span class="num">6</span> Tu CLAUDE.md de MarketingMo</a>
+      <a href="#editar"><span class="num">7</span> Cómo editarlo desde el terminal</a>
+      <a href="#clientes"><span class="num">8</span> Estructura de clientes creada</a>
+      <a href="#practicaste"><span class="num">9</span> Lo que practicaste</a>
+      <a href="#no-hacer"><span class="num">10</span> Qué NO hacer</a>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 1: QUÉ ES -->
+  <div class="seccion" id="que-es">
+    <h2><span class="icon">🧠</span> ¿Qué es CLAUDE.md?</h2>
+    <p class="seccion-subtitulo">El concepto más importante para trabajar de forma profesional con Claude Code</p>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>Definición simple:</strong> CLAUDE.md es un archivo de texto en formato Markdown (lenguaje de escritura simple con formato) que Claude Code lee <strong>automáticamente</strong> cada vez que arranca en una carpeta. Es la memoria permanente del proyecto — le dice quién eres, cómo trabajas y qué reglas debe seguir siempre.</div>
+    </div>
+
+    <div class="comparativa">
+      <div class="comp-item comp-sin">
+        <h4>❌ Sin CLAUDE.md</h4>
+        <ul>
+          <li>Claude Code empieza desde cero cada vez</li>
+          <li>No sabe que eres de MarketingMo</li>
+          <li>No conoce a tus clientes</li>
+          <li>No sabe qué agentes tienes</li>
+          <li>Tienes que explicarlo todo siempre</li>
+          <li>Respuestas genéricas sin contexto</li>
+        </ul>
+      </div>
+      <div class="comp-item comp-con">
+        <h4>✅ Con CLAUDE.md</h4>
+        <ul>
+          <li>Arranca con contexto completo</li>
+          <li>Sabe que eres MarketingMo</li>
+          <li>Conoce tus 12 clientes activos</li>
+          <li>Sabe qué son B.A.C., A.D.M. y A.C.I.</li>
+          <li>Nunca tienes que repetir nada</li>
+          <li>Respuestas personalizadas desde el minuto 1</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">🎯</span>
+      <div><strong>La analogía perfecta:</strong> Es el manual de instrucciones que le das a un empleado nuevo el primer día. No tienes que explicarle las mismas cosas cada vez que llega — ya las sabe porque las tiene escritas. El empleado nuevo es Claude Code. El manual eres tú escribiéndolo.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 2: CÓMO FUNCIONA -->
+  <div class="seccion" id="como-funciona">
+    <h2><span class="icon">⚙️</span> Cómo lo usa Claude Code</h2>
+    <p class="seccion-subtitulo">El proceso exacto desde que escribes "claude" hasta que empieza a trabajar</p>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Paso</th><th>Qué hace Claude Code</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1. Arranca</strong></td><td>Ejecutas <code>claude</code> en PowerShell</td></tr>
+          <tr><td><strong>2. Detecta carpeta</strong></td><td>Identifica en qué carpeta estás — en tu caso <code>claudecode-practicas</code></td></tr>
+          <tr><td><strong>3. Busca CLAUDE.md</strong></td><td>Recorre la carpeta y las carpetas superiores buscando archivos CLAUDE.md</td></tr>
+          <tr><td><strong>4. Lee todos los que encuentra</strong></td><td>Los carga todos en su contexto — de más específico a más general</td></tr>
+          <tr><td><strong>5. Arranca con ese contexto</strong></td><td>Ya sabe todo lo que pusiste en CLAUDE.md antes de que escribas nada</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">🔍</span>
+      <div><strong>¿Cómo verificarlo?</strong> En este módulo lo comprobaste tú mismo. Cerraste Claude Code y lo reabriste. Sin decirle nada, le preguntaste "¿qué clientes tengo activos?" y él te presentó los 12 clientes en una tabla perfecta. Eso es la memoria en acción.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 3: UBICACIONES -->
+  <div class="seccion" id="ubicaciones">
+    <h2><span class="icon">📍</span> Ubicaciones válidas y jerarquía</h2>
+    <p class="seccion-subtitulo">Dónde puedes poner el CLAUDE.md y qué prioridad tiene cada uno</p>
+
+    <div class="ubicacion-card">
+      <div class="u-icon">🌍</div>
+      <div>
+        <div class="u-ruta">~/.claude/CLAUDE.md <span class="u-tag u-tag-naranja">Global personal</span></div>
+        <div class="u-desc">Se aplica a TODOS tus proyectos en cualquier carpeta. Aquí pones información sobre ti que siempre aplica: tu nombre, idioma preferido, estilo de trabajo.</div>
+      </div>
+    </div>
+
+    <div class="ubicacion-card">
+      <div class="u-icon">📁</div>
+      <div>
+        <div class="u-ruta">C:\Users\elias\claudecode-practicas\CLAUDE.md <span class="u-tag u-tag-verde">Tu proyecto actual ✓</span></div>
+        <div class="u-desc">El que creaste hoy. Se aplica solo cuando Claude Code está dentro de esta carpeta. Es el más común y el que usarás para cada proyecto.</div>
+      </div>
+    </div>
+
+    <div class="ubicacion-card">
+      <div class="u-icon">📂</div>
+      <div>
+        <div class="u-ruta">C:\Users\elias\claudecode-practicas\clientes\CLAUDE.md <span class="u-tag u-tag-celeste">Subcarpeta</span></div>
+        <div class="u-desc">Se carga automáticamente cuando Claude Code lee archivos dentro de esa subcarpeta. Útil para instrucciones específicas de una sección del proyecto.</div>
+      </div>
+    </div>
+
+    <div class="ubicacion-card">
+      <div class="u-icon">🔒</div>
+      <div>
+        <div class="u-ruta">C:\Users\elias\claudecode-practicas\CLAUDE.local.md <span class="u-tag u-tag-celeste">Personal privado</span></div>
+        <div class="u-desc">Versión privada del CLAUDE.md del proyecto. No se sube a Git (se ignora automáticamente). Para notas personales que no quieres compartir con el equipo.</div>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+    <h3>Prioridad — ¿cuál gana si hay conflicto?</h3>
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">⚖️</span>
+      <div><strong>Más específico gana.</strong> CLAUDE.md de subcarpeta > CLAUDE.md de proyecto > CLAUDE.md global. Pero no se cancelan entre sí — se <strong>combinan</strong>. Claude Code los carga todos y los aplica juntos.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 4: CREAR CON /INIT -->
+  <div class="seccion" id="crear">
+    <h2><span class="icon">✨</span> Cómo crearlo con /init</h2>
+    <p class="seccion-subtitulo">El método automático que usaste en este módulo</p>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>¿Qué hace /init?</strong> Claude Code analiza el contenido de tu carpeta — archivos, subcarpetas, tipos de archivo — y genera automáticamente un CLAUDE.md con lo que encontró. Es el punto de partida. Luego tú lo personalizas.</div>
+    </div>
+
+    <div class="codigo">
+<span class="comentario"># Paso 1: Entrar en la carpeta del proyecto</span>
+<span class="comando">cd C:\Users\elias\claudecode-practicas</span>
+<span class="comando">claude</span>
+
+<span class="comentario"># Paso 2: Dentro de Claude Code, ejecutar /init</span>
+<span class="valor">/init</span>
+
+<span class="comentario"># Resultado: Claude Code analiza la carpeta y te propone un CLAUDE.md</span>
+<span class="resultado">Create file: CLAUDE.md</span>
+<span class="resultado">→ Detectó: prueba.txt, carpeta clientes/, ideas-pasteleria.md</span>
+<span class="resultado">→ Generó descripción automática del workspace</span>
+
+<span class="comentario"># Paso 3: Confirmar creación</span>
+<span class="texto-normal">Seleccionar opción 2 → "Yes, allow all edits during this session"</span>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>El /init es solo el punto de partida.</strong> Lo que genera automáticamente es básico y en inglés. Siempre debes personalizarlo después con tu información real: agencia, clientes, agentes, reglas de trabajo. Eso fue lo que hiciste tú en este módulo.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 5: ESTRUCTURA Y SINTAXIS -->
+  <div class="seccion" id="estructura">
+    <h2><span class="icon">📝</span> Estructura y sintaxis del CLAUDE.md</h2>
+    <p class="seccion-subtitulo">Cómo está escrito y qué significa cada símbolo</p>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">📄</span>
+      <div><strong>¿Qué es Markdown?</strong> Markdown (MD) es un lenguaje de escritura simple que usa símbolos para dar formato al texto. No necesitas saber programación — son convenciones simples que cualquier persona puede aprender en 5 minutos.</div>
+    </div>
+
+    <div class="seccion-md-preview">
+      <div class="md-titulo"># Título principal (un solo #)</div>
+      <div class="md-subtitulo">## Sección (dos ##)</div>
+      <div class="md-subtitulo">### Subsección (tres ###)</div>
+      <div class="md-texto"><span class="md-negrita">**Texto en negrita** — rodea con doble asterisco</span></div>
+      <div class="md-texto">- Item de lista — guión al inicio</div>
+      <div class="md-item">- Así se ve un item de lista en el archivo</div>
+      <div class="md-item">- Otro item de la lista</div>
+      <div class="md-texto" style="margin-top:8px">`código inline` — rodea con comillas invertidas</div>
+      <div class="md-texto">--- (tres guiones = separador horizontal)</div>
+    </div>
+
+    <h3>Qué incluir en tu CLAUDE.md — guía por secciones</h3>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Sección</th><th>Qué poner</th><th>Ejemplo</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Agencia</strong></td><td>Nombre, web, sistema de trabajo, responsable, idioma</td><td>MarketingMo · B.A.C. · Español siempre</td></tr>
+          <tr><td><strong>Planes</strong></td><td>Nombres y precios de los planes de servicio</td><td>Básico 450€, Crecimiento 950€, Premium 1.500€</td></tr>
+          <tr><td><strong>Agentes</strong></td><td>Nombre, rol, funciones y archivos que genera cada agente</td><td>B.A.C., A.D.M., A.C.I.</td></tr>
+          <tr><td><strong>Clientes</strong></td><td>Nombre, sector y plan de cada cliente activo</td><td>12 clientes con sus datos</td></tr>
+          <tr><td><strong>Estructura</strong></td><td>Cómo están organizadas las carpetas y archivos</td><td>clientes/[nombre]/brief.md...</td></tr>
+          <tr><td><strong>Instrucciones</strong></td><td>Reglas permanentes que Claude Code debe seguir siempre</td><td>Responder en español, no mezclar clientes...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Qué NO incluir</h3>
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>Nunca pongas en el CLAUDE.md:</strong> contraseñas, API keys, tokens de acceso, datos bancarios, números de tarjeta ni información confidencial de clientes. El CLAUDE.md se carga en el contexto de Claude Code y se envía a los servidores de Anthropic con cada mensaje.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 6: TU CLAUDE.MD -->
+  <div class="seccion" id="tu-claude-md">
+    <h2><span class="icon">🏢</span> Tu CLAUDE.md de MarketingMo</h2>
+    <p class="seccion-subtitulo">El archivo completo que tienes ahora en tu ordenador</p>
+
+    <div class="ruta">C:\Users\elias\claudecode-practicas\CLAUDE.md</div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>Estado actual:</strong> Tu CLAUDE.md tiene 89 líneas con la información completa de MarketingMo — 3 agentes, 12 clientes, planes de servicio, estructura de carpetas e instrucciones permanentes. Claude Code lo lee cada vez que arrancas en esta carpeta.</div>
+    </div>
+
+    <div class="sep"></div>
+    <h3>Tus 3 Agentes documentados</h3>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Agente</th><th>Nombre completo</th><th>Rol principal</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>B.A.C.</strong></td>
+            <td>Briefing · Acción · Contenido</td>
+            <td>Producción de contenido y estrategia de marketing. Genera briefs, calendarios y copies.</td>
+          </tr>
+          <tr>
+            <td><strong>A.D.M.</strong></td>
+            <td>Auditoría de Métricas</td>
+            <td>Análisis de métricas de Metricool. Genera informes mensuales con benchmarks por plan.</td>
+          </tr>
+          <tr>
+            <td><strong>A.C.I.</strong></td>
+            <td>Auditoría de Cliente Inicial</td>
+            <td>Auditoría digital pre-venta y onboarding. Genera Brief de Traspaso en 9 secciones.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sep"></div>
+    <h3>Tus 12 Clientes activos</h3>
+
+    <div class="cliente-grid">
+      <div class="cliente-item">
+        <div class="cliente-nombre">💅 Eli Nails Terapy Resin Ibi</div>
+        <div class="cliente-info">Nail art y terapia de resina</div>
+        <span class="cliente-plan plan-crecimiento">Crecimiento · 950€/mes</span>
+      </div>
+      <div class="cliente-item">
+        <div class="cliente-nombre">✂️ Diva Estudio Aranjuez</div>
+        <div class="cliente-info">Salón de peluquería</div>
+        <span class="cliente-plan plan-crecimiento">Crecimiento · 950€/mes</span>
+      </div>
+      <div class="cliente-item">
+        <div class="cliente-nombre">🍰 Pastelería Rico Ibi</div>
+        <div class="cliente-info">Pastelería artesanal</div>
+        <span class="cliente-plan plan-basico">Básico · 450€/mes</span>
+      </div>
+      <div class="cliente-item">
+        <div class="cliente-nombre">🛒 La Despensa de Andrés</div>
+        <div class="cliente-info">Tienda de alimentación</div>
+        <span class="cliente-plan plan-crecimiento">Crecimiento · 950€/mes</span>
+      </div>
+      <div class="cliente-item">
+        <div class="cliente-nombre">🏠 Inmobiliaria Galota</div>
+        <div class="cliente-info">Servicios inmobiliarios</div>
+        <span class="cliente-plan plan-crecimiento">Crecimiento · 950€/mes</span>
+      </div>
+      <div class="cliente-item">
+        <div class="cliente-nombre">🔨 Reformas Galota</div>
+        <div class="cliente-info">Empresa de reformas</div>
+        <span class="cliente-plan plan-basico">Básico · 450€/mes</span>
+      </div>
+      <div class="cliente-item">
+        <div class="cliente-nombre">🪵 Carpintería Galota</div>
+        <div class="cliente-info">Taller de carpintería</div>
+        <span class="cliente-plan plan-basico">Básico · 450€/mes</span>
+      </div>
+      <div class="cliente-item">
+        <div class="cliente-nombre">❤️ CUIDAMA</div>
+        <div class="cliente-info">Cuidado de mayores y dependientes</div>
+        <span class="cliente-plan plan-crecimiento">Crecimiento · 950€/mes</span>
+      </div>
+      <div class="cliente-item">
+        <div class="cliente-nombre">👤 Marca Personal Isabel Blasco</div>
+        <div class="cliente-info">Branding personal</div>
+        <span class="cliente-plan plan-basico">Básico · 450€/mes</span>
+      </div>
+      <div class="cliente-item">
+        <div class="cliente-nombre">🐎 Nobleza</div>
+        <div class="cliente-info">Venta de artículos de equinos</div>
+        <span class="cliente-plan plan-basico">Básico · 450€/mes</span>
+      </div>
+      <div class="cliente-item">
+        <div class="cliente-nombre">🏪 La Tiendologia</div>
+        <div class="cliente-info">Marca personal</div>
+        <span class="cliente-plan plan-basico">Básico · 450€/mes</span>
+      </div>
+      <div class="cliente-item">
+        <div class="cliente-nombre">🏛️ Mercado Central de Ibi</div>
+        <div class="cliente-info">Mercado municipal</div>
+        <span class="cliente-plan plan-crecimiento">Crecimiento · 950€/mes</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 7: EDITAR -->
+  <div class="seccion" id="editar">
+    <h2><span class="icon">✏️</span> Cómo editar el CLAUDE.md desde el terminal</h2>
+    <p class="seccion-subtitulo">Tres formas de modificarlo — de más fácil a más técnica</p>
+
+    <h3>Método 1 — Lenguaje natural (el que usaste) ⭐ Recomendado</h3>
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>El más fácil.</strong> Le dices a Claude Code qué quieres cambiar y él edita el archivo solo. No necesitas saber dónde está ni cómo está escrito.</div>
+    </div>
+    <div class="codigo">
+<span class="comentario"># Añadir información:</span>
+<span class="texto-normal">Añade en el CLAUDE.md que el cliente Pastelería Rico Ibi tiene Instagram: @pasteleriarico</span>
+
+<span class="comentario"># Actualizar un dato:</span>
+<span class="texto-normal">Actualiza en el CLAUDE.md el plan de Nobleza a Plan Crecimiento</span>
+
+<span class="comentario"># Añadir un cliente nuevo:</span>
+<span class="texto-normal">Añade en el CLAUDE.md un nuevo cliente: Clínica Dental Pérez, sector salud dental, Plan Crecimiento</span>
+
+<span class="comentario"># Añadir una instrucción:</span>
+<span class="texto-normal">Añade en las instrucciones permanentes del CLAUDE.md: los informes siempre deben tener fecha en el nombre del archivo</span>
+    </div>
+
+    <div class="sep"></div>
+    <h3>Método 2 — Comando /memory</h3>
+    <div class="codigo">
+<span class="comentario"># Dentro de Claude Code:</span>
+<span class="valor">/memory</span>
+<span class="comentario"># Abre el CLAUDE.md directamente para editar</span>
+    </div>
+
+    <div class="sep"></div>
+    <h3>Método 3 — Abrir con VS Code desde el terminal</h3>
+    <div class="codigo">
+<span class="comentario"># Abrir el archivo en el explorador de Windows:</span>
+<span class="comando">! start C:\Users\elias\claudecode-practicas\CLAUDE.md</span>
+
+<span class="comentario"># O navegar manualmente:</span>
+<span class="texto-normal">Windows + E → claudecode-practicas → CLAUDE.md → clic derecho → Abrir con VS Code</span>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 8: ESTRUCTURA CLIENTES -->
+  <div class="seccion" id="clientes">
+    <h2><span class="icon">📂</span> Estructura de clientes creada</h2>
+    <p class="seccion-subtitulo">Lo que tienes ahora en tu carpeta de prácticas</p>
+
+    <div class="estructura">
+<span class="e-especial">claudecode-practicas/</span>
+├── <span class="e-archivo">CLAUDE.md</span>                    <span class="e-desc">← Memoria completa de MarketingMo</span>
+├── <span class="e-archivo">prueba.txt</span>                   <span class="e-desc">← Primer archivo de práctica</span>
+└── <span class="e-carpeta">clientes/</span>
+    ├── <span class="e-archivo">ideas-pasteleria.md</span>      <span class="e-desc">← Creado en Módulo 2</span>
+    ├── <span class="e-carpeta">eli-nails/</span>
+    │   ├── <span class="e-archivo">brief.md</span>
+    │   ├── <span class="e-archivo">auditoria-inicial.md</span>
+    │   └── <span class="e-archivo">informe-adm.md</span>
+    ├── <span class="e-carpeta">diva-estudio/</span>
+    │   ├── <span class="e-archivo">brief.md</span>
+    │   ├── <span class="e-archivo">auditoria-inicial.md</span>
+    │   └── <span class="e-archivo">informe-adm.md</span>
+    ├── <span class="e-carpeta">pasteleria-rico/</span>
+    ├── <span class="e-carpeta">la-despensa-andres/</span>
+    ├── <span class="e-carpeta">inmobiliaria-galota/</span>
+    ├── <span class="e-carpeta">reformas-galota/</span>
+    ├── <span class="e-carpeta">carpinteria-galota/</span>
+    ├── <span class="e-carpeta">cuidama/</span>
+    ├── <span class="e-carpeta">isabel-blasco/</span>
+    ├── <span class="e-carpeta">nobleza/</span>
+    ├── <span class="e-carpeta">la-tiendologia/</span>
+    └── <span class="e-carpeta">mercado-central-ibi/</span>
+        <span class="e-desc">  (cada carpeta tiene brief.md, auditoria-inicial.md e informe-adm.md)</span>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">🚀</span>
+      <div><strong>Lo que esto significa en tiempo real:</strong> Manualmente crear 12 carpetas con 3 archivos cada una (36 archivos en total) te habría costado entre 15 y 20 minutos. Claude Code lo hizo en <strong>menos de 10 segundos</strong> con una sola instrucción en lenguaje natural.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 9: LO QUE PRACTICASTE -->
+  <div class="seccion" id="practicaste">
+    <h2><span class="icon">✅</span> Lo que practicaste en este módulo</h2>
+    <p class="seccion-subtitulo">Resumen de todo lo que hiciste en tiempo real</p>
+
+    <div class="practica-card">
+      <div class="p-icon">1️⃣</div>
+      <div>
+        <h4>Creaste el CLAUDE.md con /init</h4>
+        <p>Claude Code analizó tu carpeta automáticamente y generó un archivo base en inglés con lo que encontró — prueba.txt, carpeta clientes/ e ideas-pasteleria.md.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">2️⃣</div>
+      <div>
+        <h4>Personalizaste el CLAUDE.md completo</h4>
+        <p>Reemplazaste el contenido genérico con la información real de MarketingMo: agencia, planes, 3 agentes con sus funciones, 12 clientes, estructura de carpetas e instrucciones permanentes.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">3️⃣</div>
+      <div>
+        <h4>Creaste 12 carpetas de clientes en segundos</h4>
+        <p>Con una sola instrucción en lenguaje natural, Claude Code creó una carpeta por cliente con 3 archivos base cada una: brief.md, auditoria-inicial.md e informe-adm.md. Total: 36 archivos.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">4️⃣</div>
+      <div>
+        <h4>Verificaste que la memoria funciona</h4>
+        <p>Cerraste Claude Code, lo reabriste y le preguntaste "¿qué clientes tengo activos?". Sin explicarle nada, respondió con una tabla perfecta de 12 clientes — porque leyó el CLAUDE.md automáticamente.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">5️⃣</div>
+      <div>
+        <h4>Editaste el CLAUDE.md desde el terminal</h4>
+        <p>Actualizaste los planes de servicio de los 8 clientes nuevos directamente desde el prompt en lenguaje natural. Sin abrir ningún editor externo.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 10: NO HACER -->
+  <div class="seccion" id="no-hacer">
+    <h2><span class="icon">🚫</span> Qué NO hacer con el CLAUDE.md</h2>
+    <p class="seccion-subtitulo">Errores que debes evitar para proteger tu trabajo y tu privacidad</p>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA guardes credenciales en el CLAUDE.md.</strong> Contraseñas, API keys (llaves de acceso a servicios), tokens (códigos de autenticación), datos de tarjetas ni accesos a cuentas de clientes. El CLAUDE.md se envía a los servidores de Anthropic con cada petición.</div>
+    </div>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA pongas información confidencial de clientes sin su permiso.</strong> Datos personales, contratos, precios acordados o estrategias privadas no deben estar en el CLAUDE.md. Usa referencias genéricas en su lugar.</div>
+    </div>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA hagas el CLAUDE.md demasiado largo.</strong> Si supera las 200 líneas empieza a perder efectividad — Claude Code tiene un límite de contexto (cantidad de información que puede procesar a la vez). Sé conciso y directo. Cada línea debe aportar valor.</div>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Cuidado con instrucciones contradictorias.</strong> Si tienes CLAUDE.md en la carpeta raíz y otro en una subcarpeta con instrucciones opuestas, puede confundir a Claude Code. Mantén coherencia entre todos los niveles.</div>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Actualiza el CLAUDE.md cuando cambien tus clientes.</strong> Si pierdes un cliente, cambia su plan o añades uno nuevo, actualiza el CLAUDE.md inmediatamente. La información desactualizada genera respuestas incorrectas.</div>
+    </div>
+  </div>
+
+  <!-- PROGRESO -->
+  <div class="seccion">
+    <h2><span class="icon">🗺️</span> Tu progreso en el plan de 9 módulos</h2>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Módulo</th><th>Tema</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1</strong></td><td>Instalación completa + primer arranque</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>2</strong></td><td>Comandos y Flags del CLI</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>3</strong></td><td>CLAUDE.md y Memoria del Proyecto</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>4</strong></td><td>Configuración y Settings (settings.json)</td><td><span class="tag tag-celeste">⏳ Siguiente</span></td></tr>
+          <tr><td><strong>5</strong></td><td>Permisos y Seguridad</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+          <tr><td><strong>6</strong></td><td>Skills y Slash Commands personalizados</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+          <tr><td><strong>7</strong></td><td>Hooks — automatización por eventos</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+          <tr><td><strong>8</strong></td><td>MCP Servers — integraciones externas</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+          <tr><td><strong>9</strong></td><td>Integración con VS Code y JetBrains</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-celeste" style="margin-top:20px">
+      <span class="alerta-icon">➡️</span>
+      <div><strong>Módulo 4 — Configuración y Settings:</strong> Aprenderás a controlar el comportamiento global de Claude Code desde el archivo settings.json — el modelo por defecto, los permisos base, las variables de entorno y cómo configurar todo para que funcione exactamente como tú quieres sin tener que configurarlo en cada sesión.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <h3>Módulo 3 completado ✅</h3>
+  <p>CLAUDE.md creado · 3 agentes documentados · 12 clientes activos · 36 archivos generados · Memoria verificada</p>
+  <div class="firma">Guía Módulo 3 · 24 de Marzo 2026 · Elias · MarketingMo · nietomonica.com</div>
+</div>
+
+</body>
+</html>

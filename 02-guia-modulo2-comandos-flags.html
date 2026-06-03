@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Módulo 2 — Comandos y Flags del CLI · Claude Code</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #e8f4fd;
+    --bg2: #d0e9f8;
+    --card: #ffffff;
+    --celeste: #4db8e8;
+    --celeste-dark: #1a8bbf;
+    --celeste-light: #b8dff5;
+    --verde: #27ae60;
+    --verde-bg: #eafaf1;
+    --verde-border: #a9dfbf;
+    --rojo: #e74c3c;
+    --rojo-bg: #fdf2f2;
+    --rojo-border: #f5c6c0;
+    --naranja: #f39c12;
+    --naranja-bg: #fef9e7;
+    --texto: #1a2a3a;
+    --texto-suave: #4a6a8a;
+    --borde: #c5dff0;
+    --codigo-bg: #1e3a4a;
+    --codigo-texto: #7dd3fc;
+    --sombra: 0 4px 20px rgba(77,184,232,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--texto);
+    line-height: 1.7;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(77,184,232,0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(39,174,96,0.05) 0%, transparent 50%);
+  }
+
+  .header {
+    background: linear-gradient(135deg, #1a3a5c 0%, #1a8bbf 50%, #27ae60 100%);
+    color: white;
+    padding: 60px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .header-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 6px 20px;
+    border-radius: 50px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 900;
+    margin-bottom: 12px;
+  }
+  .header h1 span { color: #7dd3fc; }
+  .header p {
+    font-size: 17px;
+    opacity: 0.85;
+    font-weight: 300;
+    max-width: 600px;
+    margin: 0 auto 30px;
+  }
+  .header-meta {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .header-meta span {
+    background: rgba(255,255,255,0.1);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .header-meta span strong { color: #7dd3fc; }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  /* RESUMEN VISUAL DEL MÓDULO */
+  .resumen-modulo {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: var(--sombra);
+    border: 1px solid var(--borde);
+  }
+  .resumen-modulo h2 {
+    font-family: 'Playfair Display', serif;
+    color: var(--celeste-dark);
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+  .resumen-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  .resumen-item {
+    background: var(--bg);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+  .resumen-item .r-icon { font-size: 26px; margin-bottom: 6px; }
+  .resumen-item .r-titulo { font-weight: 600; font-size: 13px; color: var(--celeste-dark); }
+  .resumen-item .r-desc { font-size: 12px; color: var(--texto-suave); margin-top: 4px; }
+
+  /* ÍNDICE */
+  .indice {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: var(--sombra);
+    border: 1px solid var(--borde);
+  }
+  .indice h2 {
+    font-family: 'Playfair Display', serif;
+    color: var(--celeste-dark);
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+  .indice-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+  }
+  .indice a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--bg);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--texto);
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid var(--borde);
+    transition: all 0.2s;
+  }
+  .indice a:hover { background: var(--celeste-light); border-color: var(--celeste); }
+  .num {
+    background: var(--celeste);
+    color: white;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* SECCIONES */
+  .seccion {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 40px;
+    margin-bottom: 30px;
+    box-shadow: var(--sombra);
+    border: 1px solid var(--borde);
+    position: relative;
+    overflow: hidden;
+  }
+  .seccion::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--celeste), var(--verde));
+  }
+  .seccion h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    color: var(--texto);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .seccion h2 .icon {
+    background: linear-gradient(135deg, var(--celeste), var(--celeste-dark));
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .seccion-subtitulo {
+    color: var(--texto-suave);
+    font-size: 15px;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--bg2);
+  }
+
+  /* FLAG CARD */
+  .flag-card {
+    background: var(--bg);
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .flag-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, var(--celeste), var(--verde));
+    border-radius: 4px 0 0 4px;
+  }
+  .flag-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .flag-nombre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--celeste-dark);
+    background: var(--celeste-light);
+    padding: 4px 12px;
+    border-radius: 6px;
+  }
+  .flag-alias {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--texto-suave);
+    background: var(--bg2);
+    padding: 3px 10px;
+    border-radius: 5px;
+  }
+  .flag-desc {
+    font-size: 15px;
+    color: var(--texto);
+    margin-bottom: 14px;
+    line-height: 1.6;
+  }
+  .flag-cuando {
+    font-size: 13px;
+    color: var(--texto-suave);
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    background: white;
+    border-radius: 8px;
+    border-left: 3px solid var(--celeste);
+  }
+  .flag-cuando strong { color: var(--celeste-dark); }
+
+  /* CÓDIGO */
+  .codigo {
+    background: var(--codigo-bg);
+    color: var(--codigo-texto);
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    margin: 10px 0;
+    border-left: 3px solid var(--celeste);
+    overflow-x: auto;
+    line-height: 1.8;
+  }
+  .codigo .comentario { color: #64748b; font-style: italic; }
+  .codigo .comando { color: #7dd3fc; }
+  .codigo .valor { color: #86efac; }
+  .codigo .resultado { color: #fbbf24; }
+  .codigo .texto-normal { color: #e2e8f0; }
+
+  /* ALERTAS */
+  .alerta {
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin: 16px 0;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .alerta-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .alerta-verde { background: var(--verde-bg); border: 1px solid var(--verde-border); color: #1a5c35; }
+  .alerta-verde .alerta-icon { color: var(--verde); }
+  .alerta-rojo { background: var(--rojo-bg); border: 1px solid var(--rojo-border); color: #7b1c14; }
+  .alerta-rojo .alerta-icon { color: var(--rojo); }
+  .alerta-celeste { background: #e8f4fd; border: 1px solid var(--celeste-light); color: #1a4a6a; }
+  .alerta-celeste .alerta-icon { color: var(--celeste-dark); }
+  .alerta-naranja { background: var(--naranja-bg); border: 1px solid #f9d98a; color: #7a4f00; }
+  .alerta-naranja .alerta-icon { color: var(--naranja); }
+  .alerta strong { font-weight: 600; }
+
+  /* TABLA */
+  .tabla-wrapper { overflow-x: auto; margin: 16px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th {
+    background: linear-gradient(135deg, var(--celeste-dark), var(--celeste));
+    color: white;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+  }
+  th:first-child { border-radius: 8px 0 0 0; }
+  th:last-child { border-radius: 0 8px 0 0; }
+  td { padding: 12px 16px; border-bottom: 1px solid var(--bg2); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--bg); }
+  tr:last-child td { border-bottom: none; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--celeste-light); color: var(--celeste-dark); padding: 2px 6px; border-radius: 4px; }
+
+  /* LO QUE PRACTICASTE */
+  .practica-card {
+    background: var(--verde-bg);
+    border: 1px solid var(--verde-border);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 12px 0;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .practica-card .p-icon { font-size: 24px; flex-shrink: 0; }
+  .practica-card h4 { color: var(--verde); font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .practica-card p { font-size: 13px; color: #2d6a4a; margin: 0; }
+
+  /* COMPARATIVA */
+  .comparativa {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .comp-item {
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .comp-sin { background: var(--rojo-bg); border: 1px solid var(--rojo-border); }
+  .comp-con { background: var(--verde-bg); border: 1px solid var(--verde-border); }
+  .comp-item h4 { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+  .comp-sin h4 { color: var(--rojo); }
+  .comp-con h4 { color: var(--verde); }
+  .comp-item li { font-size: 13px; margin-bottom: 6px; list-style: none; padding-left: 20px; position: relative; }
+  .comp-sin li::before { content: '✗'; position: absolute; left: 0; color: var(--rojo); }
+  .comp-con li::before { content: '✓'; position: absolute; left: 0; color: var(--verde); }
+
+  /* FLUJO DIARIO */
+  .flujo { display: flex; flex-direction: column; gap: 10px; }
+  .flujo-paso {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    padding: 14px 18px;
+    background: #e8f4fd;
+    border: 1px solid var(--celeste-light);
+    border-radius: 10px;
+  }
+  .flujo-paso .f-num {
+    background: var(--celeste);
+    color: white;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .flujo-paso .f-texto { font-size: 14px; color: var(--texto); }
+  .flujo-paso .f-codigo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--celeste-dark);
+    background: white;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+  }
+  .flujo-flecha { text-align: center; color: var(--celeste); font-size: 18px; padding-left: 16px; }
+
+  /* ATAJOS */
+  .atajos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .atajo-item {
+    background: var(--bg);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .atajo-tecla {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    background: var(--celeste-dark);
+    padding: 4px 10px;
+    border-radius: 5px;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+  .atajo-desc { font-size: 13px; color: var(--texto-suave); }
+
+  /* SEPARADOR */
+  .sep { height: 1px; background: linear-gradient(90deg, transparent, var(--celeste), transparent); margin: 24px 0; }
+
+  /* TAG */
+  .tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .tag-verde { background: var(--verde-bg); color: var(--verde); border: 1px solid var(--verde-border); }
+  .tag-rojo { background: var(--rojo-bg); color: var(--rojo); border: 1px solid var(--rojo-border); }
+  .tag-celeste { background: var(--celeste-light); color: var(--celeste-dark); }
+  .tag-naranja { background: var(--naranja-bg); color: var(--naranja); border: 1px solid #f9d98a; }
+
+  /* RUTA */
+  .ruta {
+    background: var(--bg);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--celeste-dark);
+    margin: 8px 0;
+  }
+  .ruta::before { content: '📁 '; }
+
+  h3 { color: var(--celeste-dark); font-size: 18px; margin: 20px 0 12px; font-weight: 600; }
+  p { margin-bottom: 10px; color: var(--texto); font-size: 15px; }
+  ul, ol { padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 6px; font-size: 14px; color: var(--texto-suave); }
+  li strong { color: var(--texto); }
+
+  /* FOOTER */
+  .footer {
+    background: linear-gradient(135deg, #1a3a5c, #1a8bbf);
+    color: white;
+    text-align: center;
+    padding: 40px;
+  }
+  .footer h3 { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 10px; }
+  .footer p { opacity: 0.7; font-size: 14px; }
+  .footer .firma { margin-top: 16px; font-size: 12px; opacity: 0.4; font-style: italic; }
+
+  @media (max-width: 600px) {
+    .header h1 { font-size: 30px; }
+    .seccion { padding: 24px 16px; }
+    .comparativa { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-badge">📘 Módulo 2 de 9</div>
+  <h1>Comandos y <span>Flags</span> del CLI</h1>
+  <p>Aprende a controlar Claude Code desde la terminal con flags, comandos y atajos. Con ejemplos reales de MarketingMo.</p>
+  <div class="header-meta">
+    <span>👤 <strong>Elias</strong> · MarketingMo</span>
+    <span>📁 <strong>claudecode-practicas</strong></span>
+    <span>✅ <strong>Módulo 1</strong> completado</span>
+    <span>⏳ <strong>45 min</strong> este módulo</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- RESUMEN VISUAL -->
+  <div class="resumen-modulo">
+    <h2>🎯 ¿Qué aprendes en este módulo?</h2>
+    <div class="resumen-grid">
+      <div class="resumen-item">
+        <div class="r-icon">⚑</div>
+        <div class="r-titulo">Qué es un Flag</div>
+        <div class="r-desc">Instrucciones que modifican cómo se comporta Claude Code</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">⚡</div>
+        <div class="r-titulo">Flag -p (--print)</div>
+        <div class="r-desc">Ejecutar tareas sin abrir el chat interactivo</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">🧠</div>
+        <div class="r-titulo">Flag -s (--system-prompt)</div>
+        <div class="r-desc">Darle un rol específico a Claude antes de trabajar</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">🔄</div>
+        <div class="r-titulo">Flag -c (--continue)</div>
+        <div class="r-desc">Continuar la última conversación donde la dejaste</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">📄</div>
+        <div class="r-titulo">Crear archivos reales</div>
+        <div class="r-desc">Claude Code crea carpetas y archivos en tu ordenador</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">⌨️</div>
+        <div class="r-titulo">Atajos de teclado</div>
+        <div class="r-desc">Los más útiles para trabajar más rápido</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÍNDICE -->
+  <div class="indice">
+    <h2>📋 Contenido de este módulo</h2>
+    <div class="indice-grid">
+      <a href="#que-es-flag"><span class="num">1</span> ¿Qué es un Flag?</a>
+      <a href="#flag-p"><span class="num">2</span> Flag -p (--print)</a>
+      <a href="#flag-model"><span class="num">3</span> Flag --model</a>
+      <a href="#flag-s"><span class="num">4</span> Flag -s (--system-prompt)</a>
+      <a href="#flag-c"><span class="num">5</span> Flag -c (--continue)</a>
+      <a href="#mas-flags"><span class="num">6</span> Más flags útiles</a>
+      <a href="#atajos"><span class="num">7</span> Atajos de teclado</a>
+      <a href="#practicaste"><span class="num">8</span> Lo que practicaste</a>
+      <a href="#flujo"><span class="num">9</span> Flujo real MarketingMo</a>
+      <a href="#no-hacer"><span class="num">10</span> Qué NO hacer</a>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 1: QUÉ ES UN FLAG -->
+  <div class="seccion" id="que-es-flag">
+    <h2><span class="icon">⚑</span> ¿Qué es un Flag?</h2>
+    <p class="seccion-subtitulo">El concepto base antes de aprender los comandos</p>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>Definición simple:</strong> Un flag (bandera en inglés) es una instrucción adicional que le añades al comando <code>claude</code> cuando lo abres desde PowerShell. Modifica cómo se comporta antes de que empiece a trabajar. Es como darle configuraciones especiales al arrancar.</div>
+    </div>
+
+    <h3>Estructura básica</h3>
+    <div class="codigo">
+<span class="comentario"># Estructura:</span>
+<span class="comando">claude</span> <span class="valor">[flag]</span> <span class="texto-normal">"tu instrucción"</span>
+
+<span class="comentario"># Ejemplos:</span>
+<span class="comando">claude</span>                               <span class="comentario"># Sin flags — abre el chat normal</span>
+<span class="comando">claude -p</span> <span class="texto-normal">"analiza este archivo"</span>       <span class="comentario"># Con flag -p — ejecuta y sale</span>
+<span class="comando">claude --model opus</span>                  <span class="comentario"># Con flag --model — usa Opus</span>
+<span class="comando">claude -p -s "eres experto" "tarea"</span>  <span class="comentario"># Varios flags combinados</span>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>Los flags se pueden combinar.</strong> Puedes usar <code>-p</code> con <code>-s</code> al mismo tiempo para ejecutar una tarea con un rol específico sin abrir el chat interactivo. Eso es la base de la automatización.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 2: FLAG -p -->
+  <div class="seccion" id="flag-p">
+    <h2><span class="icon">⚡</span> Flag -p (--print)</h2>
+    <p class="seccion-subtitulo">El flag más importante para automatización</p>
+
+    <div class="flag-card">
+      <div class="flag-header">
+        <span class="flag-nombre">-p</span>
+        <span class="flag-alias">--print</span>
+        <span class="tag tag-verde">Muy usado</span>
+      </div>
+      <p class="flag-desc"><strong>Qué hace:</strong> Ejecuta una tarea en modo no interactivo (Non-Interactive Mode = modo sin conversación). Claude Code procesa la instrucción, devuelve el resultado y sale automáticamente. No abre el chat.</p>
+      <div class="flag-cuando">
+        <strong>¿Cuándo usarlo?</strong> Para tareas rápidas sin conversación, para automatizaciones en n8n, para scripts que se ejecutan solos sin intervención humana.
+      </div>
+    </div>
+
+    <h3>Ejemplos prácticos</h3>
+    <div class="codigo">
+<span class="comentario"># Pregunta rápida sobre tu carpeta:</span>
+<span class="comando">claude -p</span> <span class="texto-normal">"Dime qué archivos hay en esta carpeta"</span>
+
+<span class="comentario"># Leer el contenido de un archivo:</span>
+<span class="comando">claude -p</span> <span class="texto-normal">"Lee el archivo prueba.txt y dime su contenido"</span>
+
+<span class="comentario"># Crear contenido y guardarlo:</span>
+<span class="comando">claude -p</span> <span class="texto-normal">"Dame 5 ideas de posts para Instagram de una clínica dental"</span>
+
+<span class="comentario"># Para MarketingMo — análisis de cliente:</span>
+<span class="comando">claude -p</span> <span class="texto-normal">"Analiza el archivo brief-cliente.md y dame un resumen ejecutivo"</span>
+    </div>
+
+    <div class="comparativa">
+      <div class="comp-item comp-sin">
+        <h4>❌ Sin flag -p</h4>
+        <ul>
+          <li>Abre el chat interactivo</li>
+          <li>Tienes que escribir la instrucción</li>
+          <li>Tienes que esperar</li>
+          <li>Tienes que copiar el resultado</li>
+          <li>No se puede automatizar</li>
+        </ul>
+      </div>
+      <div class="comp-item comp-con">
+        <h4>✅ Con flag -p</h4>
+        <ul>
+          <li>Ejecuta directamente</li>
+          <li>La instrucción va en el comando</li>
+          <li>Devuelve resultado y sale</li>
+          <li>Se puede encadenar con otros comandos</li>
+          <li>Se puede automatizar en n8n</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">🔗</span>
+      <div><strong>Conexión con tu ecosistema:</strong> Cuando conectes Claude Code a n8n, usarás <code>-p</code> en casi todos los nodos. n8n le pasa una instrucción, Claude Code la ejecuta y devuelve el resultado para el siguiente paso del workflow (flujo de trabajo automatizado).</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 3: FLAG --model -->
+  <div class="seccion" id="flag-model">
+    <h2><span class="icon">🧬</span> Flag --model</h2>
+    <p class="seccion-subtitulo">Elegir el cerebro correcto para cada tarea</p>
+
+    <div class="flag-card">
+      <div class="flag-header">
+        <span class="flag-nombre">--model</span>
+        <span class="flag-alias">-m</span>
+        <span class="tag tag-celeste">Gestión de recursos</span>
+      </div>
+      <p class="flag-desc"><strong>Qué hace:</strong> Selecciona qué modelo de IA usar para la sesión. Cada modelo tiene diferente potencia, velocidad y coste. Por defecto usas Sonnet 4.6 — el equilibrado.</p>
+    </div>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Modelo</th><th>Alias</th><th>Para qué usarlo</th><th>Velocidad</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Claude Sonnet 4.6</strong></td><td><code>sonnet</code></td><td>Uso diario — equilibrio entre potencia y velocidad. <span class="tag tag-verde">Tu modelo actual</span></td><td>⚡⚡⚡</td></tr>
+          <tr><td><strong>Claude Opus 4.6</strong></td><td><code>opus</code></td><td>Tareas muy complejas — análisis profundo, estrategia, código complejo</td><td>⚡</td></tr>
+          <tr><td><strong>Claude Haiku 4.5</strong></td><td><code>haiku</code></td><td>Tareas simples y repetitivas — el más rápido y económico</td><td>⚡⚡⚡⚡</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="codigo">
+<span class="comentario"># Cambiar modelo en el arranque:</span>
+<span class="comando">claude --model opus</span>              <span class="comentario"># Usar Opus para tareas complejas</span>
+<span class="comando">claude --model haiku</span>             <span class="comentario"># Usar Haiku para tareas simples</span>
+<span class="comando">claude --model sonnet</span>            <span class="comentario"># Volver a Sonnet (por defecto)</span>
+
+<span class="comentario"># Cambiar modelo dentro del chat (sin cerrar):</span>
+<span class="valor">/model</span>                           <span class="comentario"># Muestra el modelo actual</span>
+<span class="valor">/model opus</span>                      <span class="comentario"># Cambia a Opus en la sesión activa</span>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Consejo de uso:</strong> Para el 90% de tus tareas diarias en MarketingMo, Sonnet 4.6 es suficiente y más rápido. Usa Opus solo cuando necesites análisis estratégico profundo o tareas que requieran razonamiento complejo.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 4: FLAG -s -->
+  <div class="seccion" id="flag-s">
+    <h2><span class="icon">🧠</span> Flag -s (--system-prompt)</h2>
+    <p class="seccion-subtitulo">El flag que define la identidad y el rol de Claude Code</p>
+
+    <div class="flag-card">
+      <div class="flag-header">
+        <span class="flag-nombre">-s</span>
+        <span class="flag-alias">--system-prompt</span>
+        <span class="tag tag-verde">Clave para agentes</span>
+      </div>
+      <p class="flag-desc"><strong>Qué hace:</strong> Le da a Claude Code un rol, personalidad e instrucciones base antes de que empiece a trabajar. Es como el briefing inicial que le das a un empleado nuevo. Define quién es y cómo debe comportarse.</p>
+      <div class="flag-cuando">
+        <strong>¿Cuándo usarlo?</strong> Siempre que necesites que Claude Code actúe como un especialista específico. Es la base de todos tus agentes — B.A.C., A.D.M. y A.C.I. tienen cada uno su propio system prompt.
+      </div>
+    </div>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">🏢</span>
+      <div><strong>Analogía para entenderlo:</strong> Imagina que tienes una agencia de marketing. Contratas a tres empleados: uno es especialista en contenido, otro en métricas y otro en auditorías de clientes. Antes de empezar les das a cada uno un manual de instrucciones. Ese manual es el system prompt.</div>
+    </div>
+
+    <h3>La diferencia en la práctica</h3>
+    <div class="comparativa">
+      <div class="comp-item comp-sin">
+        <h4>❌ Sin system prompt</h4>
+        <ul>
+          <li>Responde como asistente genérico</li>
+          <li>No sabe que eres de España</li>
+          <li>No conoce tu sector</li>
+          <li>Respuestas genéricas</li>
+          <li>No sigue tus convenciones</li>
+        </ul>
+      </div>
+      <div class="comp-item comp-con">
+        <h4>✅ Con system prompt</h4>
+        <ul>
+          <li>Actúa como experto específico</li>
+          <li>Sabe que es para España</li>
+          <li>Conoce tu sector y clientes</li>
+          <li>Respuestas especializadas</li>
+          <li>Sigue tus reglas y estilo</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Ejemplos para MarketingMo</h3>
+    <div class="codigo">
+<span class="comentario"># System prompt para el Agente B.A.C.:</span>
+<span class="comando">claude -p -s</span> <span class="texto-normal">"Eres el Agente B.A.C. de MarketingMo, especialista en marketing digital para negocios locales en España. Tu sistema es Briefing·Acción·Contenido. Siempre respondes en español, eres directo y orientado a resultados."</span> <span class="texto-normal">"Crea el brief del cliente Eli Nails"</span>
+
+<span class="comentario"># System prompt para análisis de métricas:</span>
+<span class="comando">claude -p -s</span> <span class="texto-normal">"Eres el Agente A.D.M. de MarketingMo, experto en análisis de métricas de redes sociales. Analizas datos de Metricool y generas informes estructurados con benchmarks por plan de servicio."</span> <span class="texto-normal">"Analiza el archivo metricas-noviembre.csv"</span>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>Tu aplicación directa:</strong> Cada agente de tu ecosistema (B.A.C., A.D.M., A.C.I.) tiene su propio system prompt guardado en un archivo. Claude Code lo lee y sabe exactamente cómo comportarse para cada tarea.</div>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Importante:</strong> El flag <code>-s</code> <strong>reemplaza</strong> el system prompt por defecto de Claude Code. Si usas <code>--append-system-prompt</code> en cambio, <strong>añade</strong> tus instrucciones al prompt base sin reemplazarlo. Para la mayoría de tus casos usa <code>-s</code>.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 5: FLAG -c -->
+  <div class="seccion" id="flag-c">
+    <h2><span class="icon">🔄</span> Flag -c (--continue)</h2>
+    <p class="seccion-subtitulo">Retomar el trabajo donde lo dejaste</p>
+
+    <div class="flag-card">
+      <div class="flag-header">
+        <span class="flag-nombre">-c</span>
+        <span class="flag-alias">--continue</span>
+        <span class="tag tag-celeste">Productividad diaria</span>
+      </div>
+      <p class="flag-desc"><strong>Qué hace:</strong> Abre Claude Code retomando automáticamente la última conversación de esa carpeta. No empieza desde cero — recuerda todo el contexto de la sesión anterior.</p>
+      <div class="flag-cuando">
+        <strong>¿Cuándo usarlo?</strong> Cuando cierras el ordenador y al día siguiente quieres continuar exactamente donde lo dejaste, con todo el contexto del proyecto activo.
+      </div>
+    </div>
+
+    <div class="codigo">
+<span class="comentario"># Arranque normal (desde cero):</span>
+<span class="comando">claude</span>
+
+<span class="comentario"># Continuar la última sesión:</span>
+<span class="comando">claude -c</span>
+
+<span class="comentario"># Continuar una sesión específica por ID:</span>
+<span class="comando">claude -r</span> <span class="valor">af77c5b5-31c2-437e-9b27-08194587a5c1</span>
+<span class="comentario"># El ID lo ves al cerrar Claude Code: "Resume this session with: claude --resume [id]"</span>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>Consejo práctico:</strong> Cuando cierres Claude Code, guarda el ID de sesión que aparece al fondo. Así puedes retomar exactamente ese trabajo aunque hayas abierto otras sesiones en medio.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 6: MÁS FLAGS -->
+  <div class="seccion" id="mas-flags">
+    <h2><span class="icon">📋</span> Más flags útiles</h2>
+    <p class="seccion-subtitulo">Referencia completa de los flags que usarás en tu trabajo</p>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Flag</th><th>Forma corta</th><th>Para qué sirve</th><th>Ejemplo</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>--print</code></td>
+            <td><code>-p</code></td>
+            <td>Modo no interactivo — ejecuta y sale</td>
+            <td><code>claude -p "tarea"</code></td>
+          </tr>
+          <tr>
+            <td><code>--model</code></td>
+            <td><code>-m</code></td>
+            <td>Selecciona el modelo (sonnet/opus/haiku)</td>
+            <td><code>claude --model opus</code></td>
+          </tr>
+          <tr>
+            <td><code>--system-prompt</code></td>
+            <td><code>-s</code></td>
+            <td>Define el rol y comportamiento base</td>
+            <td><code>claude -p -s "rol" "tarea"</code></td>
+          </tr>
+          <tr>
+            <td><code>--continue</code></td>
+            <td><code>-c</code></td>
+            <td>Continúa la última conversación</td>
+            <td><code>claude -c</code></td>
+          </tr>
+          <tr>
+            <td><code>--resume</code></td>
+            <td><code>-r</code></td>
+            <td>Retoma una sesión por su ID</td>
+            <td><code>claude -r [id]</code></td>
+          </tr>
+          <tr>
+            <td><code>--max-turns</code></td>
+            <td>—</td>
+            <td>Limita el número de turnos de conversación</td>
+            <td><code>claude -p --max-turns 5 "tarea"</code></td>
+          </tr>
+          <tr>
+            <td><code>--output-format</code></td>
+            <td>—</td>
+            <td>Formato de salida: text, json, stream-json</td>
+            <td><code>claude -p --output-format json "tarea"</code></td>
+          </tr>
+          <tr>
+            <td><code>--verbose</code></td>
+            <td>—</td>
+            <td>Muestra todo el proceso detallado</td>
+            <td><code>claude --verbose</code></td>
+          </tr>
+          <tr>
+            <td><code>--version</code></td>
+            <td><code>-v</code></td>
+            <td>Muestra la versión instalada</td>
+            <td><code>claude --version</code></td>
+          </tr>
+          <tr>
+            <td><code>--add-dir</code></td>
+            <td>—</td>
+            <td>Añade otra carpeta al contexto de trabajo</td>
+            <td><code>claude --add-dir ../clientes</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>Flag peligroso — conocerlo para evitarlo:</strong> <code>--dangerously-skip-permissions</code> omite todos los avisos de seguridad y ejecuta sin pedir confirmación. <strong>NUNCA lo uses en tu ordenador personal.</strong> Solo para servidores aislados y entornos de prueba controlados.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 7: ATAJOS -->
+  <div class="seccion" id="atajos">
+    <h2><span class="icon">⌨️</span> Atajos de teclado esenciales</h2>
+    <p class="seccion-subtitulo">Los que usarás todos los días dentro de Claude Code</p>
+
+    <div class="atajos-grid">
+      <div class="atajo-item">
+        <div class="atajo-tecla">!</div>
+        <div class="atajo-desc"><strong>Ejecutar comando del sistema.</strong> Escribe <code>!</code> seguido de cualquier comando de terminal sin salir de Claude Code.<br><br>Ejemplo: <code>! mkdir nueva-carpeta</code></div>
+      </div>
+      <div class="atajo-item">
+        <div class="atajo-tecla">@</div>
+        <div class="atajo-desc"><strong>Referenciar un archivo.</strong> Le dices a Claude Code que trabaje con un archivo específico de tu proyecto.<br><br>Ejemplo: <code>@clientes/brief-elnails.md resume esto</code></div>
+      </div>
+      <div class="atajo-item">
+        <div class="atajo-tecla">&</div>
+        <div class="atajo-desc"><strong>Tarea en segundo plano.</strong> Ejecuta una tarea sin bloquear el chat — puedes seguir escribiendo mientras trabaja.<br><br>Ejemplo: <code>& analiza todos los archivos de la carpeta</code></div>
+      </div>
+      <div class="atajo-item">
+        <div class="atajo-tecla">Ctrl + Shift + -</div>
+        <div class="atajo-desc"><strong>Deshacer el último cambio.</strong> Si Claude Code modificó un archivo y no te gustó, esto revierte el cambio. Tu red de seguridad.</div>
+      </div>
+      <div class="atajo-item">
+        <div class="atajo-tecla">Ctrl + O</div>
+        <div class="atajo-desc"><strong>Ver output detallado.</strong> Expande los detalles de lo que está haciendo Claude Code. Útil para ver qué archivos leyó.</div>
+      </div>
+      <div class="atajo-item">
+        <div class="atajo-tecla">Ctrl + C</div>
+        <div class="atajo-desc"><strong>Interrumpir una tarea.</strong> Para Claude Code en seco si está haciendo algo que no querías. Siempre disponible como emergencia.</div>
+      </div>
+      <div class="atajo-item">
+        <div class="atajo-tecla">Esc Esc</div>
+        <div class="atajo-desc"><strong>Limpiar el input.</strong> Si escribiste algo mal y quieres borrar todo lo que escribiste sin ejecutarlo.</div>
+      </div>
+      <div class="atajo-item">
+        <div class="atajo-tecla">Ctrl + G</div>
+        <div class="atajo-desc"><strong>Abrir editor externo.</strong> Abre tu editor de texto configurado (VS Code) para escribir prompts largos con más comodidad.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 8: LO QUE PRACTICASTE -->
+  <div class="seccion" id="practicaste">
+    <h2><span class="icon">✅</span> Lo que practicaste en este módulo</h2>
+    <p class="seccion-subtitulo">Resumen de todo lo que hiciste en tiempo real</p>
+
+    <div class="practica-card">
+      <div class="p-icon">1️⃣</div>
+      <div>
+        <h4>Verificaste el contenido de tu carpeta</h4>
+        <p>Usaste <code>claude -p "Dime qué archivos hay en esta carpeta"</code> — Claude Code leyó la carpeta y te dijo que estaba vacía. Sin abrir el chat.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">2️⃣</div>
+      <div>
+        <h4>Creaste tu primer archivo en lenguaje natural</h4>
+        <p>Escribiste "Crea un archivo llamado prueba.txt con el texto..." y Claude Code creó el archivo solo en <code>C:\Users\elias\claudecode-practicas\prueba.txt</code></p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">3️⃣</div>
+      <div>
+        <h4>Usaste el flag --system-prompt en acción</h4>
+        <p>Le diste el rol de "experto en marketing digital para negocios locales en España" y generó 3 ideas de contenido para Instagram de una pastelería con ejemplos concretos.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">4️⃣</div>
+      <div>
+        <h4>Creaste una carpeta y un archivo .md automáticamente</h4>
+        <p>Dijiste "Guarda esas ideas en un archivo ideas-pasteleria.md dentro de una carpeta llamada clientes" y Claude Code creó la carpeta <code>clientes/</code> y el archivo <code>ideas-pasteleria.md</code> con el contenido ya formateado.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">5️⃣</div>
+      <div>
+        <h4>Viste el resultado en VS Code</h4>
+        <p>Abriste el archivo creado en VS Code desde el Explorador de Windows y verificaste que el contenido estaba perfectamente formateado en Markdown.</p>
+      </div>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">🎯</span>
+      <div><strong>Lo que demostraste:</strong> Claude Code no es solo un chat — es un agente que opera directamente sobre tu sistema de archivos. Lo que antes hacías manualmente (crear carpetas, abrir editores, copiar texto, guardar archivos) ahora lo hace él con una instrucción en lenguaje natural.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 9: FLUJO REAL -->
+  <div class="seccion" id="flujo">
+    <h2><span class="icon">🏢</span> Flujo real para MarketingMo</h2>
+    <p class="seccion-subtitulo">Cómo aplicar lo aprendido con tus clientes reales</p>
+
+    <p>Este es el flujo que puedes usar desde mañana con cualquier cliente nuevo:</p>
+
+    <div class="flujo">
+      <div class="flujo-paso">
+        <div class="f-num">1</div>
+        <div class="f-texto">Navega a la carpeta del cliente <span class="f-codigo">cd C:\Users\elias\[cliente]</span></div>
+      </div>
+      <div class="flujo-flecha">↓</div>
+      <div class="flujo-paso">
+        <div class="f-num">2</div>
+        <div class="f-texto">Abre Claude Code en esa carpeta <span class="f-codigo">claude</span></div>
+      </div>
+      <div class="flujo-flecha">↓</div>
+      <div class="flujo-paso">
+        <div class="f-num">3</div>
+        <div class="f-texto">Pídele que cree la estructura del cliente en lenguaje natural</div>
+      </div>
+      <div class="flujo-flecha">↓</div>
+      <div class="flujo-paso">
+        <div class="f-num">4</div>
+        <div class="f-texto">Con system prompt, actívalo como el agente correcto (B.A.C., A.D.M. o A.C.I.)</div>
+      </div>
+      <div class="flujo-flecha">↓</div>
+      <div class="flujo-paso">
+        <div class="f-num">5</div>
+        <div class="f-texto">Él genera los documentos, tú revisas y apruebas</div>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <h3>Ejemplo concreto para Eli Nails</h3>
+    <div class="codigo">
+<span class="comentario"># Paso 1: Crear estructura del cliente</span>
+<span class="texto-normal">Crea la carpeta eli-nails con los archivos: brief.md, calendario-octubre.md, metricas-mes.md e informe-mensual.md</span>
+
+<span class="comentario"># Resultado: Claude Code crea todo esto automáticamente</span>
+<span class="resultado">eli-nails/</span>
+<span class="resultado">├── brief.md</span>
+<span class="resultado">├── calendario-octubre.md</span>
+<span class="resultado">├── metricas-mes.md</span>
+<span class="resultado">└── informe-mensual.md</span>
+
+<span class="comentario"># Paso 2: Activar el Agente B.A.C.</span>
+<span class="comando">claude -p -s</span> <span class="texto-normal">"Eres el Agente B.A.C. de MarketingMo..."</span> <span class="texto-normal">"Rellena el brief.md con la información de Eli Nails que te paso a continuación: [datos del cliente]"</span>
+    </div>
+
+    <div class="ruta">C:\Users\elias\claudecode-practicas\clientes\ideas-pasteleria.md → Ya existe, creado hoy</div>
+  </div>
+
+  <!-- SECCIÓN 10: NO HACER -->
+  <div class="seccion" id="no-hacer">
+    <h2><span class="icon">🚫</span> Qué NO hacer con los Flags</h2>
+    <p class="seccion-subtitulo">Errores comunes de principiantes con los flags del CLI</p>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA uses <code>--dangerously-skip-permissions</code> en tu ordenador.</strong> Este flag desactiva todos los avisos de seguridad. Claude Code puede modificar o eliminar archivos sin preguntarte. Solo para entornos Docker o servidores de prueba aislados.</div>
+    </div>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA pongas contraseñas o API keys en el system prompt (-s).</strong> El system prompt se envía a los servidores de Anthropic con cada petición. Usa variables de entorno o archivos .env para credenciales.</div>
+    </div>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA uses el flag -p con tareas que requieren confirmación de archivos importantes.</strong> El modo no interactivo ejecuta sin preguntar. Para archivos de clientes en producción, usa el modo interactivo normal para revisar antes de confirmar.</div>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Cuidado con los system prompts muy largos en el flag -s.</strong> Si el system prompt es muy extenso, es mejor guardarlo en un archivo y usar <code>--system-prompt-file ./mi-prompt.txt</code> en lugar de escribirlo todo en el comando.</div>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>El flag -s reemplaza el system prompt por defecto.</strong> Usarlo mal puede hacer que Claude Code pierda sus capacidades base. Si quieres añadir instrucciones sin borrar las originales, usa <code>--append-system-prompt</code> en cambio.</div>
+    </div>
+  </div>
+
+  <!-- PROGRESO -->
+  <div class="seccion">
+    <h2><span class="icon">🗺️</span> Tu progreso en el plan de 9 módulos</h2>
+    <p class="seccion-subtitulo">Dónde estás y hacia dónde vas</p>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Módulo</th><th>Tema</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1</strong></td><td>Instalación completa + primer arranque</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>2</strong></td><td>Comandos y Flags del CLI</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>3</strong></td><td>Configuración y Settings (settings.json)</td><td><span class="tag tag-celeste">⏳ Siguiente</span></td></tr>
+          <tr><td><strong>4</strong></td><td>CLAUDE.md y Memoria del Proyecto</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+          <tr><td><strong>5</strong></td><td>Permisos y Seguridad</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+          <tr><td><strong>6</strong></td><td>Skills y Slash Commands personalizados</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+          <tr><td><strong>7</strong></td><td>Hooks (automatización por eventos)</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+          <tr><td><strong>8</strong></td><td>MCP Servers (integraciones externas)</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+          <tr><td><strong>9</strong></td><td>Integración con VS Code y JetBrains</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-celeste" style="margin-top:20px">
+      <span class="alerta-icon">➡️</span>
+      <div><strong>Módulo 3 — CLAUDE.md y Memoria del Proyecto:</strong> Aprenderás a crear el archivo de memoria que hace que Claude Code recuerde quién eres, qué es MarketingMo y cómo trabajas — para siempre, sin que tengas que explicárselo en cada sesión.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <h3>Módulo 2 completado ✅</h3>
+  <p>Flags dominados · Primer archivo creado · Estructura de cliente generada · Sistema de permisos activado</p>
+  <div class="firma">Guía Módulo 2 · 23 de Marzo 2026 · Elias · MarketingMo · nietomonica.com</div>
+</div>
+
+</body>
+</html>

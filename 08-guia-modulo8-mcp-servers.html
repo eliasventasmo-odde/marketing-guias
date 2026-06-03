@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Módulo 8 — MCP Servers · Claude Code</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #e8f4fd; --bg2: #d0e9f8; --card: #ffffff;
+    --celeste: #4db8e8; --celeste-dark: #1a8bbf; --celeste-light: #b8dff5;
+    --verde: #27ae60; --verde-bg: #eafaf1; --verde-border: #a9dfbf;
+    --rojo: #e74c3c; --rojo-bg: #fdf2f2; --rojo-border: #f5c6c0;
+    --naranja: #f39c12; --naranja-bg: #fef9e7;
+    --morado: #7c3aed; --morado-bg: #f3f0ff; --morado-border: #c4b5fd;
+    --texto: #1a2a3a; --texto-suave: #4a6a8a; --borde: #c5dff0;
+    --codigo-bg: #1e3a4a; --codigo-texto: #7dd3fc;
+    --sombra: 0 4px 20px rgba(77,184,232,0.15);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--texto); line-height: 1.7; background-image: radial-gradient(circle at 20% 20%, rgba(77,184,232,0.08) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(39,174,96,0.05) 0%, transparent 50%); }
+
+  .header { background: linear-gradient(135deg, #1a3a5c 0%, #1a8bbf 50%, #27ae60 100%); color: white; padding: 60px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 40px 40px; }
+  .header-badge { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); padding: 6px 20px; border-radius: 50px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 900; margin-bottom: 12px; }
+  .header h1 span { color: #7dd3fc; }
+  .header p { font-size: 17px; opacity: 0.85; font-weight: 300; max-width: 600px; margin: 0 auto 30px; }
+  .header-meta { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+  .header-meta span { background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-size: 13px; border: 1px solid rgba(255,255,255,0.2); }
+  .header-meta span strong { color: #7dd3fc; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  .banner-agencia { background: linear-gradient(135deg, #1a3a5c, #1a8bbf); border-radius: 16px; padding: 30px 40px; margin-bottom: 30px; color: white; display: flex; align-items: center; gap: 20px; }
+  .banner-icon { font-size: 48px; flex-shrink: 0; }
+  .banner-texto h2 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 8px; }
+  .banner-texto p { font-size: 14px; opacity: 0.85; margin: 0; }
+
+  .resumen-modulo { background: var(--card); border-radius: 16px; padding: 30px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); }
+  .resumen-modulo h2 { font-family: 'Playfair Display', serif; color: var(--celeste-dark); font-size: 22px; margin-bottom: 20px; }
+  .resumen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .resumen-item { background: var(--bg); border: 1px solid var(--borde); border-radius: 10px; padding: 14px; text-align: center; }
+  .resumen-item .r-icon { font-size: 26px; margin-bottom: 6px; }
+  .resumen-item .r-titulo { font-weight: 600; font-size: 13px; color: var(--celeste-dark); }
+  .resumen-item .r-desc { font-size: 12px; color: var(--texto-suave); margin-top: 4px; }
+
+  .indice { background: var(--card); border-radius: 16px; padding: 30px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); }
+  .indice h2 { font-family: 'Playfair Display', serif; color: var(--celeste-dark); font-size: 22px; margin-bottom: 20px; }
+  .indice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .indice a { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg); border-radius: 10px; text-decoration: none; color: var(--texto); font-size: 14px; font-weight: 500; border: 1px solid var(--borde); transition: all 0.2s; }
+  .indice a:hover { background: var(--celeste-light); border-color: var(--celeste); }
+  .num { background: var(--celeste); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+
+  .seccion { background: var(--card); border-radius: 16px; padding: 40px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); position: relative; overflow: hidden; }
+  .seccion::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--celeste), var(--verde)); }
+  .seccion h2 { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--texto); margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+  .seccion h2 .icon { background: linear-gradient(135deg, var(--celeste), var(--celeste-dark)); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .seccion-subtitulo { color: var(--texto-suave); font-size: 15px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--bg2); }
+
+  .codigo { background: var(--codigo-bg); color: var(--codigo-texto); padding: 14px 18px; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 13px; margin: 10px 0; border-left: 3px solid var(--celeste); overflow-x: auto; line-height: 1.9; }
+  .codigo .comentario { color: #64748b; font-style: italic; }
+  .codigo .comando { color: #7dd3fc; }
+  .codigo .valor { color: #86efac; }
+  .codigo .resultado { color: #fbbf24; }
+  .codigo .texto-normal { color: #e2e8f0; }
+
+  .alerta { padding: 16px 20px; border-radius: 12px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; font-size: 14px; line-height: 1.6; }
+  .alerta-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .alerta-verde { background: var(--verde-bg); border: 1px solid var(--verde-border); color: #1a5c35; }
+  .alerta-verde .alerta-icon { color: var(--verde); }
+  .alerta-rojo { background: var(--rojo-bg); border: 1px solid var(--rojo-border); color: #7b1c14; }
+  .alerta-rojo .alerta-icon { color: var(--rojo); }
+  .alerta-celeste { background: #e8f4fd; border: 1px solid var(--celeste-light); color: #1a4a6a; }
+  .alerta-celeste .alerta-icon { color: var(--celeste-dark); }
+  .alerta-naranja { background: var(--naranja-bg); border: 1px solid #f9d98a; color: #7a4f00; }
+  .alerta-naranja .alerta-icon { color: var(--naranja); }
+  .alerta strong { font-weight: 600; }
+
+  .tabla-wrapper { overflow-x: auto; margin: 16px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { background: linear-gradient(135deg, var(--celeste-dark), var(--celeste)); color: white; padding: 12px 16px; text-align: left; font-weight: 600; }
+  th:first-child { border-radius: 8px 0 0 0; }
+  th:last-child { border-radius: 0 8px 0 0; }
+  td { padding: 12px 16px; border-bottom: 1px solid var(--bg2); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--bg); }
+  tr:last-child td { border-bottom: none; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--celeste-light); color: var(--celeste-dark); padding: 2px 6px; border-radius: 4px; }
+
+  .practica-card { background: var(--verde-bg); border: 1px solid var(--verde-border); border-radius: 12px; padding: 20px; margin: 12px 0; display: flex; gap: 14px; align-items: flex-start; }
+  .practica-card .p-icon { font-size: 24px; flex-shrink: 0; }
+  .practica-card h4 { color: var(--verde); font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .practica-card p { font-size: 13px; color: #2d6a4a; margin: 0; }
+
+  /* MCP SERVER CARD */
+  .mcp-card { border-radius: 14px; padding: 24px; margin-bottom: 16px; border: 2px solid; }
+  .mcp-notion { background: linear-gradient(135deg, #f3f0ff, #e9e2ff); border-color: var(--morado); }
+  .mcp-gmail { background: linear-gradient(135deg, #fdf2f2, #fce8e8); border-color: var(--rojo); }
+  .mcp-calendar { background: linear-gradient(135deg, #eafaf1, #d5f5e3); border-color: var(--verde); }
+  .mcp-canva { background: linear-gradient(135deg, #e8f4fd, #d0e9f8); border-color: var(--celeste); }
+  .mcp-github { background: linear-gradient(135deg, #1a2a3a, #2a3a4a); border-color: #4a5a6a; }
+  .mcp-header { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+  .mcp-icono { font-size: 32px; }
+  .mcp-titulo { font-weight: 700; font-size: 18px; }
+  .mcp-notion .mcp-titulo { color: var(--morado); }
+  .mcp-gmail .mcp-titulo { color: var(--rojo); }
+  .mcp-calendar .mcp-titulo { color: var(--verde); }
+  .mcp-canva .mcp-titulo { color: var(--celeste-dark); }
+  .mcp-github .mcp-titulo { color: #7dd3fc; }
+  .mcp-estado { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+  .mcp-activo { background: var(--verde-bg); color: var(--verde); border: 1px solid var(--verde-border); }
+  .mcp-github-activo { background: rgba(77,184,232,0.1); color: #7dd3fc; border: 1px solid rgba(77,184,232,0.3); }
+  .mcp-desc { font-size: 14px; margin-bottom: 12px; line-height: 1.7; }
+  .mcp-notion .mcp-desc { color: #4c1d95; }
+  .mcp-gmail .mcp-desc { color: #7b1c14; }
+  .mcp-calendar .mcp-desc { color: #1a5c35; }
+  .mcp-canva .mcp-desc { color: #1a4a6a; }
+  .mcp-github .mcp-desc { color: #94a3b8; }
+  .mcp-puede { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .mcp-puede span { font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
+  .mcp-notion .mcp-puede span { background: rgba(124,58,237,0.1); color: var(--morado); border: 1px solid rgba(124,58,237,0.2); }
+  .mcp-gmail .mcp-puede span { background: rgba(231,76,60,0.1); color: var(--rojo); border: 1px solid rgba(231,76,60,0.2); }
+  .mcp-calendar .mcp-puede span { background: rgba(39,174,96,0.1); color: var(--verde); border: 1px solid rgba(39,174,96,0.2); }
+  .mcp-canva .mcp-puede span { background: rgba(77,184,232,0.1); color: var(--celeste-dark); border: 1px solid rgba(77,184,232,0.2); }
+  .mcp-github .mcp-puede span { background: rgba(77,184,232,0.1); color: #7dd3fc; border: 1px solid rgba(77,184,232,0.2); }
+  .mcp-ejemplo { background: var(--codigo-bg); border-radius: 8px; padding: 10px 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #86efac; line-height: 1.8; margin-top: 8px; }
+
+  /* SKILLS SECTION */
+  .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 16px 0; }
+  .skill-item { background: var(--bg); border: 1px solid var(--borde); border-radius: 10px; padding: 16px; }
+  .skill-nombre { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--celeste-dark); background: var(--celeste-light); padding: 3px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
+  .skill-desc { font-size: 13px; color: var(--texto-suave); }
+  .skill-ejemplo { font-size: 12px; color: var(--celeste-dark); margin-top: 6px; font-style: italic; }
+
+  /* FLUJO COMPLETO */
+  .flujo-completo { background: linear-gradient(135deg, #0f2030, #1a3a5c); border-radius: 16px; padding: 36px; margin: 20px 0; border: 1px solid #2a4a6a; }
+  .fc-titulo { font-family: 'Playfair Display', serif; color: #7dd3fc; font-size: 22px; margin-bottom: 6px; }
+  .fc-subtitulo { color: #94a3b8; font-size: 14px; margin-bottom: 28px; }
+  .fc-paso { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 18px; }
+  .fc-num { background: linear-gradient(135deg, var(--celeste), var(--verde)); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; flex-shrink: 0; }
+  .fc-contenido { flex: 1; }
+  .fc-accion { color: #e2e8f0; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .fc-detalle { color: #94a3b8; font-size: 13px; }
+  .fc-resultado { color: #86efac; font-size: 13px; margin-top: 4px; }
+  .fc-sep { border: none; border-top: 1px solid #2a4a6a; margin: 14px 0; }
+
+  /* CUIDAMA RESULTADOS */
+  .resultado-cuidama { background: linear-gradient(135deg, #eafaf1, #d5f5e3); border: 2px solid var(--verde); border-radius: 16px; padding: 28px; margin: 20px 0; }
+  .rc-titulo { font-family: 'Playfair Display', serif; color: var(--verde); font-size: 22px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+  .rc-metrica { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: white; border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--verde-border); }
+  .rc-nombre { font-size: 14px; color: var(--texto); font-weight: 500; }
+  .rc-valor { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; color: var(--verde); }
+  .rc-benchmark { font-size: 12px; color: var(--texto-suave); margin-top: 2px; }
+
+  /* SEGURIDAD GITHUB */
+  .seguridad-card { background: var(--rojo-bg); border: 2px solid var(--rojo); border-radius: 14px; padding: 24px; margin: 16px 0; }
+  .sc-titulo { color: var(--rojo); font-weight: 700; font-size: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .sc-regla { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; font-size: 14px; color: #7b1c14; }
+
+  .sep { height: 1px; background: linear-gradient(90deg, transparent, var(--celeste), transparent); margin: 24px 0; }
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  .tag-verde { background: var(--verde-bg); color: var(--verde); border: 1px solid var(--verde-border); }
+  .tag-rojo { background: var(--rojo-bg); color: var(--rojo); border: 1px solid var(--rojo-border); }
+  .tag-celeste { background: var(--celeste-light); color: var(--celeste-dark); }
+  .ruta { background: var(--bg); border: 1px solid var(--borde); border-radius: 10px; padding: 12px 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--celeste-dark); margin: 8px 0; }
+  .ruta::before { content: '📁 '; }
+
+  h3 { color: var(--celeste-dark); font-size: 18px; margin: 20px 0 12px; font-weight: 600; }
+  p { margin-bottom: 10px; color: var(--texto); font-size: 15px; }
+  ul, ol { padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 6px; font-size: 14px; color: var(--texto-suave); }
+  li strong { color: var(--texto); }
+
+  .footer { background: linear-gradient(135deg, #1a3a5c, #1a8bbf); color: white; text-align: center; padding: 40px; }
+  .footer h3 { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 10px; }
+  .footer p { opacity: 0.7; font-size: 14px; }
+  .footer .firma { margin-top: 16px; font-size: 12px; opacity: 0.4; font-style: italic; }
+
+  @media (max-width: 600px) {
+    .header h1 { font-size: 30px; }
+    .seccion { padding: 24px 16px; }
+    .banner-agencia { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">📘 Módulo 8 de 9</div>
+  <h1>MCP Servers — <span>Integraciones</span></h1>
+  <p>Claude Code conectado a Notion, Gmail, Google Calendar, Canva, GitHub y 978 Skills. Tu agencia entera al alcance de un comando.</p>
+  <div class="header-meta">
+    <span>👤 <strong>Mónico Nieto</strong> · MarketingMo</span>
+    <span>📁 <strong>claudecode-practicas</strong></span>
+    <span>✅ <strong>Módulos 1 al 7</strong> completados</span>
+    <span>⏳ <strong>50 min</strong> este módulo</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- BANNER -->
+  <div class="banner-agencia">
+    <div class="banner-icon">🔌</div>
+    <div class="banner-texto">
+      <h2>Claude Code ahora es el hub central de MarketingMo</h2>
+      <p>Notion, Gmail, Google Calendar, Canva y GitHub conectados. 978 skills instalados. El informe de CUIDAMA fue del PDF de Metricool a Notion en un solo comando.</p>
+    </div>
+  </div>
+
+  <!-- RESUMEN -->
+  <div class="resumen-modulo">
+    <h2>🎯 ¿Qué aprendes en este módulo?</h2>
+    <div class="resumen-grid">
+      <div class="resumen-item">
+        <div class="r-icon">🔌</div>
+        <div class="r-titulo">Qué es MCP</div>
+        <div class="r-desc">El protocolo que conecta Claude Code con servicios externos</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">📓</div>
+        <div class="r-titulo">Notion conectado</div>
+        <div class="r-desc">Lee y escribe páginas reales en tu workspace</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">📧</div>
+        <div class="r-titulo">Gmail conectado</div>
+        <div class="r-desc">Accede a tu bandeja desde el terminal</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">📅</div>
+        <div class="r-titulo">Google Calendar</div>
+        <div class="r-desc">Ve y crea eventos en tu agenda real</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">🐙</div>
+        <div class="r-titulo">GitHub conectado</div>
+        <div class="r-desc">Gestiona repositorios — incluyendo Diva Estudio</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">⚡</div>
+        <div class="r-titulo">978 Skills instalados</div>
+        <div class="r-desc">Habilidades especializadas activables con @skill-name</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÍNDICE -->
+  <div class="indice">
+    <h2>📋 Contenido de este módulo</h2>
+    <div class="indice-grid">
+      <a href="#que-es-mcp"><span class="num">1</span> Qué es MCP</a>
+      <a href="#notion"><span class="num">2</span> Notion — leer y escribir</a>
+      <a href="#gmail"><span class="num">3</span> Gmail conectado</a>
+      <a href="#calendar"><span class="num">4</span> Google Calendar</a>
+      <a href="#canva"><span class="num">5</span> Canva — diseños</a>
+      <a href="#github"><span class="num">6</span> GitHub — repos</a>
+      <a href="#skills"><span class="num">7</span> 978 Skills instalados</a>
+      <a href="#cuidama"><span class="num">8</span> Caso real — CUIDAMA</a>
+      <a href="#flujo"><span class="num">9</span> Flujo completo MarketingMo</a>
+      <a href="#seguridad"><span class="num">10</span> Seguridad — tokens</a>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 1: QUÉ ES MCP -->
+  <div class="seccion" id="que-es-mcp">
+    <h2><span class="icon">🔌</span> Qué es MCP</h2>
+    <p class="seccion-subtitulo">El protocolo que convierte Claude Code en un hub de integraciones</p>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>MCP (Model Context Protocol)</strong> es el estándar abierto que permite a Claude Code conectarse con servicios externos. Funciona como los enchufes de tu casa — cualquier servicio que implemente el estándar MCP se conecta y Claude Code puede usarlo directamente desde el terminal.</div>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">🎯</span>
+      <div><strong>La analogía perfecta:</strong> Antes de MCP, Claude Code era un ordenador sin conexión a internet — muy capaz pero aislado. Con MCP es un hub conectado a todos tus servicios. Le preguntas sobre Notion y lo ve. Le pides que escriba en Gmail y lo hace. Todo desde el terminal sin abrir ninguna app.</div>
+    </div>
+
+    <h3>Cómo ver tus MCP servers activos</h3>
+    <div class="codigo">
+<span class="comentario"># Dentro de Claude Code:</span>
+<span class="valor">/mcp</span>
+<span class="comentario"># Muestra todos los servidores y su estado de conexión</span>
+
+<span class="comentario"># Desde PowerShell:</span>
+<span class="comando">! claude mcp list</span>
+<span class="comentario"># Lista todos los servidores con su URL y estado</span>
+    </div>
+
+    <h3>Tus 5 MCP servers activos</h3>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Servidor</th><th>Estado</th><th>Tipo de conexión</th><th>Para qué sirve</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Notion</strong></td><td><span class="tag tag-verde">✅ Conectado</span></td><td>HTTP — claude.ai</td><td>Leer y escribir en todo tu workspace</td></tr>
+          <tr><td><strong>Gmail</strong></td><td><span class="tag tag-verde">✅ Conectado</span></td><td>HTTP — claude.ai</td><td>Ver y gestionar bandeja de entrada</td></tr>
+          <tr><td><strong>Google Calendar</strong></td><td><span class="tag tag-verde">✅ Conectado</span></td><td>HTTP — claude.ai</td><td>Ver y crear eventos en tu agenda</td></tr>
+          <tr><td><strong>Canva</strong></td><td><span class="tag tag-verde">✅ Conectado</span></td><td>HTTP — claude.ai</td><td>Ver y duplicar diseños por cliente</td></tr>
+          <tr><td><strong>GitHub</strong></td><td><span class="tag tag-verde">✅ Conectado</span></td><td>HTTP con token</td><td>Gestionar repos — incluido Diva Estudio</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 2: NOTION -->
+  <div class="seccion" id="notion">
+    <h2><span class="icon">📓</span> Notion — el más poderoso para MarketingMo</h2>
+    <p class="seccion-subtitulo">Claude Code lee y escribe en tu workspace real de Notion</p>
+
+    <div class="mcp-card mcp-notion">
+      <div class="mcp-header">
+        <div class="mcp-icono">📓</div>
+        <div style="flex:1">
+          <div class="mcp-titulo">Notion MCP</div>
+        </div>
+        <span class="mcp-estado mcp-activo">✅ Conectado</span>
+      </div>
+      <p class="mcp-desc">Acceso completo a tu workspace de Notion. Claude Code puede buscar, leer y crear páginas directamente. Vio tus bases de datos de clientes, tus agentes documentados y el calendario de contenido de Eli Nails — sin que abrieras el navegador.</p>
+      <div class="mcp-puede">
+        <span>Buscar páginas</span>
+        <span>Leer contenido completo</span>
+        <span>Crear páginas nuevas</span>
+        <span>Añadir contenido</span>
+        <span>Actualizar propiedades</span>
+        <span>Acceder a bases de datos</span>
+      </div>
+      <div class="mcp-ejemplo">
+"Busca en mi Notion la página de Eli Nails y dime qué información tiene"
+→ Leyó toda la página con KPIs, pilares de contenido y briefing estratégico
+
+"Crea una página nueva en Notion con el informe ADM de CUIDAMA"
+→ Creó la página con todas las tablas y métricas en la base de datos correcta
+      </div>
+    </div>
+
+    <h3>Lo que encontró en tu Notion</h3>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Tipo</th><th>Contenido encontrado</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Bases de datos</strong></td><td>Calendarios de Diva (Mar/Feb), Eli Nails (Mar), Isabel Blasco, Inmobiliaria</td></tr>
+          <tr><td><strong>Agentes documentados</strong></td><td>Documento de Traspaso, A.D.M., Prompt Maestro A.C.I. (v1 y v2)</td></tr>
+          <tr><td><strong>Clientes activos</strong></td><td>Eli Nails, Diva Estudio, Pastelería Rico, Alberto Alfaro</td></tr>
+          <tr><td><strong>Contenido generado</strong></td><td>Planes de contenido, posts, calendarios de marzo 2026</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">🎯</span>
+      <div><strong>Caso real probado hoy:</strong> Escribiste una nota en la página de Eli Nails directamente desde Claude Code — <em>"Página sincronizada con el sistema de gestión local de MarketingMo"</em>. Aparecio en Notion en tiempo real sin abrir el navegador.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 3: GMAIL -->
+  <div class="seccion" id="gmail">
+    <h2><span class="icon">📧</span> Gmail conectado</h2>
+    <p class="seccion-subtitulo">Accede a tu bandeja de la agencia desde el terminal</p>
+
+    <div class="mcp-card mcp-gmail">
+      <div class="mcp-header">
+        <div class="mcp-icono">📧</div>
+        <div style="flex:1">
+          <div class="mcp-titulo">Gmail MCP</div>
+          <div style="font-size:13px; color:#7b1c14;">agencia.socialmediamo@gmail.com</div>
+        </div>
+        <span class="mcp-estado mcp-activo">✅ Conectado</span>
+      </div>
+      <p class="mcp-desc">Acceso a tu bandeja de entrada de la agencia. Claude Code puede buscar emails por remitente, asunto o fecha, leer conversaciones completas y en el futuro redactar borradores para tu revisión.</p>
+      <div class="mcp-puede">
+        <span>Ver emails no leídos</span>
+        <span>Buscar por remitente</span>
+        <span>Buscar por asunto</span>
+        <span>Leer emails completos</span>
+        <span>Ver adjuntos</span>
+      </div>
+      <div class="mcp-ejemplo">
+"Busca en Gmail los emails de Diva Estudio de los últimos 30 días"
+"Dame un resumen de los emails no leídos de clientes activos"
+"¿Tiene algún email Andrés de La Despensa sobre el contrato?"
+      </div>
+    </div>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">ℹ️</span>
+      <div><strong>Datos reales encontrados hoy:</strong> 201 emails no leídos en la cuenta de la agencia. Los 3 más recientes eran notificaciones de Pinterest, Taplio y LinkedIn.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 4: CALENDAR -->
+  <div class="seccion" id="calendar">
+    <h2><span class="icon">📅</span> Google Calendar conectado</h2>
+    <p class="seccion-subtitulo">Ve y gestiona tu agenda desde el terminal</p>
+
+    <div class="mcp-card mcp-calendar">
+      <div class="mcp-header">
+        <div class="mcp-icono">📅</div>
+        <div style="flex:1"><div class="mcp-titulo">Google Calendar MCP</div></div>
+        <span class="mcp-estado mcp-activo">✅ Conectado</span>
+      </div>
+      <p class="mcp-desc">Acceso completo a tu agenda de Google Calendar. Claude Code puede ver eventos, crear nuevas citas y consultar disponibilidad — sin abrir el navegador.</p>
+      <div class="mcp-puede">
+        <span>Ver eventos de la semana</span>
+        <span>Crear eventos nuevos</span>
+        <span>Buscar por fecha</span>
+        <span>Ver calendarios múltiples</span>
+      </div>
+      <div class="mcp-ejemplo">
+"Crea un evento para la reunión de seguimiento de Diva Estudio el viernes a las 10am"
+"¿Tengo algo agendado la próxima semana?"
+"Añade al calendario la fecha de entrega del informe de Eli Nails — 30 de marzo"
+      </div>
+    </div>
+
+    <h3>Eventos encontrados esta semana</h3>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Día</th><th>Hora</th><th>Evento</th></tr></thead>
+        <tbody>
+          <tr><td>Lun 23</td><td>21:00–22:00</td><td>🚀 Claude Cowork — Automatiza tu VIDA (Pablo Martínez)</td></tr>
+          <tr><td>Mar 24</td><td>10:10–11:10</td><td>🏥 Cita médica</td></tr>
+          <tr><td>Mié 25</td><td>06:00–07:00</td><td>🚗 Llevar suegro al tren</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 5: CANVA -->
+  <div class="seccion" id="canva">
+    <h2><span class="icon">🎨</span> Canva conectado</h2>
+    <p class="seccion-subtitulo">Ve todos tus diseños organizados por cliente</p>
+
+    <div class="mcp-card mcp-canva">
+      <div class="mcp-header">
+        <div class="mcp-icono">🎨</div>
+        <div style="flex:1"><div class="mcp-titulo">Canva MCP</div></div>
+        <span class="mcp-estado mcp-activo">✅ Conectado</span>
+      </div>
+      <p class="mcp-desc">Acceso a todos tus diseños de Canva. Claude Code puede buscar diseños por cliente, ver su contenido de texto, duplicar plantillas y exportar — pero no puede editar visualmente ni generar imágenes desde cero.</p>
+      <div class="mcp-puede">
+        <span>Ver todos los diseños</span>
+        <span>Buscar por cliente</span>
+        <span>Duplicar plantillas</span>
+        <span>Leer texto de diseños</span>
+        <span>Exportar diseños</span>
+      </div>
+      <div class="mcp-ejemplo">
+"¿Qué diseños de CUIDAMA tengo en Canva listos para publicar?"
+"Duplica la plantilla Stories-Cuidama para crear un nuevo diseño de abril"
+"¿Cuántas páginas tiene el banco de imágenes de La Tiendologia?"
+      </div>
+    </div>
+
+    <h3>Diseños activos encontrados hoy</h3>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Diseño</th><th>Cliente</th><th>Páginas</th></tr></thead>
+        <tbody>
+          <tr><td>DIVA Post</td><td>Diva Estudio</td><td>10</td></tr>
+          <tr><td>Post/Carrusel Pastelería Rico</td><td>Pastelería Rico</td><td>9</td></tr>
+          <tr><td>Stories - Cuidama</td><td>CUIDAMA</td><td>18</td></tr>
+          <tr><td>Diva Fondos Stories Interactivas</td><td>Diva Estudio</td><td>22</td></tr>
+          <tr><td>CUIDAMA - Instagram</td><td>CUIDAMA</td><td>28</td></tr>
+          <tr><td>BANCO DE IMÁGENES - La Tiendologia</td><td>La Tiendologia</td><td>297</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 6: GITHUB -->
+  <div class="seccion" id="github">
+    <h2><span class="icon">🐙</span> GitHub conectado</h2>
+    <p class="seccion-subtitulo">Gestiona repositorios de código desde el terminal</p>
+
+    <div class="mcp-card mcp-github">
+      <div class="mcp-header">
+        <div class="mcp-icono">🐙</div>
+        <div style="flex:1">
+          <div class="mcp-titulo">GitHub MCP</div>
+          <div style="font-size:12px; color:#64748b;">Token personal · Permisos: repo, read:user, notifications</div>
+        </div>
+        <span class="mcp-estado mcp-github-activo">✅ Conectado</span>
+      </div>
+      <p class="mcp-desc">Acceso a tus repositorios de GitHub con un token personal. Encontró el repositorio privado de Diva Estudio — la app web con sistema de reservas que construiste.</p>
+      <div class="mcp-puede">
+        <span>Ver repositorios</span>
+        <span>Leer código</span>
+        <span>Ver issues</span>
+        <span>Ver pull requests</span>
+        <span>Revisar commits</span>
+      </div>
+      <div class="mcp-ejemplo">
+"Revisa el código del repositorio diva_estudio y dime qué mejoras se pueden hacer"
+"@security-audit analiza el repositorio diva_estudio por vulnerabilidades"
+"¿Cuándo fue el último commit en diva_estudio?"
+      </div>
+    </div>
+
+    <h3>Repositorio encontrado</h3>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Repositorio</th><th>Visibilidad</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>eliasventasmo-odde/diva_estudio</strong></td>
+            <td><span class="tag tag-celeste">Privado</span></td>
+            <td>App web para peluquería DIVA ESTUDIO con sistema de reservas, catálogo de servicios y programa de fidelización con acumulación de puntos</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Cómo se instaló GitHub MCP</h3>
+    <div class="codigo">
+<span class="comentario"># 1. Eliminar la versión anterior:</span>
+<span class="comando">! claude mcp remove github --scope user</span>
+
+<span class="comentario"># 2. Crear token en github.com/settings/tokens con permisos:</span>
+<span class="valor">✅ repo · ✅ read:user · ✅ notifications</span>
+
+<span class="comentario"># 3. Añadir el servidor con el token desde Claude Code:</span>
+<span class="texto-normal">Actualiza el token de GitHub en mi configuración. El nuevo token es: [token]</span>
+
+<span class="comentario"># 4. Verificar:</span>
+<span class="comando">! claude mcp list</span>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 7: SKILLS -->
+  <div class="seccion" id="skills">
+    <h2><span class="icon">⚡</span> 978 Skills instalados</h2>
+    <p class="seccion-subtitulo">Habilidades especializadas de la comunidad activables con @skill-name</p>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>¿Qué son los Skills?</strong> Son 978 archivos de instrucciones especializadas del repositorio <code>antigravity-awesome-skills</code>. Cada skill le enseña a Claude Code a hacer una tarea específica con un framework profesional. Se activan escribiendo <code>@nombre-skill</code> antes de tu instrucción.</div>
+    </div>
+
+    <div class="ruta">C:\Users\elias\.claude\skills</div>
+
+    <div class="codigo">
+<span class="comentario"># Cómo se instalaron:</span>
+<span class="comando">! npx antigravity-awesome-skills --claude</span>
+<span class="comentario"># Instaló 978 skills en ~/.claude/skills automáticamente</span>
+
+<span class="comentario"># Cómo usar un skill:</span>
+<span class="texto-normal">@pricing-strategy analiza los precios de MarketingMo</span>
+<span class="texto-normal">@competitive-analysis analiza la competencia de La Despensa de Andrés</span>
+<span class="texto-normal">@security-audit revisa el repositorio diva_estudio</span>
+    </div>
+
+    <h3>Los skills más útiles para MarketingMo</h3>
+    <div class="skills-grid">
+      <div class="skill-item">
+        <div class="skill-nombre">@pricing-strategy</div>
+        <div class="skill-desc">Análisis de precios con benchmark del mercado. Ya lo usaste con los planes de MarketingMo.</div>
+        <div class="skill-ejemplo">→ Detectó 3 riesgos y 4 recomendaciones de mejora</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-nombre">@competitive-analysis</div>
+        <div class="skill-desc">Análisis competitivo con Porter's Five Forces y mapa de posicionamiento.</div>
+        <div class="skill-ejemplo">→ Generó estrategia completa para La Despensa de Andrés</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-nombre">@go-to-market</div>
+        <div class="skill-desc">Estrategia de lanzamiento para clientes nuevos en redes sociales.</div>
+        <div class="skill-ejemplo">→ Ideal para el onboarding de clientes nuevos</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-nombre">@documentation</div>
+        <div class="skill-desc">Genera documentación profesional de procesos y sistemas.</div>
+        <div class="skill-ejemplo">→ Para documentar los agentes B.A.C., A.D.M. y A.C.I.</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-nombre">@automation</div>
+        <div class="skill-desc">Optimiza workflows de automatización — ideal para n8n.</div>
+        <div class="skill-ejemplo">→ Para mejorar los flujos de La Despensa de Andrés</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-nombre">@security-audit</div>
+        <div class="skill-desc">Revisa vulnerabilidades de código y apps.</div>
+        <div class="skill-ejemplo">→ Para auditar el repositorio de Diva Estudio</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 8: CASO REAL CUIDAMA -->
+  <div class="seccion" id="cuidama">
+    <h2><span class="icon">📊</span> Caso real — Análisis completo de CUIDAMA</h2>
+    <p class="seccion-subtitulo">Del PDF de Metricool al informe en Notion — en un solo flujo</p>
+
+    <div class="resultado-cuidama">
+      <div class="rc-titulo">📊 Resultados reales de CUIDAMA — Febrero 2026</div>
+      <div class="rc-metrica">
+        <div>
+          <div class="rc-nombre">CTR Global de campañas</div>
+          <div class="rc-benchmark">Benchmark sector servicios España: menos de 2%</div>
+        </div>
+        <div class="rc-valor">5,70% ⭐</div>
+      </div>
+      <div class="rc-metrica">
+        <div>
+          <div class="rc-nombre">CPC (Coste Por Clic)</div>
+          <div class="rc-benchmark">Benchmark España: 0,30–0,80€</div>
+        </div>
+        <div class="rc-valor">0,05€ ⭐⭐</div>
+      </div>
+      <div class="rc-metrica">
+        <div>
+          <div class="rc-nombre">CPM (Coste Por Mil impresiones)</div>
+          <div class="rc-benchmark">Benchmark España: 8–15€</div>
+        </div>
+        <div class="rc-valor">3,07€ ⭐</div>
+      </div>
+      <div class="rc-metrica">
+        <div>
+          <div class="rc-nombre">Alcance total</div>
+          <div class="rc-benchmark">Con solo 105,70€ de inversión</div>
+        </div>
+        <div class="rc-valor">18.430 personas</div>
+      </div>
+      <div class="rc-metrica">
+        <div>
+          <div class="rc-nombre">Conversiones totales</div>
+          <div class="rc-benchmark">4 campañas activas</div>
+        </div>
+        <div class="rc-valor">2.093 clicks</div>
+      </div>
+      <div class="rc-metrica">
+        <div>
+          <div class="rc-nombre">Campaña estrella — MAD Acompañamiento</div>
+          <div class="rc-benchmark">Recomendación: escalar presupuesto inmediatamente</div>
+        </div>
+        <div class="rc-valor">7,16% CTR</div>
+      </div>
+    </div>
+
+    <h3>El flujo que se ejecutó</h3>
+    <div class="flujo-completo">
+      <div class="fc-titulo">📊 Flujo Metricool → Claude Code → Notion</div>
+      <div class="fc-subtitulo">Lo que pasó en tiempo real con CUIDAMA</div>
+
+      <div class="fc-paso">
+        <div class="fc-num">1</div>
+        <div class="fc-contenido">
+          <div class="fc-accion">Exportaste el informe de Metricool</div>
+          <div class="fc-detalle">PDF exportado de Metricool con datos de Meta Ads de febrero 2026</div>
+          <div class="fc-resultado">→ Guardado en clientes/cuidama/metricool-cuidama-marzo2026.pdf</div>
+        </div>
+      </div>
+      <div class="fc-sep"></div>
+      <div class="fc-paso">
+        <div class="fc-num">2</div>
+        <div class="fc-contenido">
+          <div class="fc-accion">Claude Code leyó el PDF completo</div>
+          <div class="fc-detalle">El Agente A.D.M. extrajo todas las métricas — impresiones, alcance, CTR, CPC, CPM por campaña</div>
+          <div class="fc-resultado">→ 34.370 impresiones, 18.430 alcance, 4 campañas analizadas</div>
+        </div>
+      </div>
+      <div class="fc-sep"></div>
+      <div class="fc-paso">
+        <div class="fc-num">3</div>
+        <div class="fc-contenido">
+          <div class="fc-accion">Generó el informe A.D.M. completo</div>
+          <div class="fc-detalle">176 líneas con 10 secciones — resumen ejecutivo, métricas, análisis por campaña, benchmarks, recomendaciones y brief de traspaso para B.A.C.</div>
+          <div class="fc-resultado">→ Guardado en clientes/cuidama/informe-adm.md</div>
+        </div>
+      </div>
+      <div class="fc-sep"></div>
+      <div class="fc-paso">
+        <div class="fc-num">4</div>
+        <div class="fc-contenido">
+          <div class="fc-accion">Envió el informe a Notion automáticamente</div>
+          <div class="fc-detalle">Creó la página en la base de datos correcta con todas las propiedades rellenas — cliente, canal, plan, métricas, estado, fechas</div>
+          <div class="fc-resultado">→ notion.so/32fc0a2d316781138a83f539e502db8b</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">🚀</span>
+      <div><strong>La recomendación más importante:</strong> Escalar el presupuesto de la campaña <strong>MAD - Acompañamiento</strong> (CTR 7,16% — la mejor del mes). Con 105,70€ generó 2.093 conversiones. Aumentar a 150–200€/mes mantiene la eficiencia y escala los resultados.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 9: FLUJO COMPLETO -->
+  <div class="seccion" id="flujo">
+    <h2><span class="icon">🔄</span> Flujo completo de MarketingMo con MCP</h2>
+    <p class="seccion-subtitulo">Cómo todos los servicios conectados trabajan juntos</p>
+
+    <div class="codigo">
+<span class="comentario"># FLUJO MENSUAL COMPLETO — ejemplo con cualquier cliente:</span>
+
+<span class="comentario"># Inicio de mes — crear estructura:</span>
+<span class="valor">/brief-cliente nombre-cliente</span>
+<span class="resultado">→ Brief local creado en clientes/nombre-cliente/brief.md</span>
+<span class="texto-normal">"Crea la página del cliente en Notion con el brief"</span>
+<span class="resultado">→ Página creada en tu workspace de Notion</span>
+
+<span class="comentario"># Planificación — crear eventos en Calendar:</span>
+<span class="texto-normal">"Crea en Calendar los eventos de entrega mensual para todos mis clientes activos"</span>
+<span class="resultado">→ 12 eventos creados en tu agenda automáticamente</span>
+
+<span class="comentario"># Durante el mes — contenido con Canva:</span>
+<span class="texto-normal">"¿Qué plantillas de Instagram tengo para CUIDAMA en Canva?"</span>
+<span class="resultado">→ Lista de diseños disponibles para ese cliente</span>
+
+<span class="comentario"># Fin de mes — informe con Metricool:</span>
+<span class="valor">/informe-adm nombre-cliente</span>
+<span class="texto-normal">"Analiza el PDF de Metricool y rellena el informe-adm.md"</span>
+<span class="texto-normal">"Envía el informe a Notion"</span>
+<span class="resultado">→ Informe completo en local + publicado en Notion</span>
+
+<span class="comentario"># Comunicación — buscar emails:</span>
+<span class="texto-normal">"Busca en Gmail emails de nombre-cliente de este mes"</span>
+<span class="resultado">→ Resumen de comunicaciones con el cliente</span>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 10: SEGURIDAD TOKENS -->
+  <div class="seccion" id="seguridad">
+    <h2><span class="icon">🔐</span> Seguridad — gestión de tokens</h2>
+    <p class="seccion-subtitulo">Las reglas de oro para manejar credenciales de MCP servers</p>
+
+    <div class="seguridad-card">
+      <div class="sc-titulo">⚠️ Lección aprendida hoy — con GitHub</div>
+      <div class="sc-regla">
+        <span style="font-size:18px">❌</span>
+        <div><strong>NUNCA publiques un token en el chat.</strong> En esta sesión el token de GitHub apareció en el output del terminal y fue visible. Se revocó inmediatamente y se creó uno nuevo. Los tokens son contraseñas — si alguien los ve puede acceder a tu cuenta.</div>
+      </div>
+      <div class="sc-regla">
+        <span style="font-size:18px">✅</span>
+        <div><strong>Siempre pasa el token directamente dentro de Claude Code</strong>, no en este chat. Escribe el comando en el prompt <code>></code> del terminal para que no quede registrado aquí.</div>
+      </div>
+      <div class="sc-regla">
+        <span style="font-size:18px">✅</span>
+        <div><strong>Rota los tokens periódicamente.</strong> Ve a <code>github.com/settings/tokens</code> cada 3–6 meses, revoca el token antiguo y crea uno nuevo.</div>
+      </div>
+    </div>
+
+    <h3>Reglas de seguridad para tokens MCP</h3>
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA escribas un token en este chat.</strong> El historial del chat puede ser visto. Todos los tokens van directamente en el terminal de Claude Code o en variables de entorno del settings.json.</div>
+    </div>
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA uses "No expiration" en tokens de producción.</strong> En la práctica lo hiciste para simplificar — pero en un entorno profesional real, los tokens deben tener expiración de 90 días máximo.</div>
+    </div>
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>Usa permisos mínimos necesarios.</strong> Para GitHub solo necesitas <code>repo</code>, <code>read:user</code> y <code>notifications</code>. No actives permisos de admin, org o billing que no necesitas.</div>
+    </div>
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>Si un token se expone — revócalo inmediatamente.</strong> Ve a la página de tokens del servicio y bórralo. Créa uno nuevo. El proceso tarda menos de 2 minutos.</div>
+    </div>
+  </div>
+
+  <!-- LO QUE PRACTICASTE -->
+  <div class="seccion">
+    <h2><span class="icon">✅</span> Lo que practicaste en este módulo</h2>
+    <div class="practica-card">
+      <div class="p-icon">1️⃣</div>
+      <div><h4>Verificaste los 4 MCP servers con /mcp</h4><p>Viste Notion, Gmail, Google Calendar y Canva todos conectados con estado ✓ connected.</p></div>
+    </div>
+    <div class="practica-card">
+      <div class="p-icon">2️⃣</div>
+      <div><h4>Claude Code leyó todo tu Notion</h4><p>Encontró 6 bases de datos, páginas de 4 clientes, los 3 agentes documentados y el contenido generado — sin abrir el navegador.</p></div>
+    </div>
+    <div class="practica-card">
+      <div class="p-icon">3️⃣</div>
+      <div><h4>Escribiste en Notion desde el terminal</h4><p>Añadiste una nota en la página de Eli Nails directamente desde Claude Code. Apareció en Notion en tiempo real.</p></div>
+    </div>
+    <div class="practica-card">
+      <div class="p-icon">4️⃣</div>
+      <div><h4>Conectaste GitHub con token personal</h4><p>Instalaste el MCP server de GitHub, creaste un token con permisos mínimos y verificaste el repositorio privado de Diva Estudio.</p></div>
+    </div>
+    <div class="practica-card">
+      <div class="p-icon">5️⃣</div>
+      <div><h4>Instalaste 978 skills y usaste @pricing-strategy</h4><p>El skill analizó los 3 planes de MarketingMo con benchmark del mercado español y detectó 3 riesgos y 4 recomendaciones de mejora.</p></div>
+    </div>
+    <div class="practica-card">
+      <div class="p-icon">6️⃣</div>
+      <div><h4>Análisis real de CUIDAMA — Metricool → Notion</h4><p>Exportaste el PDF de Metricool, Claude Code lo leyó, generó el informe A.D.M. completo con benchmarks reales y lo publicó automáticamente en tu Notion con todas las propiedades rellenas.</p></div>
+    </div>
+    <div class="practica-card">
+      <div class="p-icon">7️⃣</div>
+      <div><h4>Usaste @competitive-analysis con La Despensa de Andrés</h4><p>El skill generó análisis con 5 tipos de competidores, Porter's Five Forces, mapa de posicionamiento y plan de contenido de 30 días listo para usar.</p></div>
+    </div>
+  </div>
+
+  <!-- PROGRESO -->
+  <div class="seccion">
+    <h2><span class="icon">🗺️</span> Tu progreso en el plan de módulos</h2>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Módulo</th><th>Tema</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1</strong></td><td>Instalación completa + primer arranque</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>2</strong></td><td>Comandos y Flags del CLI</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>3</strong></td><td>CLAUDE.md y Memoria del Proyecto</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>4</strong></td><td>Configuración y Settings</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>5</strong></td><td>Permisos y Seguridad</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>6</strong></td><td>Skills y Slash Commands personalizados</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>7</strong></td><td>Hooks — automatización por eventos</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>8</strong></td><td>MCP Servers — Notion, Gmail, Calendar, Canva, GitHub</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>9</strong></td><td>Integración con VS Code</td><td><span class="tag tag-celeste">⏳ Siguiente</span></td></tr>
+          <tr><td><strong>🎓 Final</strong></td><td>Arquitecto de Agentes — Multi-agente, Worktrees, Paralelismo</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="alerta alerta-celeste" style="margin-top:20px">
+      <span class="alerta-icon">➡️</span>
+      <div><strong>Módulo 9 — VS Code integrado:</strong> Conectaremos Claude Code directamente con VS Code para ver los cambios en archivos de forma visual, usar el diff integrado y trabajar con el repositorio de Diva Estudio desde el editor. Luego el módulo final — Arquitecto de Agentes.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <h3>Módulo 8 completado ✅ · 8 de 10 módulos dominados</h3>
+  <p>5 MCP servers activos · 978 skills instalados · CUIDAMA analizado · Notion sincronizado · GitHub conectado</p>
+  <div class="firma">Guía Módulo 8 · 26 de Marzo 2026 · Mónico Nieto · MarketingMo · @marketingMo · nietomonica.com</div>
+</div>
+
+</body>
+</html>

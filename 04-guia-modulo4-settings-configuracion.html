@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Módulo 4 — Configuración y Settings · Claude Code</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #e8f4fd;
+    --bg2: #d0e9f8;
+    --card: #ffffff;
+    --celeste: #4db8e8;
+    --celeste-dark: #1a8bbf;
+    --celeste-light: #b8dff5;
+    --verde: #27ae60;
+    --verde-bg: #eafaf1;
+    --verde-border: #a9dfbf;
+    --rojo: #e74c3c;
+    --rojo-bg: #fdf2f2;
+    --rojo-border: #f5c6c0;
+    --naranja: #f39c12;
+    --naranja-bg: #fef9e7;
+    --texto: #1a2a3a;
+    --texto-suave: #4a6a8a;
+    --borde: #c5dff0;
+    --codigo-bg: #1e3a4a;
+    --codigo-texto: #7dd3fc;
+    --sombra: 0 4px 20px rgba(77,184,232,0.15);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--texto);
+    line-height: 1.7;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(77,184,232,0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(39,174,96,0.05) 0%, transparent 50%);
+  }
+  .header {
+    background: linear-gradient(135deg, #1a3a5c 0%, #1a8bbf 50%, #27ae60 100%);
+    color: white; padding: 60px 40px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .header::before {
+    content: ''; position: absolute; top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .header-badge {
+    display: inline-block; background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3); padding: 6px 20px;
+    border-radius: 50px; font-size: 12px; letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 20px;
+  }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 900; margin-bottom: 12px; }
+  .header h1 span { color: #7dd3fc; }
+  .header p { font-size: 17px; opacity: 0.85; font-weight: 300; max-width: 600px; margin: 0 auto 30px; }
+  .header-meta { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+  .header-meta span { background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-size: 13px; border: 1px solid rgba(255,255,255,0.2); }
+  .header-meta span strong { color: #7dd3fc; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  .resumen-modulo { background: var(--card); border-radius: 16px; padding: 30px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); }
+  .resumen-modulo h2 { font-family: 'Playfair Display', serif; color: var(--celeste-dark); font-size: 22px; margin-bottom: 20px; }
+  .resumen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .resumen-item { background: var(--bg); border: 1px solid var(--borde); border-radius: 10px; padding: 14px; text-align: center; }
+  .resumen-item .r-icon { font-size: 26px; margin-bottom: 6px; }
+  .resumen-item .r-titulo { font-weight: 600; font-size: 13px; color: var(--celeste-dark); }
+  .resumen-item .r-desc { font-size: 12px; color: var(--texto-suave); margin-top: 4px; }
+
+  .indice { background: var(--card); border-radius: 16px; padding: 30px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); }
+  .indice h2 { font-family: 'Playfair Display', serif; color: var(--celeste-dark); font-size: 22px; margin-bottom: 20px; }
+  .indice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .indice a { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg); border-radius: 10px; text-decoration: none; color: var(--texto); font-size: 14px; font-weight: 500; border: 1px solid var(--borde); transition: all 0.2s; }
+  .indice a:hover { background: var(--celeste-light); border-color: var(--celeste); }
+  .num { background: var(--celeste); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+
+  .seccion { background: var(--card); border-radius: 16px; padding: 40px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); position: relative; overflow: hidden; }
+  .seccion::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--celeste), var(--verde)); }
+  .seccion h2 { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--texto); margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+  .seccion h2 .icon { background: linear-gradient(135deg, var(--celeste), var(--celeste-dark)); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .seccion-subtitulo { color: var(--texto-suave); font-size: 15px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--bg2); }
+
+  .codigo { background: var(--codigo-bg); color: var(--codigo-texto); padding: 14px 18px; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 13px; margin: 10px 0; border-left: 3px solid var(--celeste); overflow-x: auto; line-height: 1.9; }
+  .codigo .comentario { color: #64748b; font-style: italic; }
+  .codigo .comando { color: #7dd3fc; }
+  .codigo .valor { color: #86efac; }
+  .codigo .resultado { color: #fbbf24; }
+  .codigo .texto-normal { color: #e2e8f0; }
+  .codigo .clave { color: #fb923c; }
+  .codigo .string { color: #86efac; }
+
+  .alerta { padding: 16px 20px; border-radius: 12px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; font-size: 14px; line-height: 1.6; }
+  .alerta-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .alerta-verde { background: var(--verde-bg); border: 1px solid var(--verde-border); color: #1a5c35; }
+  .alerta-verde .alerta-icon { color: var(--verde); }
+  .alerta-rojo { background: var(--rojo-bg); border: 1px solid var(--rojo-border); color: #7b1c14; }
+  .alerta-rojo .alerta-icon { color: var(--rojo); }
+  .alerta-celeste { background: #e8f4fd; border: 1px solid var(--celeste-light); color: #1a4a6a; }
+  .alerta-celeste .alerta-icon { color: var(--celeste-dark); }
+  .alerta-naranja { background: var(--naranja-bg); border: 1px solid #f9d98a; color: #7a4f00; }
+  .alerta-naranja .alerta-icon { color: var(--naranja); }
+  .alerta strong { font-weight: 600; }
+
+  .tabla-wrapper { overflow-x: auto; margin: 16px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { background: linear-gradient(135deg, var(--celeste-dark), var(--celeste)); color: white; padding: 12px 16px; text-align: left; font-weight: 600; }
+  th:first-child { border-radius: 8px 0 0 0; }
+  th:last-child { border-radius: 0 8px 0 0; }
+  td { padding: 12px 16px; border-bottom: 1px solid var(--bg2); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--bg); }
+  tr:last-child td { border-bottom: none; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--celeste-light); color: var(--celeste-dark); padding: 2px 6px; border-radius: 4px; }
+
+  .practica-card { background: var(--verde-bg); border: 1px solid var(--verde-border); border-radius: 12px; padding: 20px; margin: 12px 0; display: flex; gap: 14px; align-items: flex-start; }
+  .practica-card .p-icon { font-size: 24px; flex-shrink: 0; }
+  .practica-card h4 { color: var(--verde); font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .practica-card p { font-size: 13px; color: #2d6a4a; margin: 0; }
+
+  /* ARQUITECTURA VISUAL */
+  .arquitectura { background: var(--codigo-bg); border-radius: 12px; padding: 24px; margin: 16px 0; }
+  .arq-nivel { margin-bottom: 16px; }
+  .arq-titulo { color: #fbbf24; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+  .arq-ruta { color: #7dd3fc; font-family: 'JetBrains Mono', monospace; font-size: 12px; margin-bottom: 6px; }
+  .arq-item { color: #86efac; font-size: 13px; padding-left: 16px; margin: 3px 0; }
+  .arq-sep { border: none; border-top: 1px solid #2a4a6a; margin: 14px 0; }
+  .arq-flecha { color: #4db8e8; text-align: center; font-size: 18px; margin: 8px 0; }
+
+  /* CONFIG PREVIEW */
+  .config-preview { background: #0f2030; border-radius: 12px; padding: 20px; margin: 16px 0; border: 1px solid #2a4a6a; }
+  .cp-linea { font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 2; }
+  .cp-llave { color: #e2e8f0; }
+  .cp-clave { color: #7dd3fc; }
+  .cp-valor-verde { color: #86efac; }
+  .cp-valor-amarillo { color: #fbbf24; }
+  .cp-valor-rojo { color: #f87171; }
+  .cp-comentario { color: #475569; font-style: italic; }
+
+  /* STATUS VISUAL */
+  .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 16px 0; }
+  .status-item { background: var(--bg); border: 1px solid var(--borde); border-radius: 10px; padding: 14px; }
+  .status-label { font-size: 11px; color: var(--texto-suave); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .status-valor { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; color: var(--celeste-dark); }
+  .status-desc { font-size: 12px; color: var(--texto-suave); margin-top: 4px; }
+
+  /* PERMISOS */
+  .permisos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .permiso-allow { background: var(--verde-bg); border: 1px solid var(--verde-border); border-radius: 12px; padding: 18px; }
+  .permiso-deny { background: var(--rojo-bg); border: 1px solid var(--rojo-border); border-radius: 12px; padding: 18px; }
+  .permiso-titulo { font-weight: 700; font-size: 14px; margin-bottom: 10px; }
+  .permiso-allow .permiso-titulo { color: var(--verde); }
+  .permiso-deny .permiso-titulo { color: var(--rojo); }
+  .permiso-item { font-family: 'JetBrains Mono', monospace; font-size: 12px; margin: 6px 0; padding: 4px 8px; border-radius: 4px; }
+  .permiso-allow .permiso-item { background: white; color: #1a5c35; }
+  .permiso-deny .permiso-item { background: white; color: #7b1c14; }
+  .permiso-desc { font-size: 12px; margin-top: 8px; }
+  .permiso-allow .permiso-desc { color: #2d6a4a; }
+  .permiso-deny .permiso-desc { color: #7b1c14; }
+
+  /* ACTUALIZACIONES */
+  .update-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 16px 0; }
+  .update-item { border-radius: 10px; padding: 16px; border: 1px solid; }
+  .update-si { background: var(--verde-bg); border-color: var(--verde-border); }
+  .update-parcial { background: var(--naranja-bg); border-color: #f9d98a; }
+  .update-no { background: var(--rojo-bg); border-color: var(--rojo-border); }
+  .update-nombre { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+  .update-si .update-nombre { color: var(--verde); }
+  .update-parcial .update-nombre { color: var(--naranja); }
+  .update-no .update-nombre { color: var(--rojo); }
+  .update-como { font-family: 'JetBrains Mono', monospace; font-size: 12px; margin: 6px 0; }
+  .update-desc { font-size: 12px; }
+  .update-si .update-desc { color: #2d6a4a; }
+  .update-parcial .update-desc { color: #7a4f00; }
+  .update-no .update-desc { color: #7b1c14; }
+
+  .sep { height: 1px; background: linear-gradient(90deg, transparent, var(--celeste), transparent); margin: 24px 0; }
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  .tag-verde { background: var(--verde-bg); color: var(--verde); border: 1px solid var(--verde-border); }
+  .tag-rojo { background: var(--rojo-bg); color: var(--rojo); border: 1px solid var(--rojo-border); }
+  .tag-celeste { background: var(--celeste-light); color: var(--celeste-dark); }
+  .tag-naranja { background: var(--naranja-bg); color: var(--naranja); border: 1px solid #f9d98a; }
+  .ruta { background: var(--bg); border: 1px solid var(--borde); border-radius: 10px; padding: 12px 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--celeste-dark); margin: 8px 0; }
+  .ruta::before { content: '📁 '; }
+
+  h3 { color: var(--celeste-dark); font-size: 18px; margin: 20px 0 12px; font-weight: 600; }
+  p { margin-bottom: 10px; color: var(--texto); font-size: 15px; }
+  ul, ol { padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 6px; font-size: 14px; color: var(--texto-suave); }
+  li strong { color: var(--texto); }
+
+  .footer { background: linear-gradient(135deg, #1a3a5c, #1a8bbf); color: white; text-align: center; padding: 40px; }
+  .footer h3 { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 10px; }
+  .footer p { opacity: 0.7; font-size: 14px; }
+  .footer .firma { margin-top: 16px; font-size: 12px; opacity: 0.4; font-style: italic; }
+
+  @media (max-width: 600px) {
+    .header h1 { font-size: 30px; }
+    .seccion { padding: 24px 16px; }
+    .permisos-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">📘 Módulo 4 de 9</div>
+  <h1>Configuración y <span>Settings</span></h1>
+  <p>El archivo que controla cómo se comporta Claude Code en todos tus proyectos — modelo, idioma, permisos y mucho más.</p>
+  <div class="header-meta">
+    <span>👤 <strong>Elias</strong> · MarketingMo</span>
+    <span>📁 <strong>claudecode-practicas</strong></span>
+    <span>✅ <strong>Módulos 1, 2 y 3</strong> completados</span>
+    <span>⏳ <strong>40 min</strong> este módulo</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- RESUMEN -->
+  <div class="resumen-modulo">
+    <h2>🎯 ¿Qué aprendes en este módulo?</h2>
+    <div class="resumen-grid">
+      <div class="resumen-item">
+        <div class="r-icon">⚙️</div>
+        <div class="r-titulo">Qué es settings.json</div>
+        <div class="r-desc">El archivo de configuración del sistema — diferente al CLAUDE.md</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">🌍</div>
+        <div class="r-titulo">Settings global</div>
+        <div class="r-desc">Configuración que aplica a todos tus proyectos siempre</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">📁</div>
+        <div class="r-titulo">Settings de proyecto</div>
+        <div class="r-desc">Configuración específica para una sola carpeta</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">🔐</div>
+        <div class="r-titulo">Sistema de permisos</div>
+        <div class="r-desc">Qué puede hacer Claude Code automáticamente y qué está bloqueado</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">📊</div>
+        <div class="r-titulo">Panel /status</div>
+        <div class="r-desc">Cómo monitorear tu configuración activa y el uso del plan</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">🔄</div>
+        <div class="r-titulo">Actualizaciones</div>
+        <div class="r-desc">Qué programas puede actualizar Claude Code y cómo</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÍNDICE -->
+  <div class="indice">
+    <h2>📋 Contenido de este módulo</h2>
+    <div class="indice-grid">
+      <a href="#que-es"><span class="num">1</span> Settings vs CLAUDE.md</a>
+      <a href="#niveles"><span class="num">2</span> Los dos niveles</a>
+      <a href="#global"><span class="num">3</span> Tu settings global</a>
+      <a href="#claves"><span class="num">4</span> Todas las claves disponibles</a>
+      <a href="#permisos"><span class="num">5</span> Sistema de permisos</a>
+      <a href="#proyecto"><span class="num">6</span> Settings de proyecto</a>
+      <a href="#status"><span class="num">7</span> El panel /status</a>
+      <a href="#actualizaciones"><span class="num">8</span> Actualizaciones del sistema</a>
+      <a href="#practicaste"><span class="num">9</span> Lo que practicaste</a>
+      <a href="#no-hacer"><span class="num">10</span> Qué NO hacer</a>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 1: QUÉ ES -->
+  <div class="seccion" id="que-es">
+    <h2><span class="icon">⚙️</span> Settings.json vs CLAUDE.md</h2>
+    <p class="seccion-subtitulo">La diferencia fundamental entre los dos archivos de configuración</p>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>La distinción clave:</strong> El CLAUDE.md es la <strong>memoria del proyecto</strong> — le dice a Claude Code quién eres y cómo trabajas. El settings.json es la <strong>configuración del sistema</strong> — controla cómo se comporta Claude Code técnicamente: qué modelo usar, qué permisos tiene, en qué idioma responde.</div>
+    </div>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Aspecto</th><th>CLAUDE.md</th><th>settings.json</th></tr></thead>
+        <tbody>
+          <tr><td><strong>¿Qué contiene?</strong></td><td>Instrucciones en lenguaje natural, contexto del proyecto, clientes, agentes</td><td>Configuración técnica: modelo, idioma, permisos, variables de entorno</td></tr>
+          <tr><td><strong>¿Formato?</strong></td><td>Markdown — texto con formato simple</td><td>JSON — estructura de datos técnica</td></tr>
+          <tr><td><strong>¿Quién lo lee?</strong></td><td>Claude Code lo carga como contexto de conversación</td><td>Claude Code lo usa para configurar su comportamiento</td></tr>
+          <tr><td><strong>¿Cuándo aplica?</strong></td><td>Desde el primer mensaje de cada sesión</td><td>Desde el arranque, antes de cualquier mensaje</td></tr>
+          <tr><td><strong>¿Puedes editarlo?</strong></td><td>Sí — en lenguaje natural o VS Code</td><td>Sí — en lenguaje natural o Notepad/VS Code</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">🎯</span>
+      <div><strong>Analogía definitiva:</strong> Si Claude Code fuera un empleado, el CLAUDE.md sería su manual de instrucciones del trabajo y el settings.json sería su contrato laboral — las condiciones generales que aplican siempre, en cualquier proyecto.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 2: NIVELES -->
+  <div class="seccion" id="niveles">
+    <h2><span class="icon">🏗️</span> Los dos niveles de configuración</h2>
+    <p class="seccion-subtitulo">Global para todos los proyectos · Proyecto para una carpeta específica</p>
+
+    <div class="arquitectura">
+      <div class="arq-nivel">
+        <div class="arq-titulo">🌍 NIVEL 1 — Settings GLOBAL (mayor prioridad en bloqueos)</div>
+        <div class="arq-ruta">C:\Users\elias\.claude\settings.json</div>
+        <div class="arq-item">✓ Aplica a TODOS tus proyectos</div>
+        <div class="arq-item">✓ Modelo por defecto, idioma, actualizaciones</div>
+        <div class="arq-item">✓ Permisos base y bloqueos de seguridad</div>
+        <div class="arq-item">✓ Variables de entorno del sistema</div>
+      </div>
+      <div class="arq-flecha">↓ se combina con ↓</div>
+      <div class="arq-nivel">
+        <div class="arq-titulo">📁 NIVEL 2 — Settings de PROYECTO</div>
+        <div class="arq-ruta">C:\Users\elias\claudecode-practicas\.claude\settings.json</div>
+        <div class="arq-item">✓ Aplica SOLO cuando estás en esta carpeta</div>
+        <div class="arq-item">✓ Permisos específicos del proyecto</div>
+        <div class="arq-item">✓ Puede añadir permisos al global</div>
+        <div class="arq-item">✗ NO puede desbloquear lo que el global bloqueó</div>
+      </div>
+      <div class="arq-flecha">= resultado final aplicado</div>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Regla de oro:</strong> Los settings se <strong>combinan</strong>, no se reemplazan. Si el global bloquea <code>rm -rf</code>, el settings de proyecto no puede desbloquearlo. Los bloqueos son absolutos. Los permisos se suman entre niveles.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 3: TU SETTINGS GLOBAL -->
+  <div class="seccion" id="global">
+    <h2><span class="icon">🌍</span> Tu settings.json global</h2>
+    <p class="seccion-subtitulo">El archivo completo que tienes configurado ahora mismo</p>
+
+    <div class="ruta">C:\Users\elias\.claude\settings.json</div>
+
+    <div class="config-preview">
+      <div class="cp-linea"><span class="cp-llave">{</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;<span class="cp-clave">"env"</span><span class="cp-llave">: {</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-clave">"CLAUDE_CODE_GIT_BASH_PATH"</span><span class="cp-llave">: </span><span class="cp-valor-verde">"C:\\Users\\elias\\AppData\\Local\\Programs\\Git\\bin\\bash.exe"</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;<span class="cp-llave">},</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;<span class="cp-clave">"model"</span><span class="cp-llave">: </span><span class="cp-valor-verde">"sonnet"</span><span class="cp-comentario">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Modelo por defecto</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;<span class="cp-clave">"language"</span><span class="cp-llave">: </span><span class="cp-valor-verde">"es"</span><span class="cp-comentario">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Español siempre</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;<span class="cp-clave">"verbose"</span><span class="cp-llave">: </span><span class="cp-valor-rojo">false</span><span class="cp-comentario">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Sin logs extra</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;<span class="cp-clave">"cleanupPeriodDays"</span><span class="cp-llave">: </span><span class="cp-valor-amarillo">30</span><span class="cp-comentario">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Limpieza cada 30 días</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;<span class="cp-clave">"autoUpdatesChannel"</span><span class="cp-llave">: </span><span class="cp-valor-verde">"stable"</span><span class="cp-comentario">&nbsp;&nbsp;← Solo versiones estables</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;<span class="cp-clave">"includeCoAuthoredBy"</span><span class="cp-llave">: </span><span class="cp-valor-verde">true</span><span class="cp-comentario">&nbsp;&nbsp;&nbsp;← Tu firma en git commits</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;<span class="cp-clave">"permissions"</span><span class="cp-llave">: {</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-clave">"allow"</span><span class="cp-llave">: [</span><span class="cp-comentario">&nbsp;&nbsp;&nbsp;&nbsp;← Siempre permitido sin preguntar</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-valor-verde">"Bash(git status)"</span><span class="cp-llave">,</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-valor-verde">"Bash(git diff *)"</span><span class="cp-llave">,</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-valor-verde">"Bash(mkdir *)"</span><span class="cp-llave">,</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-valor-verde">"Bash(ls *)"</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-llave">],</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-clave">"deny"</span><span class="cp-llave">: [</span><span class="cp-comentario">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← NUNCA permitido, en ningún proyecto</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-valor-rojo">"Bash(rm -rf *)"</span><span class="cp-llave">,</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-valor-rojo">"Bash(sudo *)"</span><span class="cp-llave">,</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-valor-rojo">"Read(*.env)"</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-llave">],</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-clave">"defaultMode"</span><span class="cp-llave">: </span><span class="cp-valor-verde">"default"</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;<span class="cp-llave">}</span></div>
+      <div class="cp-linea"><span class="cp-llave">}</span></div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 4: CLAVES DISPONIBLES -->
+  <div class="seccion" id="claves">
+    <h2><span class="icon">🗝️</span> Todas las claves disponibles</h2>
+    <p class="seccion-subtitulo">Referencia completa de lo que puedes configurar en el settings.json</p>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Clave</th><th>Valores posibles</th><th>Qué controla</th></tr></thead>
+        <tbody>
+          <tr><td><code>model</code></td><td><code>"sonnet"</code> / <code>"opus"</code> / <code>"haiku"</code></td><td>Modelo de IA por defecto en todos los proyectos</td></tr>
+          <tr><td><code>language</code></td><td><code>"es"</code> / <code>"en"</code> / cualquier código de idioma</td><td>Idioma de la interfaz y las respuestas</td></tr>
+          <tr><td><code>verbose</code></td><td><code>true</code> / <code>false</code></td><td>Si muestra logs detallados de cada operación</td></tr>
+          <tr><td><code>cleanupPeriodDays</code></td><td>Número entero (ej: <code>30</code>)</td><td>Cada cuántos días limpia las sesiones antiguas</td></tr>
+          <tr><td><code>autoUpdatesChannel</code></td><td><code>"stable"</code> / <code>"latest"</code></td><td>Canal de actualizaciones — stable es más seguro</td></tr>
+          <tr><td><code>includeCoAuthoredBy</code></td><td><code>true</code> / <code>false</code></td><td>Si incluye tu firma en los commits de git</td></tr>
+          <tr><td><code>permissions.allow</code></td><td>Array de reglas de herramientas</td><td>Comandos que se ejecutan sin pedir permiso</td></tr>
+          <tr><td><code>permissions.deny</code></td><td>Array de reglas de herramientas</td><td>Comandos que NUNCA se ejecutan</td></tr>
+          <tr><td><code>permissions.defaultMode</code></td><td><code>"default"</code> / <code>"acceptEdits"</code> / <code>"plan"</code></td><td>Modo de permisos por defecto al arrancar</td></tr>
+          <tr><td><code>env</code></td><td>Objeto clave-valor</td><td>Variables de entorno disponibles para Claude Code</td></tr>
+          <tr><td><code>sandbox.enabled</code></td><td><code>true</code> / <code>false</code></td><td>Activa el sandbox de red y sistema de archivos</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>¿Cómo modificar cualquier clave?</strong> Escribe en el prompt <code>></code> de Claude Code: <em>"Actualiza en el settings.json global el valor de [clave] a [valor]"</em> y él edita el archivo solo. No necesitas saber JSON.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 5: PERMISOS -->
+  <div class="seccion" id="permisos">
+    <h2><span class="icon">🔐</span> Sistema de permisos</h2>
+    <p class="seccion-subtitulo">Qué puede hacer Claude Code automáticamente y qué está bloqueado</p>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">🛡️</span>
+      <div><strong>¿Qué es el sistema de permisos?</strong> Claude Code siempre te pide confirmación antes de ejecutar comandos en tu ordenador. Con los permisos puedes definir qué comandos se ejecutan <strong>automáticamente sin preguntar</strong> (allow) y cuáles están <strong>bloqueados para siempre</strong> (deny).</div>
+    </div>
+
+    <h3>Tus permisos actuales</h3>
+    <div class="permisos-grid">
+      <div class="permiso-allow">
+        <div class="permiso-titulo">✅ PERMITIDOS — Ejecutan sin preguntar</div>
+        <div class="permiso-item">Bash(git status)</div>
+        <div class="permiso-item">Bash(git diff *)</div>
+        <div class="permiso-item">Bash(git log *)</div>
+        <div class="permiso-item">Bash(mkdir *)</div>
+        <div class="permiso-item">Bash(ls *)</div>
+        <div class="permiso-item">Bash(dir *)</div>
+        <div class="permiso-desc">Comandos de solo lectura y creación de carpetas — seguros y frecuentes.</div>
+      </div>
+      <div class="permiso-deny">
+        <div class="permiso-titulo">❌ BLOQUEADOS — Nunca se ejecutan</div>
+        <div class="permiso-item">Bash(rm -rf *)</div>
+        <div class="permiso-item">Bash(sudo *)</div>
+        <div class="permiso-item">Read(*.env)</div>
+        <div class="permiso-desc">Comandos destructivos y acceso a credenciales — bloqueados por seguridad en todos los proyectos.</div>
+      </div>
+    </div>
+
+    <h3>Sintaxis de reglas de permisos</h3>
+    <div class="codigo">
+<span class="comentario"># Formato: Herramienta(patrón)</span>
+
+<span class="comentario"># Herramientas disponibles:</span>
+<span class="valor">Bash(comando)</span>       <span class="comentario"># Comandos de terminal</span>
+<span class="valor">Read(ruta)</span>          <span class="comentario"># Leer archivos</span>
+<span class="valor">Write(ruta)</span>         <span class="comentario"># Escribir archivos</span>
+<span class="valor">Edit(ruta)</span>          <span class="comentario"># Editar archivos</span>
+
+<span class="comentario"># El * significa "cualquier cosa":</span>
+<span class="valor">"Bash(git *)"</span>       <span class="comentario"># Cualquier comando git</span>
+<span class="valor">"Write(clientes/**)"</span> <span class="comentario"># Escribir en clientes/ y subcarpetas</span>
+<span class="valor">"Read(*.env)"</span>       <span class="comentario"># Leer cualquier archivo .env</span>
+
+<span class="comentario"># Ejemplos prácticos para MarketingMo:</span>
+<span class="valor">"Write(clientes/**)"</span>  <span class="comentario"># ✅ Libre para escribir en carpetas de clientes</span>
+<span class="valor">"Bash(rm -rf *)"</span>     <span class="comentario"># ❌ Bloqueado — borrado masivo peligroso</span>
+    </div>
+
+    <h3>Los 3 modos de permisos</h3>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Modo</th><th>Comportamiento</th><th>Cuándo usarlo</th></tr></thead>
+        <tbody>
+          <tr><td><code>default</code> <span class="tag tag-verde">Tu modo actual</span></td><td>Pide confirmación para cada operación potencialmente peligrosa</td><td>Uso diario normal — el más seguro</td></tr>
+          <tr><td><code>acceptEdits</code></td><td>Aprueba automáticamente modificaciones de archivos. Bash sigue preguntando</td><td>Cuando editas muchos archivos seguidos</td></tr>
+          <tr><td><code>plan</code></td><td>Solo lectura — no puede modificar nada, solo analizar y planificar</td><td>Para revisar proyectos sin riesgo de cambios</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 6: SETTINGS DE PROYECTO -->
+  <div class="seccion" id="proyecto">
+    <h2><span class="icon">📁</span> Settings de proyecto</h2>
+    <p class="seccion-subtitulo">Configuración específica para la carpeta claudecode-practicas</p>
+
+    <div class="ruta">C:\Users\elias\claudecode-practicas\.claude\settings.json</div>
+
+    <div class="config-preview">
+      <div class="cp-linea"><span class="cp-llave">{</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;<span class="cp-clave">"permissions"</span><span class="cp-llave">: {</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-clave">"allow"</span><span class="cp-llave">: [</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-valor-verde">"Bash(mkdir *)"</span><span class="cp-llave">,</span><span class="cp-comentario">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Crear carpetas sin preguntar</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-valor-verde">"Bash(ls *)"</span><span class="cp-llave">,</span><span class="cp-comentario">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Listar archivos sin preguntar</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-valor-verde">"Bash(dir *)"</span><span class="cp-llave">,</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-valor-verde">"Write(clientes/**)"</span><span class="cp-llave">,</span><span class="cp-comentario">&nbsp;← Escribir en clientes/ libremente</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-valor-verde">"Edit(clientes/**)"</span><span class="cp-llave">,</span><span class="cp-comentario">&nbsp;&nbsp;← Editar en clientes/ libremente</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-valor-verde">"Read(clientes/**)"</span><span class="cp-comentario">&nbsp;&nbsp;← Leer en clientes/ libremente</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;&nbsp;&nbsp;<span class="cp-llave">]</span></div>
+      <div class="cp-linea">&nbsp;&nbsp;<span class="cp-llave">}</span></div>
+      <div class="cp-linea"><span class="cp-llave">}</span></div>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>Lo que esto significa en la práctica:</strong> Cuando Claude Code trabaja dentro de <code>clientes/</code>, puede crear, leer y editar archivos de cualquier cliente sin pedirte permiso en cada operación. Esto es lo que permite que cree 36 archivos en segundos sin interrupciones.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 7: /STATUS -->
+  <div class="seccion" id="status">
+    <h2><span class="icon">📊</span> El panel /status</h2>
+    <p class="seccion-subtitulo">Tu panel de control para monitorear todo en tiempo real</p>
+
+    <p>Escribe <code>/status</code> en el prompt <code>></code> en cualquier momento para ver el estado completo. Tiene 3 pestañas:</p>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Pestaña</th><th>Qué muestra</th><th>Para qué sirve</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Status</strong></td>
+            <td>Versión, sesión activa, carpeta actual, cuenta, modelo, MCP servers conectados</td>
+            <td>Verificar que todo está funcionando correctamente</td>
+          </tr>
+          <tr>
+            <td><strong>Config</strong></td>
+            <td>Todas las opciones de configuración activas con sus valores actuales</td>
+            <td>Ver de un vistazo toda la configuración aplicada</td>
+          </tr>
+          <tr>
+            <td><strong>Usage</strong></td>
+            <td>% de contexto usado en la sesión actual y en la semana. Hora de reinicio.</td>
+            <td>Saber cuánto te queda antes de necesitar /compact</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Tu /status actual — datos confirmados</h3>
+    <div class="status-grid">
+      <div class="status-item">
+        <div class="status-label">Versión</div>
+        <div class="status-valor">2.1.81</div>
+        <div class="status-desc">Claude Code instalado</div>
+      </div>
+      <div class="status-item">
+        <div class="status-label">Cuenta</div>
+        <div class="status-valor">Claude Pro</div>
+        <div class="status-desc">elias.ventas.mo@gmail.com</div>
+      </div>
+      <div class="status-item">
+        <div class="status-label">Modelo activo</div>
+        <div class="status-valor">Sonnet 4.6</div>
+        <div class="status-desc">Best for everyday tasks</div>
+      </div>
+      <div class="status-item">
+        <div class="status-label">Idioma</div>
+        <div class="status-valor">es</div>
+        <div class="status-desc">Español configurado ✓</div>
+      </div>
+      <div class="status-item">
+        <div class="status-label">Sesión actual</div>
+        <div class="status-valor">37% usado</div>
+        <div class="status-desc">Reset a la 1pm España</div>
+      </div>
+      <div class="status-item">
+        <div class="status-label">Semana actual</div>
+        <div class="status-valor">5% usado</div>
+        <div class="status-desc">Reset 31 Mar, 9am</div>
+      </div>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Cuando llegues al 100% de sesión:</strong> Usa <code>/compact</code> para comprimir el historial sin cerrar Claude Code. Esto libera contexto y puedes seguir trabajando. Si el uso semanal llega al 100%, tendrás que esperar al reinicio del lunes o al día siguiente.</div>
+    </div>
+
+    <h3>MCP Servers detectados en tu sistema</h3>
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">🔌</span>
+      <div><strong>Ya tienes 4 MCP servers activos:</strong> Google Calendar ✓, Gmail ✓, Notion ✓ y Canva ✓. Esto significa que Claude Code puede interactuar con estos servicios directamente. Lo aprenderás en detalle en el <strong>Módulo 8 — MCP Servers</strong>.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 8: ACTUALIZACIONES -->
+  <div class="seccion" id="actualizaciones">
+    <h2><span class="icon">🔄</span> Actualizaciones del sistema</h2>
+    <p class="seccion-subtitulo">Qué puede actualizar Claude Code y cómo pedírselo</p>
+
+    <div class="update-grid">
+      <div class="update-item update-si">
+        <div class="update-nombre">✅ Claude Code</div>
+        <div class="update-como">claude update</div>
+        <div class="update-desc">Se actualiza solo automáticamente con el canal "stable" configurado. También puedes pedírselo directamente.</div>
+      </div>
+      <div class="update-item update-si">
+        <div class="update-nombre">✅ npm</div>
+        <div class="update-como">npm install -g npm@latest</div>
+        <div class="update-desc">Claude Code puede ejecutar este comando sin problema. Solo pídele "actualiza npm".</div>
+      </div>
+      <div class="update-item update-parcial">
+        <div class="update-nombre">⚠️ Node.js</div>
+        <div class="update-como">Descarga manual en nodejs.org</div>
+        <div class="update-desc">Puede guiarte paso a paso pero en Windows la instalación requiere que tú ejecutes el instalador.</div>
+      </div>
+      <div class="update-item update-parcial">
+        <div class="update-nombre">⚠️ Git</div>
+        <div class="update-como">git update-git-for-windows</div>
+        <div class="update-desc">Puede ejecutar el comando pero Windows puede requerir confirmación de administrador.</div>
+      </div>
+      <div class="update-item update-no">
+        <div class="update-nombre">❌ VS Code</div>
+        <div class="update-como">Automático desde VS Code</div>
+        <div class="update-desc">VS Code se actualiza solo desde su propia interfaz. Claude Code no puede tocarlo.</div>
+      </div>
+    </div>
+
+    <h3>Cómo pedir actualizaciones desde Claude Code</h3>
+    <div class="codigo">
+<span class="comentario"># Actualizar Claude Code:</span>
+<span class="texto-normal">actualízate a la última versión</span>
+<span class="comentario"># O desde PowerShell directamente:</span>
+<span class="comando">claude update</span>
+
+<span class="comentario"># Ver la versión actual:</span>
+<span class="comando">claude --version</span>
+
+<span class="comentario"># Verificar si hay actualizaciones disponibles:</span>
+<span class="texto-normal">¿Tienes actualizaciones pendientes?</span>
+
+<span class="comentario"># Actualizar npm:</span>
+<span class="texto-normal">actualiza npm a la última versión</span>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>Tu configuración ya está en modo "stable".</strong> Esto significa que Claude Code se actualiza automáticamente cuando hay una versión estable nueva — sin que tengas que hacer nada. Solo las versiones beta (inestables) se saltan.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 9: LO QUE PRACTICASTE -->
+  <div class="seccion" id="practicaste">
+    <h2><span class="icon">✅</span> Lo que practicaste en este módulo</h2>
+    <p class="seccion-subtitulo">Todo lo que hiciste en tiempo real documentado</p>
+
+    <div class="practica-card">
+      <div class="p-icon">1️⃣</div>
+      <div>
+        <h4>Inspeccionaste el settings.json existente</h4>
+        <p>Usaste <code>type C:\Users\elias\.claude\settings.json</code> desde PowerShell para ver el contenido actual — solo tenía la ruta de Git Bash y el marketplace.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">2️⃣</div>
+      <div>
+        <h4>Configuraste el settings.json global completo</h4>
+        <p>Añadiste modelo Sonnet por defecto, idioma español, verbose false, cleanup 30 días, canal stable, co-autoría en git, y los permisos base con allow y deny.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">3️⃣</div>
+      <div>
+        <h4>Verificaste con /status</h4>
+        <p>Confirmaste que toda la configuración estaba activa — Sonnet 4.6, español, Claude Pro, 4 MCP servers conectados y el uso de la sesión al 37%.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">4️⃣</div>
+      <div>
+        <h4>Creaste el settings.json de proyecto</h4>
+        <p>Generaste el archivo <code>.claude/settings.json</code> dentro de <code>claudecode-practicas</code> con permisos libres para la carpeta <code>clientes/</code> — así Claude Code trabaja allí sin interrupciones.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">5️⃣</div>
+      <div>
+        <h4>Exploraste Config y Usage</h4>
+        <p>Navegaste las 3 pestañas del /status y viste tu configuración activa completa y el porcentaje de uso de tu plan Pro — 37% de sesión y 5% de semana.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 10: NO HACER -->
+  <div class="seccion" id="no-hacer">
+    <h2><span class="icon">🚫</span> Qué NO hacer con el settings.json</h2>
+    <p class="seccion-subtitulo">Errores que pueden comprometer tu seguridad o romper la configuración</p>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA añadas contraseñas o API keys en la sección "env" del settings.json.</strong> Aunque parece un lugar seguro para variables de entorno, el settings.json puede ser leído por Claude Code y enviado como contexto. Usa archivos <code>.env</code> separados para credenciales y asegúrate de que están en el deny list.</div>
+    </div>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA quites el bloqueo de <code>rm -rf *</code> del deny.</strong> Este comando borra carpetas enteras de forma irreversible. Aunque creas que lo necesitas para alguna tarea, es más seguro ejecutarlo manualmente tú mismo que dárselo a Claude Code.</div>
+    </div>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA cambies el defaultMode a "bypassPermissions".</strong> Este modo omite todos los avisos de seguridad. Es equivalente al flag <code>--dangerously-skip-permissions</code>. Solo existe para entornos Docker completamente aislados.</div>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Cuidado con el JSON mal formado.</strong> Si el settings.json tiene un error de sintaxis (una coma de más, una llave que falta), Claude Code no arrancará correctamente. Si algo falla después de editar el settings, pídele a Claude Code que "verifique y corrija el settings.json".</div>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>No cambies el canal de actualizaciones a "latest" sin razón.</strong> El canal "latest" incluye versiones beta que pueden tener errores. El canal "stable" que tienes ahora es siempre la opción más segura para trabajo de producción.</div>
+    </div>
+  </div>
+
+  <!-- PROGRESO -->
+  <div class="seccion">
+    <h2><span class="icon">🗺️</span> Tu progreso en el plan de 9 módulos</h2>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Módulo</th><th>Tema</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1</strong></td><td>Instalación completa + primer arranque</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>2</strong></td><td>Comandos y Flags del CLI</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>3</strong></td><td>CLAUDE.md y Memoria del Proyecto</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>4</strong></td><td>Configuración y Settings</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>5</strong></td><td>Permisos y Seguridad</td><td><span class="tag tag-celeste">⏳ Siguiente</span></td></tr>
+          <tr><td><strong>6</strong></td><td>Skills y Slash Commands personalizados</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+          <tr><td><strong>7</strong></td><td>Hooks — automatización por eventos</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+          <tr><td><strong>8</strong></td><td>MCP Servers — integraciones externas</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+          <tr><td><strong>9</strong></td><td>Integración con VS Code y JetBrains</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-celeste" style="margin-top:20px">
+      <span class="alerta-icon">➡️</span>
+      <div><strong>Módulo 5 — Permisos y Seguridad:</strong> Profundizarás en el sistema completo de permisos — los 5 modos de permiso, cómo funciona el sandbox de red, cómo proteger archivos sensibles de clientes y las mejores prácticas de seguridad para una agencia de marketing que maneja datos de 12 clientes.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <h3>Módulo 4 completado ✅</h3>
+  <p>Settings global configurado · Settings de proyecto creado · Permisos establecidos · /status dominado · Actualizaciones en modo stable</p>
+  <div class="firma">Guía Módulo 4 · 24 de Marzo 2026 · Elias · MarketingMo · nietomonica.com</div>
+</div>
+
+</body>
+</html>

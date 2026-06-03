@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Claude Code — Elias · MarketingMo</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #e8f4fd;
+    --bg2: #d0e9f8;
+    --card: #ffffff;
+    --celeste: #4db8e8;
+    --celeste-dark: #1a8bbf;
+    --celeste-light: #b8dff5;
+    --verde: #27ae60;
+    --verde-bg: #eafaf1;
+    --verde-border: #a9dfbf;
+    --rojo: #e74c3c;
+    --rojo-bg: #fdf2f2;
+    --rojo-border: #f5c6c0;
+    --naranja: #f39c12;
+    --naranja-bg: #fef9e7;
+    --texto: #1a2a3a;
+    --texto-suave: #4a6a8a;
+    --borde: #c5dff0;
+    --codigo-bg: #1e3a4a;
+    --codigo-texto: #7dd3fc;
+    --sombra: 0 4px 20px rgba(77,184,232,0.15);
+    --sombra-hover: 0 8px 30px rgba(77,184,232,0.25);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--texto);
+    line-height: 1.7;
+    background-image: 
+      radial-gradient(circle at 20% 20%, rgba(77,184,232,0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(39,174,96,0.05) 0%, transparent 50%);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #1a3a5c 0%, #1a8bbf 50%, #27ae60 100%);
+    color: white;
+    padding: 60px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .header-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 6px 20px;
+    border-radius: 50px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 52px;
+    font-weight: 900;
+    margin-bottom: 12px;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.2);
+  }
+  .header h1 span { color: #7dd3fc; }
+  .header p {
+    font-size: 18px;
+    opacity: 0.85;
+    font-weight: 300;
+    max-width: 600px;
+    margin: 0 auto 30px;
+  }
+  .header-meta {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+  .header-meta span {
+    background: rgba(255,255,255,0.1);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .header-meta span strong { color: #7dd3fc; }
+
+  /* CONTAINER */
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  /* ÍNDICE */
+  .indice {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 40px;
+    box-shadow: var(--sombra);
+    border: 1px solid var(--borde);
+  }
+  .indice h2 {
+    font-family: 'Playfair Display', serif;
+    color: var(--celeste-dark);
+    font-size: 22px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .indice-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+  }
+  .indice a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--bg);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--texto);
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid var(--borde);
+    transition: all 0.2s;
+  }
+  .indice a:hover {
+    background: var(--celeste-light);
+    border-color: var(--celeste);
+    transform: translateY(-1px);
+  }
+  .num {
+    background: var(--celeste);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* SECCIONES */
+  .seccion {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 40px;
+    margin-bottom: 30px;
+    box-shadow: var(--sombra);
+    border: 1px solid var(--borde);
+    position: relative;
+    overflow: hidden;
+  }
+  .seccion::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--celeste), var(--verde));
+  }
+  .seccion h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: var(--texto);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .seccion h2 .icon {
+    background: linear-gradient(135deg, var(--celeste), var(--celeste-dark));
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .seccion-subtitulo {
+    color: var(--texto-suave);
+    font-size: 15px;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--bg2);
+  }
+
+  /* PASO A PASO */
+  .pasos { display: flex; flex-direction: column; gap: 16px; }
+  .paso {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 20px;
+    background: var(--bg);
+    border-radius: 12px;
+    border: 1px solid var(--borde);
+  }
+  .paso-num {
+    background: linear-gradient(135deg, var(--celeste), var(--celeste-dark));
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 15px;
+    flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(77,184,232,0.3);
+  }
+  .paso-contenido h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--texto);
+    margin-bottom: 6px;
+  }
+  .paso-contenido p {
+    font-size: 14px;
+    color: var(--texto-suave);
+    margin-bottom: 10px;
+  }
+
+  /* CÓDIGO */
+  .codigo {
+    background: var(--codigo-bg);
+    color: var(--codigo-texto);
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    margin: 10px 0;
+    border-left: 3px solid var(--celeste);
+    position: relative;
+    overflow-x: auto;
+  }
+  .codigo .comentario { color: #64748b; font-style: italic; }
+  .codigo .comando { color: #7dd3fc; }
+  .codigo .valor { color: #86efac; }
+  .codigo .texto-normal { color: #e2e8f0; }
+
+  /* ALERTAS */
+  .alerta {
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin: 16px 0;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .alerta-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .alerta-verde {
+    background: var(--verde-bg);
+    border: 1px solid var(--verde-border);
+    color: #1a5c35;
+  }
+  .alerta-verde .alerta-icon { color: var(--verde); }
+  .alerta-rojo {
+    background: var(--rojo-bg);
+    border: 1px solid var(--rojo-border);
+    color: #7b1c14;
+  }
+  .alerta-rojo .alerta-icon { color: var(--rojo); }
+  .alerta-celeste {
+    background: #e8f4fd;
+    border: 1px solid var(--celeste-light);
+    color: #1a4a6a;
+  }
+  .alerta-celeste .alerta-icon { color: var(--celeste-dark); }
+  .alerta-naranja {
+    background: var(--naranja-bg);
+    border: 1px solid #f9d98a;
+    color: #7a4f00;
+  }
+  .alerta-naranja .alerta-icon { color: var(--naranja); }
+  .alerta strong { font-weight: 600; }
+
+  /* TABLA */
+  .tabla-wrapper { overflow-x: auto; margin: 16px 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  th {
+    background: linear-gradient(135deg, var(--celeste-dark), var(--celeste));
+    color: white;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  th:first-child { border-radius: 8px 0 0 0; }
+  th:last-child { border-radius: 0 8px 0 0; }
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--bg2);
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: var(--bg); }
+  tr:last-child td { border-bottom: none; }
+  tr:last-child td:first-child { border-radius: 0 0 0 8px; }
+  tr:last-child td:last-child { border-radius: 0 0 8px 0; }
+  .check { color: var(--verde); font-weight: 700; }
+  .x { color: var(--rojo); font-weight: 700; }
+
+  /* BENEFICIOS */
+  .beneficios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .beneficio {
+    background: var(--verde-bg);
+    border: 1px solid var(--verde-border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .beneficio h4 {
+    color: var(--verde);
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .beneficio p { font-size: 13px; color: #2d6a4a; }
+
+  /* RUTAS */
+  .ruta {
+    background: var(--bg);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--celeste-dark);
+    margin: 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ruta::before { content: '📁'; }
+
+  /* ARRANQUE DIARIO */
+  .arranque {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .arranque-paso {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    padding: 16px 20px;
+    border-radius: 10px;
+    border: 1px solid var(--borde);
+  }
+  .arranque-paso.verde { background: var(--verde-bg); border-color: var(--verde-border); }
+  .arranque-paso.celeste { background: #e8f4fd; border-color: var(--celeste-light); }
+  .arranque-flecha {
+    text-align: center;
+    color: var(--celeste);
+    font-size: 20px;
+    padding-left: 20px;
+  }
+
+  /* COMANDOS SLASH */
+  .comandos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .comando-item {
+    background: var(--bg);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .comando-nombre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--celeste-dark);
+    font-weight: 600;
+    background: var(--celeste-light);
+    padding: 3px 8px;
+    border-radius: 5px;
+    white-space: nowrap;
+  }
+  .comando-desc { font-size: 13px; color: var(--texto-suave); }
+
+  /* VERIFICACIÓN */
+  .verificacion-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .verificacion-item {
+    background: var(--verde-bg);
+    border: 1px solid var(--verde-border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .verificacion-item .v-icon { font-size: 28px; margin-bottom: 8px; }
+  .verificacion-item .v-titulo { font-weight: 600; font-size: 14px; color: var(--verde); }
+  .verificacion-item .v-version { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #2d6a4a; margin-top: 4px; }
+
+  /* FOOTER */
+  .footer {
+    background: linear-gradient(135deg, #1a3a5c, #1a8bbf);
+    color: white;
+    text-align: center;
+    padding: 40px;
+    margin-top: 60px;
+  }
+  .footer h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  .footer p { opacity: 0.7; font-size: 14px; }
+  .footer .firma {
+    margin-top: 20px;
+    font-size: 13px;
+    opacity: 0.5;
+    font-style: italic;
+  }
+
+  /* SEPARADOR */
+  .sep {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--celeste), transparent);
+    margin: 24px 0;
+  }
+
+  /* TAG */
+  .tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .tag-verde { background: var(--verde-bg); color: var(--verde); border: 1px solid var(--verde-border); }
+  .tag-rojo { background: var(--rojo-bg); color: var(--rojo); border: 1px solid var(--rojo-border); }
+  .tag-celeste { background: var(--celeste-light); color: var(--celeste-dark); }
+
+  h3 { color: var(--celeste-dark); font-size: 18px; margin: 20px 0 12px; font-weight: 600; }
+  p { margin-bottom: 10px; color: var(--texto); font-size: 15px; }
+  ul, ol { padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 6px; font-size: 14px; color: var(--texto-suave); }
+  li strong { color: var(--texto); }
+
+  @media (max-width: 600px) {
+    .header h1 { font-size: 32px; }
+    .seccion { padding: 24px 20px; }
+    .header { padding: 40px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-badge">📘 Guía Técnica Personal</div>
+  <h1>Claude <span>Code</span></h1>
+  <p>Tu guía completa de instalación, configuración y uso diario. Creada especialmente para tu flujo de trabajo en MarketingMo.</p>
+  <div class="header-meta">
+    <span>👤 <strong>Elias</strong> · MarketingMo</span>
+    <span>💻 <strong>Windows 11</strong> · HP Pavilion</span>
+    <span>🗓️ <strong>Marzo 2026</strong></span>
+    <span>✅ <strong>v2.1.81</strong> instalada</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ÍNDICE -->
+  <div class="indice">
+    <h2>📋 Contenido de esta guía</h2>
+    <div class="indice-grid">
+      <a href="#que-es"><span class="num">1</span> ¿Qué es Claude Code?</a>
+      <a href="#requisitos"><span class="num">2</span> Lo que necesitas</a>
+      <a href="#instalacion"><span class="num">3</span> Instalación paso a paso</a>
+      <a href="#verificacion"><span class="num">4</span> Verificar que funciona</a>
+      <a href="#arranque"><span class="num">5</span> Cómo arrancar cada día</a>
+      <a href="#primeros-pasos"><span class="num">6</span> Primeros pasos</a>
+      <a href="#comandos"><span class="num">7</span> Comandos esenciales</a>
+      <a href="#beneficios"><span class="num">8</span> Por qué te beneficia</a>
+      <a href="#no-hacer"><span class="num">9</span> Qué NO hacer</a>
+      <a href="#proximos"><span class="num">10</span> Próximos pasos</a>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 1: QUÉ ES -->
+  <div class="seccion" id="que-es">
+    <h2><span class="icon">🤖</span> ¿Qué es Claude Code?</h2>
+    <p class="seccion-subtitulo">Entiende la diferencia antes de usarlo</p>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>Definición simple:</strong> Claude Code es un agente de inteligencia artificial que vive en tu terminal (línea de comandos). A diferencia de Claude.ai (el chat web que usas normalmente), Claude Code puede leer tus archivos, editarlos, crear carpetas, ejecutar programas y gestionar tu código — todo desde la consola, sin que tú hagas nada manualmente.</div>
+    </div>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead>
+          <tr><th>Característica</th><th>Claude.ai (chat web)</th><th>Claude Code (terminal)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>¿Dónde vive?</td><td>Navegador web / App</td><td>Terminal (PowerShell)</td></tr>
+          <tr><td>¿Puede leer tus archivos?</td><td class="x">✗ No</td><td class="check">✓ Sí</td></tr>
+          <tr><td>¿Puede editar archivos?</td><td class="x">✗ No</td><td class="check">✓ Sí</td></tr>
+          <tr><td>¿Puede ejecutar comandos?</td><td class="x">✗ No</td><td class="check">✓ Sí</td></tr>
+          <tr><td>¿Trabaja con proyectos reales?</td><td class="x">✗ No</td><td class="check">✓ Sí</td></tr>
+          <tr><td>¿Necesita Internet?</td><td class="check">✓ Sí</td><td class="check">✓ Sí</td></tr>
+          <tr><td>Cuenta necesaria</td><td>Claude.ai</td><td>Claude.ai (misma cuenta)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>Tu caso de uso:</strong> Con Claude Code puedes decirle "crea los archivos del agente B.A.C.", "organiza los prompts de MarketingMo", "revisa este código de n8n" — y él lo hace directamente en tu ordenador, sin copiar y pegar manualmente.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 2: REQUISITOS -->
+  <div class="seccion" id="requisitos">
+    <h2><span class="icon">📋</span> Lo que necesitas tener instalado</h2>
+    <p class="seccion-subtitulo">Prerrequisitos del sistema antes de instalar Claude Code</p>
+
+    <div class="verificacion-grid">
+      <div class="verificacion-item">
+        <div class="v-icon">🐙</div>
+        <div class="v-titulo">Git for Windows</div>
+        <div class="v-version">v2.53.0 ✓ Tienes</div>
+      </div>
+      <div class="verificacion-item">
+        <div class="v-icon">💻</div>
+        <div class="v-titulo">VS Code</div>
+        <div class="v-version">v1.112.0 ✓ Tienes</div>
+      </div>
+      <div class="verificacion-item">
+        <div class="v-icon">🟩</div>
+        <div class="v-titulo">Node.js</div>
+        <div class="v-version">v22.16.0 ✓ Tienes</div>
+      </div>
+      <div class="verificacion-item">
+        <div class="v-icon">🤖</div>
+        <div class="v-titulo">Claude Code</div>
+        <div class="v-version">v2.1.81 ✓ Instalado</div>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <h3>¿Qué es cada uno? <span class="tag tag-celeste">Glosario</span></h3>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Herramienta</th><th>Para qué sirve</th><th>¿Puedes verificarlo?</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Git</strong></td><td>Sistema de control de versiones. Claude Code lo necesita para gestionar archivos y ejecutar comandos bash (Bourne Again Shell = lenguaje de comandos de Linux)</td><td><code>git --version</code></td></tr>
+          <tr><td><strong>VS Code</strong> (Visual Studio Code)</td><td>Editor de código. Claude Code se integra con él para mostrarte los cambios de archivos visualmente</td><td><code>code --version</code></td></tr>
+          <tr><td><strong>Node.js</strong></td><td>Entorno de ejecución de JavaScript (lenguaje de programación). Claude Code está construido sobre él</td><td><code>node --version</code></td></tr>
+          <tr><td><strong>npm</strong></td><td>Node Package Manager = gestor de paquetes. Lo usamos para instalar Claude Code</td><td><code>npm --version</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 3: INSTALACIÓN -->
+  <div class="seccion" id="instalacion">
+    <h2><span class="icon">⚙️</span> Instalación completa paso a paso</h2>
+    <p class="seccion-subtitulo">Lo que hicimos el día de la instalación — documentado para futuras referencias</p>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Nota importante:</strong> Esta instalación ya está hecha en tu ordenador. Esta sección es solo como referencia histórica y para que puedas reinstalar si algún día fuera necesario.</div>
+    </div>
+
+    <div class="pasos">
+      <div class="paso">
+        <div class="paso-num">1</div>
+        <div class="paso-contenido">
+          <h3>Verificar Git instalado</h3>
+          <p>Abrir PowerShell (buscar "PowerShell" en el menú inicio) y ejecutar:</p>
+          <div class="codigo"><span class="comando">git --version</span><br><span class="comentario"># Resultado esperado: git version 2.53.0.windows.2</span></div>
+        </div>
+      </div>
+
+      <div class="paso">
+        <div class="paso-num">2</div>
+        <div class="paso-contenido">
+          <h3>Instalar VS Code (si no está)</h3>
+          <p>Descargar desde <strong>code.visualstudio.com</strong> → Windows User Installer 64-bit. Durante la instalación marcar:</p>
+          <div class="alerta alerta-verde" style="margin:8px 0">
+            <span class="alerta-icon">✅</span>
+            <div>☑ Agregar a PATH (disponible después de reiniciar)<br>☑ Registrar Code como editor para tipos de archivo soportados</div>
+          </div>
+          <div class="codigo"><span class="comando">code --version</span><br><span class="comentario"># Resultado esperado: 1.112.0</span></div>
+        </div>
+      </div>
+
+      <div class="paso">
+        <div class="paso-num">3</div>
+        <div class="paso-contenido">
+          <h3>Instalar Claude Code vía npm</h3>
+          <p><strong>npm</strong> (Node Package Manager) es el gestor de paquetes que permite instalar herramientas de Node.js globalmente en tu sistema:</p>
+          <div class="codigo"><span class="comando">npm install -g @anthropic-ai/claude-code</span><br><span class="comentario"># -g significa "global" = disponible en todo el sistema</span><br><span class="comentario"># @anthropic-ai/claude-code = nombre oficial del paquete</span></div>
+          <div class="alerta alerta-celeste" style="margin-top:10px">
+            <span class="alerta-icon">ℹ️</span>
+            <div>Tarda entre 1-3 minutos. Verás texto moviéndose. Es normal. No cierres la ventana.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="paso">
+        <div class="paso-num">4</div>
+        <div class="paso-contenido">
+          <h3>Configurar la ruta de Git Bash</h3>
+          <p>En tu ordenador, Git se instaló en una ruta personalizada (no la estándar). Hay que indicársela a Claude Code. Esto se hace editando el archivo de configuración:</p>
+          <div class="ruta">C:\Users\elias\.claude\settings.json</div>
+          <p>Contenido del archivo que funciona en tu máquina:</p>
+          <div class="codigo">{<br>  <span class="valor">"extraKnownMarketplaces"</span>: { ... },<br>  <span class="valor">"env"</span>: {<br>    <span class="valor">"CLAUDE_CODE_GIT_BASH_PATH"</span>: <span class="texto-normal">"C:\\Users\\elias\\AppData\\Local\\Programs\\Git\\bin\\bash.exe"</span><br>  }<br>}</div>
+        </div>
+      </div>
+
+      <div class="paso">
+        <div class="paso-num">5</div>
+        <div class="paso-contenido">
+          <h3>Verificar instalación</h3>
+          <div class="codigo"><span class="comando">claude --version</span><br><span class="comentario"># Resultado esperado: 2.1.81 (Claude Code)</span></div>
+        </div>
+      </div>
+
+      <div class="paso">
+        <div class="paso-num">6</div>
+        <div class="paso-contenido">
+          <h3>Primer arranque y autenticación</h3>
+          <div class="codigo"><span class="comando">claude</span><br><span class="comentario"># Abre Claude Code y te pide método de login</span></div>
+          <p>Seleccionar opción <strong>1 → Claude account with subscription</strong>. Se abre el navegador, inicias sesión con <strong>elias.ventas.mo@gmail.com</strong> y listo.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 4: VERIFICACIÓN -->
+  <div class="seccion" id="verificacion">
+    <h2><span class="icon">✅</span> Verificar que todo funciona</h2>
+    <p class="seccion-subtitulo">Comandos de diagnóstico rápido</p>
+
+    <p>Si en algún momento tienes dudas de si todo está bien, ejecuta estos comandos en PowerShell:</p>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Comando</th><th>Qué verifica</th><th>Resultado correcto</th></tr></thead>
+        <tbody>
+          <tr><td><code>git --version</code></td><td>Git instalado</td><td>git version 2.53.x.windows.x</td></tr>
+          <tr><td><code>code --version</code></td><td>VS Code instalado</td><td>1.112.0 o superior</td></tr>
+          <tr><td><code>node --version</code></td><td>Node.js instalado</td><td>v22.x.x</td></tr>
+          <tr><td><code>claude --version</code></td><td>Claude Code instalado</td><td>2.1.81 (Claude Code)</td></tr>
+          <tr><td><code>claude</code></td><td>Claude Code arranca</td><td>Pantalla "Welcome back Elias!"</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>Tu estado actual (Marzo 2026):</strong> Todos los comandos anteriores funcionan correctamente en tu máquina. La sesión está autenticada con tu cuenta Pro.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 5: ARRANQUE DIARIO -->
+  <div class="seccion" id="arranque">
+    <h2><span class="icon">🌅</span> Cómo arrancar Claude Code cada día</h2>
+    <p class="seccion-subtitulo">El flujo exacto desde que abres el ordenador hasta que estás trabajando</p>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>Concepto clave:</strong> Claude Code siempre trabaja <strong>dentro de una carpeta</strong>. Antes de abrirlo, debes navegar a la carpeta del proyecto en el que vas a trabajar. Es como decirle "trabaja en este escritorio, no en cualquier sitio de la casa".</div>
+    </div>
+
+    <div class="sep"></div>
+    <h3>🗂️ Tus carpetas de trabajo</h3>
+
+    <div class="ruta">C:\Users\elias\claudecode-practicas → Para aprender y practicar</div>
+    <div class="ruta">C:\Users\elias\[carpeta-agente] → Para proyectos reales de MarketingMo</div>
+
+    <div class="sep"></div>
+    <h3>Flujo de arranque diario</h3>
+
+    <div class="arranque">
+      <div class="arranque-paso celeste">
+        <span style="font-size:24px">1️⃣</span>
+        <div>
+          <strong>Abre PowerShell</strong><br>
+          <span style="font-size:13px; color:var(--texto-suave)">Menú Inicio → busca "PowerShell" → clic derecho → "Ejecutar como administrador" (opcional pero recomendado)</span>
+        </div>
+      </div>
+      <div class="arranque-flecha">↓</div>
+      <div class="arranque-paso celeste">
+        <span style="font-size:24px">2️⃣</span>
+        <div>
+          <strong>Navega a tu carpeta de proyecto</strong><br>
+          <div class="codigo" style="margin-top:8px"><span class="comentario"># Para prácticas:</span><br><span class="comando">cd C:\Users\elias\claudecode-practicas</span><br><br><span class="comentario"># Para proyectos reales (sustituye por tu ruta):</span><br><span class="comando">cd C:\Users\elias\[nombre-de-tu-proyecto]</span></div>
+          <span style="font-size:12px; color:var(--texto-suave)"><strong>cd</strong> = Change Directory = Cambiar directorio. Le dice a la terminal en qué carpeta quieres estar.</span>
+        </div>
+      </div>
+      <div class="arranque-flecha">↓</div>
+      <div class="arranque-paso verde">
+        <span style="font-size:24px">3️⃣</span>
+        <div>
+          <strong>Abre Claude Code</strong><br>
+          <div class="codigo" style="margin-top:8px"><span class="comando">claude</span></div>
+          <span style="font-size:13px; color:#2d6a4a">Verás "Welcome back Elias!" con tu cuenta Pro activa y la ruta de tu carpeta. ¡Listo para trabajar!</span>
+        </div>
+      </div>
+      <div class="arranque-flecha">↓</div>
+      <div class="arranque-paso verde">
+        <span style="font-size:24px">4️⃣</span>
+        <div>
+          <strong>Empieza a trabajar — escribe en lenguaje natural</strong><br>
+          <div class="codigo" style="margin-top:8px"><span class="comentario"># Ejemplos de lo que puedes escribir:</span><br><span class="texto-normal">Crea un archivo con el prompt del agente BAC</span><br><span class="texto-normal">Organiza todos los archivos .md en una carpeta llamada prompts</span><br><span class="texto-normal">Revisa el archivo settings.json y dime si hay errores</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+    <h3>Para cerrar Claude Code</h3>
+    <div class="codigo"><span class="comando">/exit</span><br><span class="comentario"># O simplemente cierra la ventana de PowerShell</span></div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>Tu sesión se guarda automáticamente.</strong> La próxima vez que abras Claude Code recordará las conversaciones recientes. Puedes retomar con <code>claude -c</code> (continue = continuar última sesión).</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 6: PRIMEROS PASOS -->
+  <div class="seccion" id="primeros-pasos">
+    <h2><span class="icon">🚀</span> Primeros pasos en un proyecto nuevo</h2>
+    <p class="seccion-subtitulo">Lo primero que debes hacer cuando entras a una carpeta por primera vez</p>
+
+    <h3>El comando /init — El briefing del proyecto</h3>
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">📄</span>
+      <div><strong>/init</strong> crea automáticamente un archivo llamado <strong>CLAUDE.md</strong> en tu carpeta. Este archivo es la "memoria permanente" del proyecto — Claude Code lo lee cada vez que arrancas y sabe exactamente con qué está trabajando. Es como darle un briefing completo a un empleado nuevo antes de que empiece.</div>
+    </div>
+
+    <div class="codigo"><span class="comentario"># Dentro de Claude Code, en el prompt >, escribe:</span><br><span class="comando">/init</span><br><span class="comentario"># Claude Code analiza tu carpeta y crea el CLAUDE.md automáticamente</span></div>
+
+    <div class="sep"></div>
+    <h3>Dónde se guarda el CLAUDE.md</h3>
+    <div class="ruta">C:\Users\elias\[tu-proyecto]\CLAUDE.md</div>
+
+    <p>Puedes editar este archivo manualmente con VS Code para añadir:</p>
+    <ul>
+      <li>Qué tipo de proyecto es (agencia, SaaS, cliente X...)</li>
+      <li>Comandos específicos del proyecto</li>
+      <li>Convenciones de nombres de archivos</li>
+      <li>Información del cliente o del negocio</li>
+    </ul>
+
+    <div class="codigo"><span class="comentario"># Ejemplo de CLAUDE.md para MarketingMo:</span><br><span class="texto-normal"># Proyecto: Agente BAC - MarketingMo</span><br><span class="texto-normal">Agencia de marketing digital en España</span><br><span class="texto-normal">Sistema: B.A.C. (Briefing · Acción · Contenido)</span><br><br><span class="texto-normal">## Estructura</span><br><span class="texto-normal">- /prompts → Prompts de los agentes</span><br><span class="texto-normal">- /clientes → Carpetas por cliente</span><br><span class="texto-normal">- /plantillas → Templates reutilizables</span></div>
+  </div>
+
+  <!-- SECCIÓN 7: COMANDOS -->
+  <div class="seccion" id="comandos">
+    <h2><span class="icon">⌨️</span> Comandos esenciales</h2>
+    <p class="seccion-subtitulo">Los slash commands más útiles para tu día a día</p>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>¿Qué es un slash command?</strong> Son comandos especiales que empiezan con <strong>/</strong> y activan funciones específicas de Claude Code. No son peticiones en lenguaje natural — son instrucciones directas al sistema.</div>
+    </div>
+
+    <div class="comandos-grid">
+      <div class="comando-item">
+        <span class="comando-nombre">/help</span>
+        <span class="comando-desc">Muestra todos los comandos disponibles y atajos de teclado</span>
+      </div>
+      <div class="comando-item">
+        <span class="comando-nombre">/init</span>
+        <span class="comando-desc">Crea el archivo CLAUDE.md con la memoria del proyecto</span>
+      </div>
+      <div class="comando-item">
+        <span class="comando-nombre">/clear</span>
+        <span class="comando-desc">Limpia el historial de conversación (libera contexto)</span>
+      </div>
+      <div class="comando-item">
+        <span class="comando-nombre">/exit</span>
+        <span class="comando-desc">Cierra Claude Code y vuelve a PowerShell</span>
+      </div>
+      <div class="comando-item">
+        <span class="comando-nombre">/model</span>
+        <span class="comando-desc">Cambia el modelo de IA (sonnet, opus, haiku)</span>
+      </div>
+      <div class="comando-item">
+        <span class="comando-nombre">/memory</span>
+        <span class="comando-desc">Edita los archivos de memoria CLAUDE.md</span>
+      </div>
+      <div class="comando-item">
+        <span class="comando-nombre">/status</span>
+        <span class="comando-desc">Muestra versión, modelo activo y configuración</span>
+      </div>
+      <div class="comando-item">
+        <span class="comando-nombre">/cost</span>
+        <span class="comando-desc">Muestra el uso de tokens y coste de la sesión</span>
+      </div>
+      <div class="comando-item">
+        <span class="comando-nombre">/review</span>
+        <span class="comando-desc">Revisión de código de los últimos cambios</span>
+      </div>
+      <div class="comando-item">
+        <span class="comando-nombre">/compact</span>
+        <span class="comando-desc">Comprime el historial cuando se llena el contexto</span>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+    <h3>Atajos de teclado esenciales</h3>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Atajo</th><th>Qué hace</th><th>Cuándo usarlo</th></tr></thead>
+        <tbody>
+          <tr><td><code>!</code> + comando</td><td>Ejecuta un comando del sistema directamente</td><td>Crear carpetas, listar archivos, comandos de terminal</td></tr>
+          <tr><td><code>@</code> + ruta</td><td>Referencia un archivo específico</td><td>Cuando quieres que Claude Code trabaje con un archivo concreto</td></tr>
+          <tr><td><code>Ctrl+Shift+-</code></td><td>Deshacer el último cambio</td><td>Si Claude Code hizo algo que no querías</td></tr>
+          <tr><td><code>Ctrl+O</code></td><td>Ver output detallado</td><td>Para ver exactamente qué está haciendo Claude Code</td></tr>
+          <tr><td><code>Esc Esc</code></td><td>Limpiar el input</td><td>Si escribiste algo mal y quieres borrar todo</td></tr>
+          <tr><td><code>Ctrl+C</code></td><td>Interrumpir una tarea</td><td>Si Claude Code se equivocó y quieres detenerlo</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sep"></div>
+    <h3>Comandos de PowerShell que necesitarás</h3>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Comando</th><th>Significa</th><th>Para qué sirve</th></tr></thead>
+        <tbody>
+          <tr><td><code>cd [ruta]</code></td><td>Change Directory</td><td>Navegar a una carpeta</td></tr>
+          <tr><td><code>cd ..</code></td><td>Subir un nivel</td><td>Ir a la carpeta anterior</td></tr>
+          <tr><td><code>mkdir [nombre]</code></td><td>Make Directory</td><td>Crear una nueva carpeta</td></tr>
+          <tr><td><code>ls</code> o <code>dir</code></td><td>List / Directory</td><td>Ver archivos de la carpeta actual</td></tr>
+          <tr><td><code>claude</code></td><td>—</td><td>Abrir Claude Code en la carpeta actual</td></tr>
+          <tr><td><code>claude -c</code></td><td>Continue</td><td>Continuar la última sesión</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 8: BENEFICIOS -->
+  <div class="seccion" id="beneficios">
+    <h2><span class="icon">💚</span> Por qué te beneficia tener Claude Code</h2>
+    <p class="seccion-subtitulo">Ventajas concretas para MarketingMo y tu ecosistema de agentes</p>
+
+    <div class="beneficios-grid">
+      <div class="beneficio">
+        <h4>✅ Automatización real de archivos</h4>
+        <p>Puede crear, renombrar, organizar y editar cientos de archivos con una sola instrucción en lenguaje natural. Lo que te tomaría 2 horas lo hace en 2 minutos.</p>
+      </div>
+      <div class="beneficio">
+        <h4>✅ Desarrollo de agentes más rápido</h4>
+        <p>Para construir tu ecosistema B.A.C., A.D.M. y A.C.I., Claude Code puede escribir y refinar los prompts directamente en los archivos sin que copies y pegues.</p>
+      </div>
+      <div class="beneficio">
+        <h4>✅ Integración con tu flujo de n8n</h4>
+        <p>Puede revisar y corregir los JSON de tus workflows de n8n, detectar errores de sintaxis y sugerirte mejoras sin salir de la terminal.</p>
+      </div>
+      <div class="beneficio">
+        <h4>✅ Genera documentación automática</h4>
+        <p>Lee tu código o tus prompts y genera documentación, READMEs y guías para clientes de forma automática.</p>
+      </div>
+      <div class="beneficio">
+        <h4>✅ Trabaja con contexto completo</h4>
+        <p>Ve todos tus archivos al mismo tiempo. No necesitas explicarle la estructura del proyecto cada vez — el CLAUDE.md lo recuerda siempre.</p>
+      </div>
+      <div class="beneficio">
+        <h4>✅ Sin coste adicional con tu plan Pro</h4>
+        <p>Está incluido en tu suscripción Claude Pro actual. No pagas extra por usarlo.</p>
+      </div>
+    </div>
+
+    <div class="alerta alerta-verde" style="margin-top:20px">
+      <span class="alerta-icon">🎯</span>
+      <div><strong>Caso de uso específico para ti:</strong> Puedes apuntar Claude Code a tu carpeta de proyectos de clientes y decirle "analiza los informes de métricas de este cliente y genera el informe A.D.M. en formato Notion". Él lee los archivos, procesa la información y genera el documento — tú solo revisas y apruebas.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 9: NO HACER -->
+  <div class="seccion" id="no-hacer">
+    <h2><span class="icon">🚫</span> Qué NO debes hacer</h2>
+    <p class="seccion-subtitulo">Errores comunes que debes evitar para proteger tu trabajo</p>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA uses Claude Code en la carpeta raíz del sistema.</strong> Si lo abres desde <code>C:\</code> o <code>C:\Windows</code>, puede tener acceso a archivos del sistema operativo. Siempre trabaja en carpetas específicas de tus proyectos.</div>
+    </div>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA uses <code>--dangerously-skip-permissions</code> en tu ordenador personal.</strong> Este flag omite todos los avisos de seguridad y puede modificar o eliminar archivos sin pedirte confirmación. Solo es para servidores aislados y entornos de prueba.</div>
+    </div>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA guardes contraseñas, API keys o datos sensibles en el CLAUDE.md.</strong> Este archivo puede ser leído por Claude Code y enviado como contexto. Guarda las credenciales en variables de entorno o en archivos .env separados.</div>
+    </div>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA interrumpas Claude Code a la mitad de una edición de archivos.</strong> Si está modificando múltiples archivos y lo cierras, puede dejar archivos a medias. Usa <code>Ctrl+C</code> para interrumpir limpiamente y espera a que confirme.</div>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Siempre revisa los cambios antes de confirmar.</strong> Claude Code te pide permiso antes de modificar archivos (modo por defecto). Léelos antes de aceptar. Si algo no te parece bien, di "no" o "deshaz el último cambio".</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 10: PRÓXIMOS PASOS -->
+  <div class="seccion" id="proximos">
+    <h2><span class="icon">🗺️</span> Próximos pasos de aprendizaje</h2>
+    <p class="seccion-subtitulo">El plan de 9 módulos para dominar Claude Code</p>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Módulo</th><th>Tema</th><th>Estado</th><th>Tiempo</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>1</strong></td>
+            <td>Instalación completa + primer arranque</td>
+            <td><span class="tag tag-verde">✅ Completado</span></td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><strong>2</strong></td>
+            <td>Comandos y Flags del CLI</td>
+            <td><span class="tag tag-celeste">⏳ Siguiente</span></td>
+            <td>45 min</td>
+          </tr>
+          <tr>
+            <td><strong>3</strong></td>
+            <td>Configuración y Settings (settings.json)</td>
+            <td><span class="tag tag-rojo">Pendiente</span></td>
+            <td>40 min</td>
+          </tr>
+          <tr>
+            <td><strong>4</strong></td>
+            <td>CLAUDE.md y Memoria del Proyecto</td>
+            <td><span class="tag tag-rojo">Pendiente</span></td>
+            <td>35 min</td>
+          </tr>
+          <tr>
+            <td><strong>5</strong></td>
+            <td>Permisos y Seguridad</td>
+            <td><span class="tag tag-rojo">Pendiente</span></td>
+            <td>40 min</td>
+          </tr>
+          <tr>
+            <td><strong>6</strong></td>
+            <td>Skills y Slash Commands personalizados</td>
+            <td><span class="tag tag-rojo">Pendiente</span></td>
+            <td>30 min</td>
+          </tr>
+          <tr>
+            <td><strong>7</strong></td>
+            <td>Hooks (automatización por eventos)</td>
+            <td><span class="tag tag-rojo">Pendiente</span></td>
+            <td>45 min</td>
+          </tr>
+          <tr>
+            <td><strong>8</strong></td>
+            <td>MCP Servers (integraciones externas)</td>
+            <td><span class="tag tag-rojo">Pendiente</span></td>
+            <td>50 min</td>
+          </tr>
+          <tr>
+            <td><strong>9</strong></td>
+            <td>Integración con VS Code y JetBrains</td>
+            <td><span class="tag tag-rojo">Pendiente</span></td>
+            <td>30 min</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-celeste" style="margin-top:20px">
+      <span class="alerta-icon">🎯</span>
+      <div><strong>Método recomendado:</strong> Un módulo por sesión. Cada módulo: explicación → ejemplo con tu carpeta de prácticas → prueba en tiempo real. El aprendizaje más efectivo es el que se practica inmediatamente después de escucharlo.</div>
+    </div>
+
+    <div class="sep"></div>
+    <h3>📁 Tu carpeta de prácticas</h3>
+    <div class="ruta">C:\Users\elias\claudecode-practicas</div>
+    <p>Aquí es donde practicaremos todos los módulos. Ya está creada y apuntada en Claude Code.</p>
+
+    <h3>🔗 Recursos oficiales</h3>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Recurso</th><th>URL</th></tr></thead>
+        <tbody>
+          <tr><td>Documentación oficial</td><td>code.claude.com/docs</td></tr>
+          <tr><td>Guía de comandos CLI</td><td>docs.anthropic.com/en/docs/claude-code/cli-reference</td></tr>
+          <tr><td>Comunidad GitHub</td><td>github.com/anthropics/claude-code</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <h3>🚀 Estás construyendo al hombre que tu destino exige</h3>
+  <p>Claude Code instalado · Cuenta Pro activa · Carpeta de prácticas lista · 9 módulos por delante</p>
+  <div class="firma">Guía creada el 23 de Marzo de 2026 · Elias · MarketingMo · nietomonica.com</div>
+</div>
+
+</body>
+</html>

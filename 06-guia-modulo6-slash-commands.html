@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Módulo 6 — Skills y Slash Commands Personalizados · Claude Code</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #e8f4fd; --bg2: #d0e9f8; --card: #ffffff;
+    --celeste: #4db8e8; --celeste-dark: #1a8bbf; --celeste-light: #b8dff5;
+    --verde: #27ae60; --verde-bg: #eafaf1; --verde-border: #a9dfbf;
+    --rojo: #e74c3c; --rojo-bg: #fdf2f2; --rojo-border: #f5c6c0;
+    --naranja: #f39c12; --naranja-bg: #fef9e7;
+    --morado: #7c3aed; --morado-bg: #f3f0ff; --morado-border: #c4b5fd;
+    --texto: #1a2a3a; --texto-suave: #4a6a8a; --borde: #c5dff0;
+    --codigo-bg: #1e3a4a; --codigo-texto: #7dd3fc;
+    --sombra: 0 4px 20px rgba(77,184,232,0.15);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--texto); line-height: 1.7; background-image: radial-gradient(circle at 20% 20%, rgba(77,184,232,0.08) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(39,174,96,0.05) 0%, transparent 50%); }
+
+  .header { background: linear-gradient(135deg, #1a3a5c 0%, #1a8bbf 50%, #27ae60 100%); color: white; padding: 60px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 40px 40px; }
+  .header-badge { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); padding: 6px 20px; border-radius: 50px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 900; margin-bottom: 12px; }
+  .header h1 span { color: #7dd3fc; }
+  .header p { font-size: 17px; opacity: 0.85; font-weight: 300; max-width: 600px; margin: 0 auto 30px; }
+  .header-meta { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+  .header-meta span { background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-size: 13px; border: 1px solid rgba(255,255,255,0.2); }
+  .header-meta span strong { color: #7dd3fc; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  /* BANNER AGENCIA */
+  .banner-agencia { background: linear-gradient(135deg, #1a3a5c, #1a8bbf); border-radius: 16px; padding: 30px 40px; margin-bottom: 30px; color: white; display: flex; align-items: center; gap: 20px; }
+  .banner-icon { font-size: 48px; flex-shrink: 0; }
+  .banner-texto h2 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 8px; }
+  .banner-texto p { font-size: 14px; opacity: 0.85; margin: 0; }
+
+  .resumen-modulo { background: var(--card); border-radius: 16px; padding: 30px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); }
+  .resumen-modulo h2 { font-family: 'Playfair Display', serif; color: var(--celeste-dark); font-size: 22px; margin-bottom: 20px; }
+  .resumen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .resumen-item { background: var(--bg); border: 1px solid var(--borde); border-radius: 10px; padding: 14px; text-align: center; }
+  .resumen-item .r-icon { font-size: 26px; margin-bottom: 6px; }
+  .resumen-item .r-titulo { font-weight: 600; font-size: 13px; color: var(--celeste-dark); }
+  .resumen-item .r-desc { font-size: 12px; color: var(--texto-suave); margin-top: 4px; }
+
+  .indice { background: var(--card); border-radius: 16px; padding: 30px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); }
+  .indice h2 { font-family: 'Playfair Display', serif; color: var(--celeste-dark); font-size: 22px; margin-bottom: 20px; }
+  .indice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .indice a { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg); border-radius: 10px; text-decoration: none; color: var(--texto); font-size: 14px; font-weight: 500; border: 1px solid var(--borde); transition: all 0.2s; }
+  .indice a:hover { background: var(--celeste-light); border-color: var(--celeste); }
+  .num { background: var(--celeste); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+
+  .seccion { background: var(--card); border-radius: 16px; padding: 40px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); position: relative; overflow: hidden; }
+  .seccion::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--celeste), var(--verde)); }
+  .seccion h2 { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--texto); margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+  .seccion h2 .icon { background: linear-gradient(135deg, var(--celeste), var(--celeste-dark)); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .seccion-subtitulo { color: var(--texto-suave); font-size: 15px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--bg2); }
+
+  .codigo { background: var(--codigo-bg); color: var(--codigo-texto); padding: 14px 18px; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 13px; margin: 10px 0; border-left: 3px solid var(--celeste); overflow-x: auto; line-height: 1.9; }
+  .codigo .comentario { color: #64748b; font-style: italic; }
+  .codigo .comando { color: #7dd3fc; }
+  .codigo .valor { color: #86efac; }
+  .codigo .resultado { color: #fbbf24; }
+  .codigo .texto-normal { color: #e2e8f0; }
+  .codigo .clave { color: #fb923c; }
+
+  .alerta { padding: 16px 20px; border-radius: 12px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; font-size: 14px; line-height: 1.6; }
+  .alerta-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .alerta-verde { background: var(--verde-bg); border: 1px solid var(--verde-border); color: #1a5c35; }
+  .alerta-verde .alerta-icon { color: var(--verde); }
+  .alerta-rojo { background: var(--rojo-bg); border: 1px solid var(--rojo-border); color: #7b1c14; }
+  .alerta-rojo .alerta-icon { color: var(--rojo); }
+  .alerta-celeste { background: #e8f4fd; border: 1px solid var(--celeste-light); color: #1a4a6a; }
+  .alerta-celeste .alerta-icon { color: var(--celeste-dark); }
+  .alerta-naranja { background: var(--naranja-bg); border: 1px solid #f9d98a; color: #7a4f00; }
+  .alerta-naranja .alerta-icon { color: var(--naranja); }
+  .alerta strong { font-weight: 600; }
+
+  .tabla-wrapper { overflow-x: auto; margin: 16px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { background: linear-gradient(135deg, var(--celeste-dark), var(--celeste)); color: white; padding: 12px 16px; text-align: left; font-weight: 600; }
+  th:first-child { border-radius: 8px 0 0 0; }
+  th:last-child { border-radius: 0 8px 0 0; }
+  td { padding: 12px 16px; border-bottom: 1px solid var(--bg2); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--bg); }
+  tr:last-child td { border-bottom: none; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--celeste-light); color: var(--celeste-dark); padding: 2px 6px; border-radius: 4px; }
+
+  .practica-card { background: var(--verde-bg); border: 1px solid var(--verde-border); border-radius: 12px; padding: 20px; margin: 12px 0; display: flex; gap: 14px; align-items: flex-start; }
+  .practica-card .p-icon { font-size: 24px; flex-shrink: 0; }
+  .practica-card h4 { color: var(--verde); font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .practica-card p { font-size: 13px; color: #2d6a4a; margin: 0; }
+
+  /* COMANDO CARD */
+  .comando-card { border-radius: 16px; padding: 28px; margin-bottom: 24px; border: 2px solid; }
+  .cmd-bac { background: linear-gradient(135deg, #eafaf1, #d5f5e3); border-color: var(--verde); }
+  .cmd-adm { background: linear-gradient(135deg, #e8f4fd, #d0e9f8); border-color: var(--celeste); }
+  .cmd-aci { background: linear-gradient(135deg, #f3f0ff, #e9e2ff); border-color: var(--morado); }
+  .cmd-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .cmd-icono { font-size: 36px; }
+  .cmd-titulo-grupo { flex: 1; }
+  .cmd-nombre { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 700; }
+  .cmd-bac .cmd-nombre { color: var(--verde); }
+  .cmd-adm .cmd-nombre { color: var(--celeste-dark); }
+  .cmd-aci .cmd-nombre { color: var(--morado); }
+  .cmd-agente { font-size: 13px; font-weight: 600; margin-top: 2px; }
+  .cmd-bac .cmd-agente { color: #1a5c35; }
+  .cmd-adm .cmd-agente { color: #1a4a6a; }
+  .cmd-aci .cmd-agente { color: #4c1d95; }
+  .cmd-desc { font-size: 14px; color: var(--texto); margin-bottom: 14px; line-height: 1.7; }
+  .cmd-uso { background: var(--codigo-bg); border-radius: 10px; padding: 14px 18px; font-family: 'JetBrains Mono', monospace; font-size: 13px; margin-bottom: 14px; }
+  .cmd-uso .u-titulo { color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .cmd-uso .u-comando { color: #7dd3fc; margin: 4px 0; }
+  .cmd-uso .u-resultado { color: #86efac; font-size: 12px; }
+  .cmd-secciones { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cmd-seccion { font-size: 12px; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+  .cmd-bac .cmd-seccion { background: rgba(39,174,96,0.1); color: var(--verde); border: 1px solid rgba(39,174,96,0.3); }
+  .cmd-adm .cmd-seccion { background: rgba(77,184,232,0.1); color: var(--celeste-dark); border: 1px solid rgba(77,184,232,0.3); }
+  .cmd-aci .cmd-seccion { background: rgba(124,58,237,0.1); color: var(--morado); border: 1px solid rgba(124,58,237,0.3); }
+
+  /* FLUJO OPERATIVO */
+  .flujo-operativo { background: linear-gradient(135deg, #0f2030, #1a3a5c); border-radius: 16px; padding: 36px; margin: 20px 0; border: 1px solid #2a4a6a; }
+  .fo-titulo { font-family: 'Playfair Display', serif; color: #7dd3fc; font-size: 22px; margin-bottom: 6px; }
+  .fo-subtitulo { color: #94a3b8; font-size: 14px; margin-bottom: 28px; }
+  .fo-paso { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 20px; }
+  .fo-num { background: linear-gradient(135deg, var(--celeste), var(--verde)); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; flex-shrink: 0; }
+  .fo-contenido { flex: 1; }
+  .fo-accion { color: #e2e8f0; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .fo-comando { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #7dd3fc; background: rgba(77,184,232,0.1); padding: 6px 12px; border-radius: 6px; display: inline-block; margin: 4px 0; }
+  .fo-resultado { color: #86efac; font-size: 13px; margin-top: 4px; }
+  .fo-sep { border: none; border-top: 1px solid #2a4a6a; margin: 16px 0; }
+
+  /* CÓMO CREAR NUEVO */
+  .nuevo-comando { background: var(--bg); border: 2px dashed var(--celeste); border-radius: 14px; padding: 28px; margin: 20px 0; }
+  .nc-titulo { color: var(--celeste-dark); font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 16px; }
+  .nc-paso { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
+  .nc-num { background: var(--celeste); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+  .nc-texto { font-size: 14px; color: var(--texto); }
+  .nc-texto strong { color: var(--celeste-dark); }
+
+  /* ESTRUCTURA COMANDO */
+  .estructura-comando { background: #0f2030; border-radius: 12px; padding: 20px 24px; margin: 16px 0; border: 1px solid #2a4a6a; }
+  .ec-linea { font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 2.2; }
+  .ec-comentario { color: #475569; font-style: italic; }
+  .ec-clave { color: #7dd3fc; }
+  .ec-valor { color: #86efac; }
+  .ec-texto { color: #e2e8f0; }
+  .ec-especial { color: #fb923c; font-weight: 700; }
+
+  /* IDEAS FUTUROS COMANDOS */
+  .ideas-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin: 16px 0; }
+  .idea-item { background: var(--bg); border: 1px solid var(--borde); border-radius: 12px; padding: 18px; }
+  .idea-comando { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: var(--celeste-dark); background: var(--celeste-light); padding: 4px 10px; border-radius: 6px; display: inline-block; margin-bottom: 8px; }
+  .idea-desc { font-size: 13px; color: var(--texto-suave); }
+  .idea-cuando { font-size: 12px; color: var(--texto-suave); margin-top: 6px; font-style: italic; }
+
+  .sep { height: 1px; background: linear-gradient(90deg, transparent, var(--celeste), transparent); margin: 24px 0; }
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  .tag-verde { background: var(--verde-bg); color: var(--verde); border: 1px solid var(--verde-border); }
+  .tag-rojo { background: var(--rojo-bg); color: var(--rojo); border: 1px solid var(--rojo-border); }
+  .tag-celeste { background: var(--celeste-light); color: var(--celeste-dark); }
+  .tag-morado { background: var(--morado-bg); color: var(--morado); border: 1px solid var(--morado-border); }
+  .ruta { background: var(--bg); border: 1px solid var(--borde); border-radius: 10px; padding: 12px 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--celeste-dark); margin: 8px 0; }
+  .ruta::before { content: '📁 '; }
+
+  h3 { color: var(--celeste-dark); font-size: 18px; margin: 20px 0 12px; font-weight: 600; }
+  p { margin-bottom: 10px; color: var(--texto); font-size: 15px; }
+  ul, ol { padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 6px; font-size: 14px; color: var(--texto-suave); }
+  li strong { color: var(--texto); }
+
+  .footer { background: linear-gradient(135deg, #1a3a5c, #1a8bbf); color: white; text-align: center; padding: 40px; }
+  .footer h3 { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 10px; }
+  .footer p { opacity: 0.7; font-size: 14px; }
+  .footer .firma { margin-top: 16px; font-size: 12px; opacity: 0.4; font-style: italic; }
+
+  @media (max-width: 600px) {
+    .header h1 { font-size: 30px; }
+    .seccion { padding: 24px 16px; }
+    .banner-agencia { flex-direction: column; text-align: center; }
+    .cmd-header { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">📘 Módulo 6 de 9</div>
+  <h1>Skills y Slash <span>Commands</span> Personalizados</h1>
+  <p>Crea tus propios comandos de MarketingMo — los 3 agentes B.A.C., A.D.M. y A.C.I. ahora son slash commands ejecutables en segundos.</p>
+  <div class="header-meta">
+    <span>👤 <strong>Mónico Nieto</strong> · MarketingMo</span>
+    <span>📁 <strong>claudecode-practicas</strong></span>
+    <span>✅ <strong>Módulos 1 al 5</strong> completados</span>
+    <span>⏳ <strong>30 min</strong> este módulo</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- BANNER AGENCIA -->
+  <div class="banner-agencia">
+    <div class="banner-icon">⚡</div>
+    <div class="banner-texto">
+      <h2>Este módulo transforma tu agencia</h2>
+      <p>Los 3 agentes de MarketingMo (B.A.C., A.D.M. y A.C.I.) dejaron de ser prompts en Notion y se convirtieron en comandos ejecutables. Un comando, un segundo, un documento profesional listo.</p>
+    </div>
+  </div>
+
+  <!-- RESUMEN -->
+  <div class="resumen-modulo">
+    <h2>🎯 ¿Qué aprendes en este módulo?</h2>
+    <div class="resumen-grid">
+      <div class="resumen-item">
+        <div class="r-icon">⌨️</div>
+        <div class="r-titulo">Qué es un slash command personalizado</div>
+        <div class="r-desc">Comandos propios que no existen por defecto — tú los creas</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">📁</div>
+        <div class="r-titulo">Dónde se guardan</div>
+        <div class="r-desc">La carpeta .claude/commands/ y cómo organizarla</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">🏗️</div>
+        <div class="r-titulo">Estructura de un comando</div>
+        <div class="r-desc">Frontmatter, $ARGUMENTS, instrucciones — cómo se construye</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">📋</div>
+        <div class="r-titulo">/brief-cliente</div>
+        <div class="r-desc">Agente B.A.C. — Brief completo del Sistema B.A.C.</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">📊</div>
+        <div class="r-titulo">/informe-adm</div>
+        <div class="r-desc">Agente A.D.M. — Informe mensual + integración Metricool</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">🔍</div>
+        <div class="r-titulo">/auditoria-aci</div>
+        <div class="r-desc">Agente A.C.I. — Auditoría digital pre-venta en 9 secciones</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÍNDICE -->
+  <div class="indice">
+    <h2>📋 Contenido de este módulo</h2>
+    <div class="indice-grid">
+      <a href="#que-es"><span class="num">1</span> Qué es un slash command personalizado</a>
+      <a href="#donde"><span class="num">2</span> Dónde se guardan y cómo se activan</a>
+      <a href="#estructura"><span class="num">3</span> Estructura técnica de un comando</a>
+      <a href="#bac"><span class="num">4</span> Comando /brief-cliente (B.A.C.)</a>
+      <a href="#adm"><span class="num">5</span> Comando /informe-adm (A.D.M.)</a>
+      <a href="#aci"><span class="num">6</span> Comando /auditoria-aci (A.C.I.)</a>
+      <a href="#flujo"><span class="num">7</span> Flujo operativo completo</a>
+      <a href="#nuevo-cliente"><span class="num">8</span> Cómo crear comandos nuevos</a>
+      <a href="#ideas"><span class="num">9</span> Ideas para futuros comandos</a>
+      <a href="#no-hacer"><span class="num">10</span> Qué NO hacer</a>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 1: QUÉ ES -->
+  <div class="seccion" id="que-es">
+    <h2><span class="icon">⌨️</span> Qué es un slash command personalizado</h2>
+    <p class="seccion-subtitulo">La diferencia entre los comandos del sistema y los que tú creas</p>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>Definición simple:</strong> Un slash command personalizado es un archivo de texto que tú creas con instrucciones para Claude Code. Cuando escribes <code>/nombre-comando argumento</code>, Claude Code lee ese archivo, reemplaza el argumento donde corresponde y ejecuta las instrucciones automáticamente.</div>
+    </div>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Tipo</th><th>Ejemplos</th><th>Quién los crea</th><th>Dónde viven</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Comandos del sistema</strong></td><td>/help, /clear, /status, /exit, /rewind</td><td>Anthropic — vienen con Claude Code</td><td>Internos — no puedes verlos</td></tr>
+          <tr><td><strong>Comandos preinstalados</strong></td><td>/batch, /claude-api, /debug</td><td>Anthropic — extras opcionales</td><td>Sistema</td></tr>
+          <tr><td><strong>Comandos personalizados</strong> <span class="tag tag-verde">Los tuyos ✓</span></td><td>/brief-cliente, /informe-adm, /auditoria-aci</td><td>Tú — adaptados a MarketingMo</td><td>.claude/commands/</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">🎯</span>
+      <div><strong>La analogía perfecta:</strong> Es como programar una macro en Excel. En vez de hacer los mismos pasos cada vez, creas un botón que los ejecuta todos de golpe. Tus slash commands son esos botones — uno por cada proceso repetitivo de tu agencia.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 2: DÓNDE SE GUARDAN -->
+  <div class="seccion" id="donde">
+    <h2><span class="icon">📁</span> Dónde se guardan y cómo se activan</h2>
+    <p class="seccion-subtitulo">La arquitectura de archivos detrás de los comandos personalizados</p>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Ubicación</th><th>Disponibilidad</th><th>Cuándo usarla</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>~/.claude/commands/</code></td>
+            <td>En TODOS tus proyectos siempre</td>
+            <td>Comandos globales — útiles en cualquier proyecto</td>
+          </tr>
+          <tr>
+            <td><code>.claude/commands/</code> <span class="tag tag-verde">La tuya ✓</span></td>
+            <td>Solo en <code>claudecode-practicas</code></td>
+            <td>Comandos específicos de MarketingMo — los 3 agentes</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Tu estructura actual</h3>
+    <div class="ruta">C:\Users\elias\claudecode-practicas\.claude\commands\</div>
+
+    <div class="codigo">
+<span class="resultado">.claude/commands/</span>
+├── <span class="valor">brief-cliente.md</span>      <span class="comentario">← Agente B.A.C.</span>
+├── <span class="valor">informe-adm.md</span>        <span class="comentario">← Agente A.D.M.</span>
+└── <span class="valor">auditoria-aci.md</span>      <span class="comentario">← Agente A.C.I.</span>
+    </div>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">🔄</span>
+      <div><strong>Importante:</strong> Claude Code detecta los comandos al arrancar. Si creas un comando nuevo mientras Claude Code está abierto, tienes que <strong>cerrar y volver a abrir</strong> para que lo reconozca. Es normal — lo aprendiste cuando creaste <code>/brief-cliente</code>.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 3: ESTRUCTURA TÉCNICA -->
+  <div class="seccion" id="estructura">
+    <h2><span class="icon">🏗️</span> Estructura técnica de un comando</h2>
+    <p class="seccion-subtitulo">Cómo está construido por dentro cada archivo de comando</p>
+
+    <p>Cada comando es un archivo <code>.md</code> con dos partes: el <strong>frontmatter</strong> (configuración) y el <strong>cuerpo</strong> (instrucciones).</p>
+
+    <div class="estructura-comando">
+      <div class="ec-linea"><span class="ec-comentario">─── PARTE 1: FRONTMATTER (configuración entre --- y ---) ───</span></div>
+      <div class="ec-linea"><span class="ec-texto">---</span></div>
+      <div class="ec-linea"><span class="ec-clave">description</span><span class="ec-texto">: </span><span class="ec-valor">Genera el brief completo usando el Sistema B.A.C.</span></div>
+      <div class="ec-linea"><span class="ec-clave">argument-hint</span><span class="ec-texto">: </span><span class="ec-valor">[nombre del cliente]</span></div>
+      <div class="ec-linea"><span class="ec-texto">---</span></div>
+      <div class="ec-linea">&nbsp;</div>
+      <div class="ec-linea"><span class="ec-comentario">─── PARTE 2: CUERPO (instrucciones para Claude Code) ───</span></div>
+      <div class="ec-linea"><span class="ec-texto">Eres el Agente B.A.C. de MarketingMo.</span></div>
+      <div class="ec-linea"><span class="ec-texto">Crea el archivo clientes/</span><span class="ec-especial">$ARGUMENTS</span><span class="ec-texto">/brief.md</span></div>
+      <div class="ec-linea"><span class="ec-texto">con la plantilla del Sistema B.A.C...</span></div>
+    </div>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Elemento</th><th>Qué es</th><th>Ejemplo</th></tr></thead>
+        <tbody>
+          <tr><td><code>description</code></td><td>Texto que aparece en /help junto al nombre del comando</td><td>"Genera el brief completo del Sistema B.A.C."</td></tr>
+          <tr><td><code>argument-hint</code></td><td>Texto de ayuda que muestra qué argumento se espera</td><td>"[nombre del cliente]"</td></tr>
+          <tr><td><code>$ARGUMENTS</code></td><td>Se reemplaza automáticamente por lo que escribes después del comando</td><td>/brief-cliente <strong>nobleza</strong> → $ARGUMENTS = "nobleza"</td></tr>
+          <tr><td>Cuerpo del archivo</td><td>Las instrucciones completas que Claude Code ejecutará</td><td>Toda la plantilla del brief, el informe o la auditoría</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>$ARGUMENTS es la clave.</strong> Cada vez que aparece <code>$ARGUMENTS</code> en el archivo del comando, Claude Code lo reemplaza por el texto que tú escribiste después del slash command. Así <code>/brief-cliente nobleza</code> crea el archivo en <code>clientes/nobleza/</code> automáticamente.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 4: BRIEF-CLIENTE -->
+  <div class="seccion" id="bac">
+    <h2><span class="icon">📋</span> Comando /brief-cliente — Agente B.A.C.</h2>
+    <p class="seccion-subtitulo">Tu sistema de onboarding de clientes nuevos automatizado</p>
+
+    <div class="comando-card cmd-bac">
+      <div class="cmd-header">
+        <div class="cmd-icono">📋</div>
+        <div class="cmd-titulo-grupo">
+          <div class="cmd-nombre">/brief-cliente</div>
+          <div class="cmd-agente">Agente B.A.C. — Briefing · Acción · Contenido</div>
+        </div>
+        <span class="tag tag-verde">Operativo ✓</span>
+      </div>
+      <p class="cmd-desc">Genera el brief completo de onboarding de un nuevo cliente usando la plantilla oficial del Sistema B.A.C. de MarketingMo. Crea el archivo directamente en la carpeta del cliente con los 5 bloques listos para rellenar en la reunión de bienvenida.</p>
+
+      <div class="cmd-uso">
+        <div class="u-titulo">Cómo usarlo</div>
+        <div class="u-comando">/brief-cliente nobleza</div>
+        <div class="u-comando">/brief-cliente diva-estudio</div>
+        <div class="u-comando">/brief-cliente nueva-clinica-dental</div>
+        <div class="u-resultado">→ Crea: clientes/[nombre]/brief.md con los 5 bloques completos</div>
+      </div>
+
+      <div class="cmd-secciones">
+        <span class="cmd-seccion">🏢 Bloque 1 — Datos del negocio</span>
+        <span class="cmd-seccion">🧠 Bloque 2 — Capa racional</span>
+        <span class="cmd-seccion">❤️ Bloque 3 — Capa emocional</span>
+        <span class="cmd-seccion">🎯 Bloque 4 — Capa estratégica</span>
+        <span class="cmd-seccion">📌 Bloque 5 — Notas del estratega</span>
+      </div>
+    </div>
+
+    <h3>Ubicación del archivo del comando</h3>
+    <div class="ruta">C:\Users\elias\claudecode-practicas\.claude\commands\brief-cliente.md</div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">🎯</span>
+      <div><strong>Caso de uso real:</strong> Entra un cliente nuevo — por ejemplo una clínica dental de Ibi. Antes de la reunión ejecutas <code>/brief-cliente clinica-dental-ibi</code>. En segundos tienes el brief listo en su carpeta. En la reunión vas pregunta por pregunta rellenando en tiempo real. Al salir de la reunión el brief ya está guardado y documentado.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 5: INFORME-ADM -->
+  <div class="seccion" id="adm">
+    <h2><span class="icon">📊</span> Comando /informe-adm — Agente A.D.M.</h2>
+    <p class="seccion-subtitulo">Tu sistema de informes mensuales de métricas automatizado con Metricool</p>
+
+    <div class="comando-card cmd-adm">
+      <div class="cmd-header">
+        <div class="cmd-icono">📊</div>
+        <div class="cmd-titulo-grupo">
+          <div class="cmd-nombre">/informe-adm</div>
+          <div class="cmd-agente">Agente A.D.M. — Auditoría de Métricas</div>
+        </div>
+        <span class="tag tag-celeste">Operativo ✓</span>
+      </div>
+      <p class="cmd-desc">Genera el informe mensual de métricas para un cliente con tablas para Instagram y Facebook, benchmarks por plan de servicio y una sección de análisis y recomendaciones. Incluye instrucciones para integrar el export de Metricool automáticamente.</p>
+
+      <div class="cmd-uso">
+        <div class="u-titulo">Cómo usarlo</div>
+        <div class="u-comando">/informe-adm diva-estudio</div>
+        <div class="u-comando">/informe-adm eli-nails</div>
+        <div class="u-comando">/informe-adm pasteleria-rico</div>
+        <div class="u-resultado">→ Crea: clientes/[nombre]/informe-adm.md con estructura completa</div>
+      </div>
+
+      <div class="cmd-secciones">
+        <span class="cmd-seccion">📈 Resumen ejecutivo</span>
+        <span class="cmd-seccion">📱 Métricas Instagram</span>
+        <span class="cmd-seccion">📘 Métricas Facebook</span>
+        <span class="cmd-seccion">🎯 Benchmarks por plan</span>
+        <span class="cmd-seccion">💡 Análisis y recomendaciones</span>
+        <span class="cmd-seccion">📎 Integración Metricool</span>
+        <span class="cmd-seccion">🔄 Baseline Día 0</span>
+      </div>
+    </div>
+
+    <h3>Cómo conectar Metricool con el informe</h3>
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">🔗</span>
+      <div><strong>El flujo con Metricool funciona así:</strong> Metricool no tiene MCP server oficial aún, pero Claude Code puede leer sus exportaciones directamente. Este es el flujo correcto hoy.</div>
+    </div>
+
+    <div class="codigo">
+<span class="comentario"># Paso 1 — Genera el informe base:</span>
+<span class="comando">/informe-adm diva-estudio</span>
+
+<span class="comentario"># Paso 2 — Exporta desde Metricool:</span>
+<span class="texto-normal">En Metricool → Informes → Exportar PDF o CSV → guardar en:</span>
+<span class="valor">clientes/diva-estudio/metricool-marzo2026.pdf</span>
+
+<span class="comentario"># Paso 3 — Pídele que rellene el informe con esos datos:</span>
+<span class="texto-normal">analiza el informe Metricool de diva-estudio y rellena el informe-adm.md con los datos reales</span>
+
+<span class="comentario"># Resultado:</span>
+<span class="resultado">→ Claude Code lee el PDF/CSV de Metricool</span>
+<span class="resultado">→ Extrae todas las métricas</span>
+<span class="resultado">→ Rellena las tablas del informe automáticamente</span>
+<span class="resultado">→ Informe mensual completo en minutos, no en horas</span>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>Futuro próximo — Módulo 8:</strong> Cuando conectemos el MCP server de Notion, el informe también se enviará automáticamente a tu base de datos de Notion. Un comando genera el informe local Y lo publica en Notion.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 6: AUDITORIA-ACI -->
+  <div class="seccion" id="aci">
+    <h2><span class="icon">🔍</span> Comando /auditoria-aci — Agente A.C.I.</h2>
+    <p class="seccion-subtitulo">Tu sistema de auditoría digital pre-venta para prospectos</p>
+
+    <div class="comando-card cmd-aci">
+      <div class="cmd-header">
+        <div class="cmd-icono">🔍</div>
+        <div class="cmd-titulo-grupo">
+          <div class="cmd-nombre">/auditoria-aci</div>
+          <div class="cmd-agente">Agente A.C.I. — Auditoría de Cliente Inicial</div>
+        </div>
+        <span class="tag tag-morado">Operativo ✓</span>
+      </div>
+      <p class="cmd-desc">Genera la auditoría digital completa de un prospecto antes de cerrar el contrato. Analiza web, Instagram, Facebook y competencia. Incluye diagnóstico de oportunidades, propuesta de plan recomendado con justificación y baseline del Día 0 para medir el ROI desde el primer día.</p>
+
+      <div class="cmd-uso">
+        <div class="u-titulo">Cómo usarlo</div>
+        <div class="u-comando">/auditoria-aci nueva-clinica-dental</div>
+        <div class="u-comando">/auditoria-aci restaurante-valencia</div>
+        <div class="u-comando">/auditoria-aci fontaneria-martinez</div>
+        <div class="u-resultado">→ Crea: clientes/[nombre]/auditoria-inicial.md con 9 secciones</div>
+      </div>
+
+      <div class="cmd-secciones">
+        <span class="cmd-seccion">📋 Sección 1 — Datos del prospecto</span>
+        <span class="cmd-seccion">🌐 Sección 2 — Auditoría web</span>
+        <span class="cmd-seccion">📱 Sección 3 — Auditoría Instagram</span>
+        <span class="cmd-seccion">📘 Sección 4 — Auditoría Facebook</span>
+        <span class="cmd-seccion">🏆 Sección 5 — Análisis competencia</span>
+        <span class="cmd-seccion">💡 Sección 6 — Diagnóstico y oportunidades</span>
+        <span class="cmd-seccion">🎯 Sección 7 — Propuesta de plan</span>
+        <span class="cmd-seccion">📊 Sección 8 — Baseline Día 0</span>
+        <span class="cmd-seccion">📌 Sección 9 — Notas internas</span>
+      </div>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">🎯</span>
+      <div><strong>Caso de uso real:</strong> Te contacta un restaurante de Valencia. Antes de la reunión de ventas ejecutas <code>/auditoria-aci restaurante-valencia</code>. Rellenas la auditoría revisando su web e Instagram manualmente. Cuando entras a la reunión ya tienes el diagnóstico completo, los problemas detectados y la propuesta de plan con justificación. Cierras más contratos porque llegas preparado.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 7: FLUJO OPERATIVO -->
+  <div class="flujo-operativo" id="flujo">
+    <div class="fo-titulo">🔄 Flujo operativo completo de MarketingMo</div>
+    <div class="fo-subtitulo">El ciclo de vida de un cliente — desde prospecto hasta informe mensual</div>
+
+    <div class="fo-paso">
+      <div class="fo-num">1</div>
+      <div class="fo-contenido">
+        <div class="fo-accion">Llega un prospecto nuevo</div>
+        <div class="fo-comando">/auditoria-aci [nombre-prospecto]</div>
+        <div class="fo-resultado">→ Auditoría digital completa en 9 secciones · Baseline Día 0 registrado</div>
+      </div>
+    </div>
+    <div class="fo-sep"></div>
+
+    <div class="fo-paso">
+      <div class="fo-num">2</div>
+      <div class="fo-contenido">
+        <div class="fo-accion">Cierra el contrato — se convierte en cliente</div>
+        <div class="fo-comando">/brief-cliente [nombre-cliente]</div>
+        <div class="fo-resultado">→ Brief completo del Sistema B.A.C. listo para rellenar en la reunión de onboarding</div>
+      </div>
+    </div>
+    <div class="fo-sep"></div>
+
+    <div class="fo-paso">
+      <div class="fo-num">3</div>
+      <div class="fo-contenido">
+        <div class="fo-accion">Trabajo mensual — contenido y gestión</div>
+        <div class="fo-comando">Agente B.A.C. activo durante todo el mes</div>
+        <div class="fo-resultado">→ Calendarios de contenido, copies, estrategias generadas con Claude Code</div>
+      </div>
+    </div>
+    <div class="fo-sep"></div>
+
+    <div class="fo-paso">
+      <div class="fo-num">4</div>
+      <div class="fo-contenido">
+        <div class="fo-accion">Fin de mes — exportas informe de Metricool</div>
+        <div class="fo-comando">/informe-adm [nombre-cliente]</div>
+        <div class="fo-resultado">→ Informe base generado automáticamente</div>
+      </div>
+    </div>
+    <div class="fo-sep"></div>
+
+    <div class="fo-paso">
+      <div class="fo-num">5</div>
+      <div class="fo-contenido">
+        <div class="fo-accion">Rellenas el informe con datos reales de Metricool</div>
+        <div class="fo-comando">analiza el informe Metricool de [cliente] y rellena el informe-adm.md</div>
+        <div class="fo-resultado">→ Informe mensual completo y profesional · Listo para enviar al cliente</div>
+      </div>
+    </div>
+    <div class="fo-sep"></div>
+
+    <div class="fo-paso">
+      <div class="fo-num">6</div>
+      <div class="fo-contenido">
+        <div class="fo-accion">Módulo 8 — Envío automático a Notion</div>
+        <div class="fo-comando">MCP Server Notion conectado</div>
+        <div class="fo-resultado">→ El informe también se publica en tu base de datos de Notion automáticamente</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 8: CÓMO CREAR NUEVOS -->
+  <div class="seccion" id="nuevo-cliente">
+    <h2><span class="icon">➕</span> Cómo crear comandos nuevos en el futuro</h2>
+    <p class="seccion-subtitulo">El proceso exacto para crear cualquier slash command propio desde cero</p>
+
+    <div class="nuevo-comando">
+      <div class="nc-titulo">📝 Proceso paso a paso para crear un comando nuevo</div>
+
+      <div class="nc-paso">
+        <div class="nc-num">1</div>
+        <div class="nc-texto"><strong>Abre Claude Code</strong> en tu carpeta de trabajo y escribe en lenguaje natural la instrucción completa.</div>
+      </div>
+
+      <div class="nc-paso">
+        <div class="nc-num">2</div>
+        <div class="nc-texto"><strong>Usa este formato base:</strong><br>
+        <em>"Crea el archivo .claude/commands/[nombre-comando].md con este contenido: [frontmatter + instrucciones]"</em></div>
+      </div>
+
+      <div class="nc-paso">
+        <div class="nc-num">3</div>
+        <div class="nc-texto"><strong>El frontmatter mínimo</strong> que necesita cualquier comando:<br>
+        <code>description:</code> qué hace el comando (aparece en /help)<br>
+        <code>argument-hint:</code> qué parámetro espera el usuario</div>
+      </div>
+
+      <div class="nc-paso">
+        <div class="nc-num">4</div>
+        <div class="nc-texto"><strong>Usa $ARGUMENTS</strong> en el cuerpo donde quieras que aparezca el nombre del cliente, prospecto o lo que corresponda.</div>
+      </div>
+
+      <div class="nc-paso">
+        <div class="nc-num">5</div>
+        <div class="nc-texto"><strong>Cierra Claude Code y vuelve a abrirlo</strong> — <code>/exit</code> → <code>cd carpeta</code> → <code>claude</code>. Necesita reiniciarse para detectar el nuevo comando.</div>
+      </div>
+
+      <div class="nc-paso">
+        <div class="nc-num">6</div>
+        <div class="nc-texto"><strong>Prueba el comando</strong> con un nombre de prueba: <code>/[nombre-comando] prueba</code> y verifica que el archivo se crea correctamente.</div>
+      </div>
+    </div>
+
+    <h3>Plantilla base para cualquier comando nuevo</h3>
+    <div class="codigo">
+<span class="comentario"># Escribe esto en el prompt > de Claude Code:</span>
+
+<span class="texto-normal">Crea el archivo .claude/commands/</span><span class="clave">nombre-comando</span><span class="texto-normal">.md con este contenido:</span>
+
+<span class="valor">---</span>
+<span class="valor">description: [Qué hace este comando — aparece en /help]</span>
+<span class="valor">argument-hint: [nombre del cliente/prospecto/proyecto]</span>
+<span class="valor">---</span>
+
+<span class="texto-normal">Eres el Agente [BAC/ADM/ACI] de MarketingMo.</span>
+<span class="texto-normal">Crea el archivo clientes/</span><span class="clave">$ARGUMENTS</span><span class="texto-normal">/[nombre-archivo].md</span>
+<span class="texto-normal">con la siguiente estructura:</span>
+
+<span class="comentario"># [Aquí va toda la plantilla del documento]</span>
+<span class="comentario"># Agencia: MarketingMo · @marketingMo · nietomonica.com</span>
+<span class="comentario"># Responsable: Mónico Nieto</span>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Recuerda siempre:</strong> Después de crear un comando nuevo hay que <strong>cerrar y reabrir Claude Code</strong> para que lo detecte. Si escribes el comando y aparece "Unknown skill", es porque no has reiniciado todavía.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 9: IDEAS FUTUROS COMANDOS -->
+  <div class="seccion" id="ideas">
+    <h2><span class="icon">💡</span> Ideas para futuros comandos de MarketingMo</h2>
+    <p class="seccion-subtitulo">Comandos que puedes crear cuando los necesites</p>
+
+    <div class="ideas-grid">
+      <div class="idea-item">
+        <div class="idea-comando">/calendario-mes</div>
+        <div class="idea-desc">Genera el calendario de contenido mensual de un cliente con los posts de Instagram, Facebook y Stories organizados por semana.</div>
+        <div class="idea-cuando">Úsalo: Al inicio de cada mes para planificar el contenido</div>
+      </div>
+      <div class="idea-item">
+        <div class="idea-comando">/propuesta-comercial</div>
+        <div class="idea-desc">Genera la propuesta comercial personalizada para un prospecto basándose en su auditoría ACI — con el plan recomendado y los argumentos de venta.</div>
+        <div class="idea-cuando">Úsalo: Después de /auditoria-aci para cerrar el contrato</div>
+      </div>
+      <div class="idea-item">
+        <div class="idea-comando">/copy-instagram</div>
+        <div class="idea-desc">Genera 10 copies de Instagram para un cliente con diferentes formatos — educativo, emocional, promocional y de comunidad.</div>
+        <div class="idea-cuando">Úsalo: Semanalmente para rellenar el calendario de contenido</div>
+      </div>
+      <div class="idea-item">
+        <div class="idea-comando">/reunion-mensual</div>
+        <div class="idea-desc">Prepara el orden del día y los puntos clave para la reunión mensual de seguimiento con un cliente — basándose en el informe ADM.</div>
+        <div class="idea-cuando">Úsalo: El día antes de cada reunión de seguimiento</div>
+      </div>
+      <div class="idea-item">
+        <div class="idea-comando">/onboarding-cliente</div>
+        <div class="idea-desc">Genera el email de bienvenida, el checklist de onboarding y las primeras acciones a ejecutar para un cliente nuevo.</div>
+        <div class="idea-cuando">Úsalo: El día que firma el contrato un cliente nuevo</div>
+      </div>
+      <div class="idea-item">
+        <div class="idea-comando">/analisis-competencia</div>
+        <div class="idea-desc">Genera la plantilla de análisis de competencia profundo para un sector específico — con los 5 competidores principales y sus puntos fuertes/débiles.</div>
+        <div class="idea-cuando">Úsalo: Para preparar la estrategia de diferenciación</div>
+      </div>
+    </div>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>Regla de oro:</strong> Si te encuentras escribiendo las mismas instrucciones a Claude Code más de 3 veces, es señal de que debes convertirlo en un slash command. Cada proceso repetitivo de la agencia merece su propio comando.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 10: LO QUE PRACTICASTE -->
+  <div class="seccion">
+    <h2><span class="icon">✅</span> Lo que practicaste en este módulo</h2>
+    <p class="seccion-subtitulo">Todo lo que hiciste en tiempo real documentado</p>
+
+    <div class="practica-card">
+      <div class="p-icon">1️⃣</div>
+      <div>
+        <h4>Viste los custom-commands preinstalados</h4>
+        <p>Navegaste al panel /help → custom-commands y encontraste los 3 comandos que vienen por defecto: /batch, /claude-api y /debug.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">2️⃣</div>
+      <div>
+        <h4>Creaste /brief-cliente con tu plantilla real del Sistema B.A.C.</h4>
+        <p>Creaste el archivo <code>.claude/commands/brief-cliente.md</code> con los 5 bloques reales que usas en MarketingMo — Datos, Capa Racional, Capa Emocional, Capa Estratégica y Notas del Estratega.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">3️⃣</div>
+      <div>
+        <h4>Probaste /brief-cliente nobleza en tiempo real</h4>
+        <p>Reiniciaste Claude Code, ejecutaste <code>/brief-cliente nobleza</code> y verificaste que creó el brief completo en <code>clientes/nobleza/brief.md</code> con los 5 bloques listos para rellenar.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">4️⃣</div>
+      <div>
+        <h4>Creaste /informe-adm con integración Metricool</h4>
+        <p>Creaste el comando del Agente A.D.M. con tablas de métricas para Instagram y Facebook, benchmarks por plan y las instrucciones exactas para que Claude Code lea el export de Metricool y rellene el informe automáticamente.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">5️⃣</div>
+      <div>
+        <h4>Probaste /informe-adm diva-estudio</h4>
+        <p>Ejecutaste el comando y verificaste que creó el informe completo en <code>clientes/diva-estudio/informe-adm.md</code> con todas las secciones y la instrucción de integración con Metricool.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">6️⃣</div>
+      <div>
+        <h4>Creaste /auditoria-aci con las 9 secciones del Agente A.C.I.</h4>
+        <p>Creaste el comando de auditoría pre-venta con análisis web, Instagram, Facebook, competencia, diagnóstico, propuesta de plan, baseline Día 0 y notas internas. El Agente A.C.I. ahora es un comando ejecutable.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- NO HACER -->
+  <div class="seccion" id="no-hacer">
+    <h2><span class="icon">🚫</span> Qué NO hacer con los slash commands</h2>
+    <p class="seccion-subtitulo">Errores que pueden romper tus comandos o generar resultados incorrectos</p>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA uses espacios en el nombre del archivo del comando.</strong> El archivo debe llamarse <code>brief-cliente.md</code> con guión, no <code>brief cliente.md</code> con espacio. Los espacios rompen la detección del comando.</div>
+    </div>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA olvides reiniciar Claude Code después de crear un nuevo comando.</strong> Si escribes el comando y aparece "Unknown skill", es porque Claude Code no lo ha detectado aún. Siempre: <code>/exit</code> → <code>cd carpeta</code> → <code>claude</code>.</div>
+    </div>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA incluyas credenciales o contraseñas en las plantillas de los comandos.</strong> Los archivos <code>.md</code> de los comandos son texto plano visible. Si alguien accede a tu carpeta puede leerlos. Las credenciales van en archivos <code>.env</code> separados.</div>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Cuidado con los nombres de clientes con espacios o caracteres especiales.</strong> Cuando uses <code>/brief-cliente Eli Nails</code> con espacio, $ARGUMENTS tomará solo "Eli". Lo correcto es usar guiones: <code>/brief-cliente eli-nails</code>.</div>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Si modificas un comando existente, los cambios aplican en la siguiente ejecución.</strong> No necesitas reiniciar Claude Code para que tome los cambios en un comando ya creado — solo para comandos nuevos que aún no ha detectado.</div>
+    </div>
+  </div>
+
+  <!-- PROGRESO -->
+  <div class="seccion">
+    <h2><span class="icon">🗺️</span> Tu progreso en el plan de 9 módulos</h2>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Módulo</th><th>Tema</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1</strong></td><td>Instalación completa + primer arranque</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>2</strong></td><td>Comandos y Flags del CLI</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>3</strong></td><td>CLAUDE.md y Memoria del Proyecto</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>4</strong></td><td>Configuración y Settings</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>5</strong></td><td>Permisos y Seguridad</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>6</strong></td><td>Skills y Slash Commands personalizados</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>7</strong></td><td>Hooks — automatización por eventos</td><td><span class="tag tag-celeste">⏳ Siguiente</span></td></tr>
+          <tr><td><strong>8</strong></td><td>MCP Servers — Notion, Gmail, Google Calendar</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+          <tr><td><strong>9</strong></td><td>Integración con VS Code y JetBrains</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-celeste" style="margin-top:20px">
+      <span class="alerta-icon">➡️</span>
+      <div><strong>Módulo 7 — Hooks:</strong> Aprenderás a crear automatizaciones que se disparan solas cuando Claude Code hace algo. Por ejemplo: cada vez que Claude Code crea o modifica un archivo de cliente, se registra automáticamente la fecha y hora. O que al terminar una sesión envíe una notificación. Los hooks son el puente entre acciones y automatizaciones.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <h3>Módulo 6 completado ✅ · 6 de 9 módulos dominados</h3>
+  <p>/brief-cliente · /informe-adm · /auditoria-aci · Los 3 agentes de MarketingMo son comandos ejecutables · Metricool integrado</p>
+  <div class="firma">Guía Módulo 6 · 25 de Marzo 2026 · Mónico Nieto · MarketingMo · @marketingMo · nietomonica.com</div>
+</div>
+
+</body>
+</html>

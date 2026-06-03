@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Módulo Final — Arquitecto de Agentes · Claude Code · MarketingMo</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f1a; --bg2: #0f1a2a; --card: #111827;
+    --dorado: #f59e0b; --dorado-light: #fcd34d; --dorado-bg: rgba(245,158,11,0.08);
+    --celeste: #4db8e8; --celeste-dark: #1a8bbf; --celeste-light: #b8dff5;
+    --verde: #10b981; --verde-bg: rgba(16,185,129,0.08); --verde-border: rgba(16,185,129,0.3);
+    --rojo: #ef4444; --rojo-bg: rgba(239,68,68,0.08);
+    --morado: #8b5cf6; --morado-bg: rgba(139,92,246,0.08);
+    --texto: #f1f5f9; --texto-suave: #94a3b8; --borde: rgba(255,255,255,0.08);
+    --codigo-bg: #0d1117; --codigo-texto: #7dd3fc;
+    --sombra: 0 4px 30px rgba(0,0,0,0.5);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--texto); line-height: 1.7; background-image: radial-gradient(circle at 20% 20%, rgba(245,158,11,0.04) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(139,92,246,0.04) 0%, transparent 50%); }
+
+  /* HEADER ESPECIAL */
+  .header { background: linear-gradient(135deg, #0a0f1a 0%, #1a0a2e 40%, #0a1a0f 100%); color: white; padding: 80px 40px; text-align: center; position: relative; overflow: hidden; border-bottom: 1px solid rgba(245,158,11,0.2); }
+  .header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(245,158,11,0.06) 0%, transparent 70%); }
+  .header-badge { display: inline-block; background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(139,92,246,0.2)); border: 1px solid rgba(245,158,11,0.4); padding: 8px 24px; border-radius: 50px; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 24px; color: var(--dorado-light); }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: 52px; font-weight: 900; margin-bottom: 16px; background: linear-gradient(135deg, #f59e0b, #fcd34d, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .header p { font-size: 18px; opacity: 0.7; font-weight: 300; max-width: 600px; margin: 0 auto 32px; color: #cbd5e1; }
+  .header-meta { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+  .header-meta span { background: rgba(255,255,255,0.05); padding: 8px 16px; border-radius: 8px; font-size: 13px; border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; }
+  .header-meta span strong { color: var(--dorado-light); }
+
+  .container { max-width: 980px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  /* BANNER */
+  .banner-final { background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(139,92,246,0.1)); border: 1px solid rgba(245,158,11,0.3); border-radius: 16px; padding: 32px 40px; margin-bottom: 32px; display: flex; align-items: center; gap: 20px; }
+  .banner-icon { font-size: 52px; flex-shrink: 0; }
+  .banner-texto h2 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 8px; color: var(--dorado-light); }
+  .banner-texto p { font-size: 14px; color: var(--texto-suave); margin: 0; }
+
+  /* RESUMEN */
+  .resumen-modulo { background: var(--card); border-radius: 16px; padding: 32px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); }
+  .resumen-modulo h2 { font-family: 'Playfair Display', serif; color: var(--dorado-light); font-size: 22px; margin-bottom: 20px; }
+  .resumen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .resumen-item { background: var(--bg2); border: 1px solid var(--borde); border-radius: 10px; padding: 16px; text-align: center; }
+  .resumen-item .r-icon { font-size: 28px; margin-bottom: 8px; }
+  .resumen-item .r-titulo { font-weight: 600; font-size: 13px; color: var(--dorado-light); }
+  .resumen-item .r-desc { font-size: 12px; color: var(--texto-suave); margin-top: 4px; }
+
+  /* ÍNDICE */
+  .indice { background: var(--card); border-radius: 16px; padding: 30px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); }
+  .indice h2 { font-family: 'Playfair Display', serif; color: var(--dorado-light); font-size: 22px; margin-bottom: 20px; }
+  .indice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+  .indice a { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg2); border-radius: 10px; text-decoration: none; color: var(--texto); font-size: 14px; font-weight: 500; border: 1px solid var(--borde); transition: all 0.2s; }
+  .indice a:hover { border-color: rgba(245,158,11,0.4); background: var(--dorado-bg); }
+  .num { background: linear-gradient(135deg, var(--dorado), #d97706); color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+
+  /* SECCIONES */
+  .seccion { background: var(--card); border-radius: 16px; padding: 40px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); position: relative; overflow: hidden; }
+  .seccion::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--dorado), var(--morado), var(--verde)); }
+  .seccion h2 { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--texto); margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+  .seccion h2 .icon { background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(139,92,246,0.2)); border: 1px solid rgba(245,158,11,0.3); width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .seccion-subtitulo { color: var(--texto-suave); font-size: 15px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--borde); }
+
+  /* CÓDIGO */
+  .codigo { background: var(--codigo-bg); color: var(--codigo-texto); padding: 16px 20px; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 13px; margin: 12px 0; border-left: 3px solid var(--dorado); overflow-x: auto; line-height: 2; }
+  .codigo .comentario { color: #475569; font-style: italic; }
+  .codigo .cmd { color: #7dd3fc; }
+  .codigo .val { color: #86efac; }
+  .codigo .res { color: #fbbf24; }
+  .codigo .txt { color: #e2e8f0; }
+  .codigo .agente { color: #c084fc; }
+  .codigo .alerta { color: #f87171; }
+
+  /* ALERTAS */
+  .alerta { padding: 16px 20px; border-radius: 12px; margin: 14px 0; display: flex; gap: 14px; align-items: flex-start; font-size: 14px; line-height: 1.7; }
+  .alerta-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .alerta-verde { background: var(--verde-bg); border: 1px solid var(--verde-border); color: #6ee7b7; }
+  .alerta-dorado { background: var(--dorado-bg); border: 1px solid rgba(245,158,11,0.3); color: #fcd34d; }
+  .alerta-rojo { background: var(--rojo-bg); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+  .alerta-morado { background: var(--morado-bg); border: 1px solid rgba(139,92,246,0.3); color: #c4b5fd; }
+  .alerta strong { font-weight: 700; }
+
+  /* TABLAS */
+  .tabla-wrapper { overflow-x: auto; margin: 16px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(139,92,246,0.2)); color: var(--dorado-light); padding: 12px 16px; text-align: left; font-weight: 600; border-bottom: 1px solid rgba(245,158,11,0.2); }
+  td { padding: 12px 16px; border-bottom: 1px solid var(--borde); vertical-align: top; color: var(--texto-suave); }
+  tr:last-child td { border-bottom: none; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: rgba(245,158,11,0.1); color: var(--dorado-light); padding: 2px 7px; border-radius: 4px; }
+
+  /* AGENTE CARD */
+  .agentes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 20px 0; }
+  .agente-card { border-radius: 14px; padding: 24px; border: 1px solid; }
+  .ag-bac { background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(16,185,129,0.04)); border-color: rgba(16,185,129,0.3); }
+  .ag-adm { background: linear-gradient(135deg, rgba(77,184,232,0.08), rgba(77,184,232,0.04)); border-color: rgba(77,184,232,0.3); }
+  .ag-aci { background: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(139,92,246,0.04)); border-color: rgba(139,92,246,0.3); }
+  .ag-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .ag-icono { font-size: 30px; }
+  .ag-nombre { font-weight: 700; font-size: 16px; }
+  .ag-bac .ag-nombre { color: #34d399; }
+  .ag-adm .ag-nombre { color: var(--celeste); }
+  .ag-aci .ag-nombre { color: #a78bfa; }
+  .ag-archivo { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--texto-suave); margin-bottom: 10px; }
+  .ag-desc { font-size: 13px; color: var(--texto-suave); margin-bottom: 12px; }
+  .ag-modelo { font-size: 12px; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+  .ag-bac .ag-modelo { background: rgba(16,185,129,0.15); color: #34d399; }
+  .ag-adm .ag-modelo { background: rgba(77,184,232,0.15); color: var(--celeste); }
+  .ag-aci .ag-modelo { background: rgba(139,92,246,0.15); color: #a78bfa; }
+  .ag-uso { background: var(--codigo-bg); border-radius: 8px; padding: 10px 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #86efac; margin-top: 10px; line-height: 1.8; }
+
+  /* PARALELO VISUAL */
+  .paralelo-visual { background: var(--codigo-bg); border: 1px solid rgba(245,158,11,0.2); border-radius: 14px; padding: 28px; margin: 20px 0; }
+  .pv-titulo { color: var(--dorado-light); font-weight: 700; font-size: 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .pv-flujo { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .pv-agente { background: rgba(255,255,255,0.03); border: 1px solid var(--borde); border-radius: 10px; padding: 14px; }
+  .pv-ag-nombre { font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+  .pv-bac .pv-ag-nombre { color: #34d399; }
+  .pv-adm .pv-ag-nombre { color: var(--celeste); }
+  .pv-aci .pv-ag-nombre { color: #a78bfa; }
+  .pv-tarea { font-size: 12px; color: var(--texto-suave); margin-bottom: 4px; }
+  .pv-estado { font-size: 11px; margin-top: 8px; font-weight: 600; }
+  .estado-ok { color: #34d399; }
+  .estado-run { color: var(--dorado-light); }
+
+  /* WORKTREES */
+  .worktree-visual { background: var(--codigo-bg); border-radius: 12px; padding: 24px; margin: 16px 0; border: 1px solid rgba(139,92,246,0.2); }
+  .wt-titulo { color: #a78bfa; font-weight: 700; font-size: 14px; margin-bottom: 16px; }
+  .wt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .wt-terminal { background: rgba(139,92,246,0.06); border: 1px solid rgba(139,92,246,0.2); border-radius: 8px; padding: 14px; }
+  .wt-t-num { color: #a78bfa; font-size: 11px; font-weight: 700; margin-bottom: 8px; }
+  .wt-t-cmd { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #7dd3fc; margin-bottom: 6px; }
+  .wt-t-task { font-size: 12px; color: var(--texto-suave); }
+  .wt-t-result { font-size: 12px; color: #86efac; margin-top: 6px; }
+
+  /* RESUMEN EJECUTIVO */
+  .resumen-ejecutivo { background: linear-gradient(135deg, rgba(239,68,68,0.06), rgba(245,158,11,0.06)); border: 1px solid rgba(239,68,68,0.2); border-radius: 14px; padding: 28px; margin: 20px 0; }
+  .re-titulo { color: #fca5a5; font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 20px; }
+  .re-alerta { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; padding: 12px 16px; background: rgba(0,0,0,0.2); border-radius: 8px; }
+  .re-nivel { font-size: 18px; flex-shrink: 0; }
+  .re-texto { font-size: 14px; color: var(--texto-suave); }
+  .re-texto strong { color: var(--texto); }
+
+  /* PRACTICA CARDS */
+  .practica-card { background: var(--verde-bg); border: 1px solid var(--verde-border); border-radius: 12px; padding: 20px; margin: 12px 0; display: flex; gap: 14px; align-items: flex-start; }
+  .practica-card .p-icon { font-size: 24px; flex-shrink: 0; }
+  .practica-card h4 { color: #34d399; font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .practica-card p { font-size: 13px; color: #6ee7b7; margin: 0; }
+
+  /* ESTADO SISTEMA */
+  .estado-sistema { background: linear-gradient(135deg, rgba(16,185,129,0.06), rgba(77,184,232,0.06)); border: 1px solid rgba(16,185,129,0.2); border-radius: 14px; padding: 28px; margin: 20px 0; }
+  .es-titulo { color: #34d399; font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 20px; }
+  .es-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--borde); }
+  .es-item:last-child { border-bottom: none; }
+  .es-check { color: #34d399; font-size: 18px; flex-shrink: 0; }
+  .es-nombre { font-size: 15px; font-weight: 600; color: var(--texto); flex: 1; }
+  .es-detalle { font-size: 13px; color: var(--texto-suave); }
+
+  /* PRÓXIMOS PASOS */
+  .proximos { background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(139,92,246,0.08)); border: 1px solid rgba(245,158,11,0.2); border-radius: 14px; padding: 28px; margin: 20px 0; }
+  .px-titulo { color: var(--dorado-light); font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 20px; }
+  .px-paso { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 18px; }
+  .px-num { background: linear-gradient(135deg, var(--dorado), #d97706); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; flex-shrink: 0; }
+  .px-contenido h4 { color: var(--dorado-light); font-size: 15px; margin-bottom: 4px; }
+  .px-contenido p { color: var(--texto-suave); font-size: 13px; margin: 0; }
+  .px-sep { border: none; border-top: 1px solid var(--borde); margin: 12px 0; }
+
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .tag-verde { background: var(--verde-bg); color: #34d399; border: 1px solid var(--verde-border); }
+  .tag-rojo { background: var(--rojo-bg); color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); }
+  .tag-dorado { background: var(--dorado-bg); color: var(--dorado-light); border: 1px solid rgba(245,158,11,0.3); }
+  .ruta { background: var(--bg2); border: 1px solid var(--borde); border-radius: 8px; padding: 10px 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--dorado-light); margin: 8px 0; }
+  .ruta::before { content: '📁 '; }
+
+  h3 { color: var(--celeste); font-size: 18px; margin: 20px 0 12px; font-weight: 600; }
+  p { margin-bottom: 10px; color: var(--texto-suave); font-size: 15px; }
+  ul, ol { padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 6px; font-size: 14px; color: var(--texto-suave); }
+  li strong { color: var(--texto); }
+
+  .footer { background: linear-gradient(135deg, #0a0f1a, #1a0a2e); color: white; text-align: center; padding: 50px 40px; border-top: 1px solid rgba(245,158,11,0.2); }
+  .footer h3 { font-family: 'Playfair Display', serif; font-size: 26px; margin-bottom: 12px; background: linear-gradient(135deg, #f59e0b, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .footer p { opacity: 0.5; font-size: 14px; color: #94a3b8; }
+  .footer .firma { margin-top: 16px; font-size: 12px; opacity: 0.3; font-style: italic; color: #64748b; }
+
+  @media (max-width: 600px) {
+    .header h1 { font-size: 32px; }
+    .seccion { padding: 24px 16px; }
+    .pv-flujo { grid-template-columns: 1fr; }
+    .banner-final { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">🎓 Módulo Final · Especial</div>
+  <h1>Arquitecto de Agentes</h1>
+  <p>Agentes, subagentes, orquestación multi-agente, ejecución en paralelo y worktrees. El módulo donde todo converge.</p>
+  <div class="header-meta">
+    <span>👤 <strong>Mónico Nieto</strong> · MarketingMo</span>
+    <span>🏢 <strong>12 clientes</strong> · Sistema operativo</span>
+    <span>🤖 <strong>3 agentes</strong> especializados</span>
+    <span>🎓 <strong>Módulo final</strong> del programa</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- BANNER -->
+  <div class="banner-final">
+    <div class="banner-icon">🏛️</div>
+    <div class="banner-texto">
+      <h2>De usuario a Arquitecto de Agentes</h2>
+      <p>En este módulo construiste el sistema nervioso central de MarketingMo. Los agentes ya no son prompts en Notion — son entidades autónomas que trabajan en paralelo, se coordinan entre sí y operan tu agencia mientras tú te concentras en lo que importa.</p>
+    </div>
+  </div>
+
+  <!-- RESUMEN -->
+  <div class="resumen-modulo">
+    <h2>🎯 ¿Qué aprendes en este módulo?</h2>
+    <div class="resumen-grid">
+      <div class="resumen-item">
+        <div class="r-icon">🤖</div>
+        <div class="r-titulo">Qué son los agentes</div>
+        <div class="r-desc">Entidades especializadas con su propio contexto y modelo</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">⚡</div>
+        <div class="r-titulo">Ejecución en paralelo</div>
+        <div class="r-desc">3 agentes trabajando simultáneamente en 12 clientes</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">🌿</div>
+        <div class="r-titulo">Worktrees</div>
+        <div class="r-desc">Copias de trabajo aisladas para tareas simultáneas</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">📊</div>
+        <div class="r-titulo">Resumen ejecutivo real</div>
+        <div class="r-desc">Los agentes diagnosticaron los 12 clientes de MarketingMo</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">📓</div>
+        <div class="r-titulo">Notion estandarizado</div>
+        <div class="r-desc">Base de datos idéntica para todos los clientes</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">🗺️</div>
+        <div class="r-titulo">Próximos pasos</div>
+        <div class="r-desc">El camino desde aquí — Python, datos reales, escala</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÍNDICE -->
+  <div class="indice">
+    <h2>📋 Contenido de este módulo</h2>
+    <div class="indice-grid">
+      <a href="#que-son"><span class="num">1</span> Qué son los agentes y subagentes</a>
+      <a href="#diferencia"><span class="num">2</span> Diferencia con slash commands</a>
+      <a href="#crear"><span class="num">3</span> Cómo crear un agente con /agents</a>
+      <a href="#tres-agentes"><span class="num">4</span> Los 3 agentes de MarketingMo</a>
+      <a href="#paralelo"><span class="num">5</span> Ejecución en paralelo — cómo funciona</a>
+      <a href="#diagnostico"><span class="num">6</span> El diagnóstico real de los 12 clientes</a>
+      <a href="#notion"><span class="num">7</span> Notion estandarizado para todos</a>
+      <a href="#worktrees"><span class="num">8</span> Worktrees — aislamiento total</a>
+      <a href="#patrones"><span class="num">9</span> Patrones de uso avanzado</a>
+      <a href="#estado"><span class="num">10</span> Estado completo del sistema</a>
+      <a href="#proximos"><span class="num">11</span> Próximos pasos</a>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 1: QUÉ SON -->
+  <div class="seccion" id="que-son">
+    <h2><span class="icon">🤖</span> Qué son los agentes y subagentes</h2>
+    <p class="seccion-subtitulo">La diferencia entre Claude Code respondiendo y Claude Code delegando</p>
+
+    <div class="alerta alerta-dorado">
+      <span class="alerta-icon">💡</span>
+      <div><strong>Definición simple:</strong> Un agente es una instancia especializada de Claude con su propio sistema de instrucciones, su propio modelo y su propia memoria. Cuando Claude Code delega una tarea a un agente, ese agente trabaja en su propio contexto — no interfiere con la conversación principal ni con otros agentes.</div>
+    </div>
+
+    <h3>La analogía de la agencia</h3>
+    <div class="alerta alerta-morado">
+      <span class="alerta-icon">🏢</span>
+      <div><strong>Sin agentes:</strong> Eres tú solo haciendo todo — escribes el brief, analizas las métricas, haces la auditoría, generas el calendario. Un trabajo tras otro. Con agentes: tienes un equipo especializado. Le dices al equipo qué necesitas y cada especialista hace su parte simultáneamente. Tú solo revisas y apruebas.</div>
+    </div>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Característica</th><th>Claude Code solo</th><th>Claude Code con agentes</th></tr></thead>
+        <tbody>
+          <tr><td>Tareas simultáneas</td><td>Una a la vez</td><td>Múltiples en paralelo</td></tr>
+          <tr><td>Contexto</td><td>Un solo contexto compartido</td><td>Cada agente tiene el suyo</td></tr>
+          <tr><td>Especialización</td><td>Generalista</td><td>Cada agente es experto en su área</td></tr>
+          <tr><td>Velocidad</td><td>Tareas secuenciales</td><td>3 agentes = 3x más rápido</td></tr>
+          <tr><td>Memoria</td><td>Solo la sesión activa</td><td>Memoria persistente por proyecto</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 2: DIFERENCIA -->
+  <div class="seccion" id="diferencia">
+    <h2><span class="icon">⚖️</span> Diferencia con los slash commands</h2>
+    <p class="seccion-subtitulo">Tienes dos herramientas — aquí está cuándo usar cada una</p>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Aspecto</th><th>Slash commands (/brief-cliente)</th><th>Agentes (@bac-marketingmo)</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Qué son</strong></td><td>Archivos .md con instrucciones y plantillas</td><td>Entidades autónomas con contexto propio</td></tr>
+          <tr><td><strong>Cómo se activan</strong></td><td>Tú los ejecutas manualmente</td><td>Claude Code los delega automáticamente</td></tr>
+          <tr><td><strong>Para qué sirven</strong></td><td>Generar documentos con plantilla fija</td><td>Razonar, decidir y ejecutar tareas complejas</td></tr>
+          <tr><td><strong>Paralelismo</strong></td><td>No — uno a la vez</td><td>Sí — múltiples simultáneos</td></tr>
+          <tr><td><strong>Memoria</strong></td><td>Sin memoria entre ejecuciones</td><td>Memoria persistente del proyecto</td></tr>
+          <tr><td><strong>Ejemplo MarketingMo</strong></td><td>/brief-cliente eli-nails → plantilla vacía</td><td>@bac-marketingmo → analiza, decide y genera</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>La regla:</strong> Usa slash commands para generar documentos con estructura fija. Usa agentes para tareas que requieren razonamiento, análisis o trabajo en paralelo. Los dos conviven — no se sustituyen.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 3: CÓMO CREAR -->
+  <div class="seccion" id="crear">
+    <h2><span class="icon">🔧</span> Cómo crear un agente con /agents</h2>
+    <p class="seccion-subtitulo">El proceso completo que seguiste — documentado para repetirlo</p>
+
+    <div class="codigo">
+<span class="comentario"># 1. Abrir el panel de agentes:</span>
+<span class="cmd">/agents</span>
+<span class="comentario"># → Seleccionar "Create new agent"</span>
+
+<span class="comentario"># 2. Elegir ubicación (siempre proyecto):</span>
+<span class="val">1. Project (.claude/agents/)  ← esta opción</span>
+<span class="comentario"># → Los agentes del proyecto solo funcionan en claudecode-practicas</span>
+
+<span class="comentario"># 3. Método de creación:</span>
+<span class="val">1. Generate with Claude  ← esta opción</span>
+<span class="comentario"># → Claude genera el system prompt automáticamente desde tu descripción</span>
+
+<span class="comentario"># 4. Describir el agente — cuanto más detallado mejor:</span>
+<span class="txt">"Agente B.A.C. de MarketingMo. Se activa cuando hay que trabajar
+con clientes — generar briefs, calendarios de contenido, copies..."</span>
+
+<span class="comentario"># 5. Configurar:</span>
+<span class="val">Herramientas: All tools</span>
+<span class="val">Modelo: Sonnet (balance perfecto)</span>
+<span class="val">Color: identificativo por agente</span>
+<span class="val">Memoria: Project scope</span>
+
+<span class="comentario"># 6. Guardar con Enter o "s"</span>
+    </div>
+
+    <h3>Dónde viven los archivos de agentes</h3>
+    <div class="ruta">C:\Users\elias\claudecode-practicas\.claude\agents\</div>
+    <div class="codigo">
+<span class="res">.claude/agents/</span>
+├── <span class="val">bac-marketingmo.md</span>              <span class="comentario">← Agente B.A.C. · verde</span>
+├── <span class="val">adm-metricas.md</span>                 <span class="comentario">← Agente A.D.M. · cyan</span>
+└── <span class="val">aci-auditoria-cliente-inicial.md</span> <span class="comentario">← Agente A.C.I. · morado</span>
+    </div>
+
+    <div class="alerta alerta-dorado">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Importante:</strong> Los archivos .md de los agentes son editables desde VS Code igual que los slash commands. Si quieres modificar el comportamiento de un agente, abre su archivo en VS Code, edita el system prompt y guarda. Los cambios aplican en la siguiente ejecución sin reiniciar Claude Code.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 4: LOS 3 AGENTES -->
+  <div class="seccion" id="tres-agentes">
+    <h2><span class="icon">🎯</span> Los 3 agentes de MarketingMo</h2>
+    <p class="seccion-subtitulo">Tu equipo especializado — cada uno con su rol exacto</p>
+
+    <div class="agentes-grid">
+      <div class="agente-card ag-bac">
+        <div class="ag-header">
+          <div class="ag-icono">📋</div>
+          <div>
+            <div class="ag-nombre">@bac-marketingmo</div>
+            <span class="ag-modelo">Sonnet · Project Memory</span>
+          </div>
+        </div>
+        <div class="ag-archivo">.claude/agents/bac-marketingmo.md</div>
+        <p class="ag-desc">Especialista en producción de contenido y estrategia. Genera briefs, calendarios de contenido mensuales, copies para Instagram y Facebook, y estrategias de contenido. Envía automáticamente a Notion con el formato estándar de base de datos.</p>
+        <div class="ag-uso">
+@bac-marketingmo genera el calendario de abril
+para Pastelería Rico con enfoque en Semana Santa
+→ 16 publicaciones · Notion actualizado automáticamente
+        </div>
+      </div>
+      <div class="agente-card ag-adm">
+        <div class="ag-header">
+          <div class="ag-icono">📊</div>
+          <div>
+            <div class="ag-nombre">@adm-metricas</div>
+            <span class="ag-modelo">Sonnet · Project Memory</span>
+          </div>
+        </div>
+        <div class="ag-archivo">.claude/agents/adm-metricas.md</div>
+        <p class="ag-desc">Especialista en análisis de métricas. Lee PDFs y CSVs de Metricool, extrae KPIs, compara contra benchmarks por plan de servicio y genera el informe mensual completo con recomendaciones de acción.</p>
+        <div class="ag-uso">
+@adm-metricas analiza el PDF de CUIDAMA
+→ CTR 5.70% · CPC 0.05€ · 18.430 alcance
+→ Informe 176 líneas + enviado a Notion
+        </div>
+      </div>
+      <div class="agente-card ag-aci">
+        <div class="ag-header">
+          <div class="ag-icono">🔍</div>
+          <div>
+            <div class="ag-nombre">@aci-auditoria-cliente-inicial</div>
+            <span class="ag-modelo">Sonnet · Project Memory</span>
+          </div>
+        </div>
+        <div class="ag-archivo">.claude/agents/aci-auditoria-cliente-inicial.md</div>
+        <p class="ag-desc">Especialista en auditorías pre-venta. Analiza presencia digital completa, competidores, detecta oportunidades, recomienda el plan óptimo y registra el baseline Día 0 para medir ROI desde el inicio.</p>
+        <div class="ag-uso">
+@aci-auditoria-cliente-inicial audita
+nueva-clinica-dental → 9 secciones completas
+→ Plan recomendado + argumentos de venta
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 5: PARALELO -->
+  <div class="seccion" id="paralelo">
+    <h2><span class="icon">⚡</span> Ejecución en paralelo — cómo funciona</h2>
+    <p class="seccion-subtitulo">El momento donde Claude Code se convierte en un equipo real</p>
+
+    <div class="alerta alerta-dorado">
+      <span class="alerta-icon">🚀</span>
+      <div><strong>La clave:</strong> Cuando escribes un prompt que menciona múltiples agentes con tareas independientes, Claude Code los lanza simultáneamente. Cada agente trabaja en su propio contexto aislado. El agente principal espera a que terminen todos y consolida los resultados.</div>
+    </div>
+
+    <div class="paralelo-visual">
+      <div class="pv-titulo">⚡ Lo que pasó cuando lanzaste los 3 agentes en paralelo</div>
+      <div class="pv-flujo">
+        <div class="pv-agente pv-bac">
+          <div class="pv-ag-nombre">🟢 AGENTE B.A.C.</div>
+          <div class="pv-tarea">Analiza 12 carpetas de clientes</div>
+          <div class="pv-tarea">Detecta quién no tiene calendario</div>
+          <div class="pv-tarea">Prioriza por urgencia</div>
+          <div class="pv-estado estado-ok">✓ Completado (con sobrecarga API)</div>
+        </div>
+        <div class="pv-agente pv-adm">
+          <div class="pv-ag-nombre">🔵 AGENTE A.D.M.</div>
+          <div class="pv-tarea">Revisa 12 informes de métricas</div>
+          <div class="pv-tarea">Detecta informes desactualizados</div>
+          <div class="pv-tarea">Clasifica por urgencia</div>
+          <div class="pv-estado estado-ok">✓ Completado — 11 sin datos</div>
+        </div>
+        <div class="pv-agente pv-aci">
+          <div class="pv-ag-nombre">🟣 AGENTE A.C.I.</div>
+          <div class="pv-tarea">Lee auditorías y briefs</div>
+          <div class="pv-tarea">Evalúa estado digital</div>
+          <div class="pv-tarea">Clasifica riesgo de churn</div>
+          <div class="pv-estado estado-ok">✓ Completado — 10 sin datos reales</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="codigo">
+<span class="comentario"># El prompt que lanzó los 3 agentes:</span>
+<span class="txt">Usa </span><span class="agente">@aci-auditoria-cliente-inicial</span><span class="txt"> para revisar el estado digital de cada cliente...</span>
+<span class="txt">Usa </span><span class="agente">@adm-metricas</span><span class="txt"> para revisar si hay informes ADM pendientes...</span>
+<span class="txt">Usa </span><span class="agente">@bac-marketingmo</span><span class="txt"> para identificar qué clientes no tienen calendario...</span>
+<span class="txt">Al terminar dame un resumen ejecutivo consolidado.</span>
+
+<span class="comentario"># Lo que Claude Code hizo automáticamente:</span>
+<span class="res">2 agents launched</span>
+<span class="res">├─ ACI: auditoría estado digital clientes → Running in the background</span>
+<span class="res">└─ ADM: revisión informes métricas pendientes → Running in the background</span>
+<span class="comentario"># (BAC corrió en el contexto principal)</span>
+
+<span class="comentario"># Resultado: 3 análisis en ~3 minutos en vez de ~9 minutos secuenciales</span>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 6: DIAGNÓSTICO REAL -->
+  <div class="seccion" id="diagnostico">
+    <h2><span class="icon">🚨</span> El diagnóstico real de los 12 clientes</h2>
+    <p class="seccion-subtitulo">Lo que encontraron los agentes — sin filtros</p>
+
+    <div class="resumen-ejecutivo">
+      <div class="re-titulo">📊 Resumen Ejecutivo — MarketingMo · 27 de Marzo 2026</div>
+
+      <div class="re-alerta">
+        <div class="re-nivel">🔴</div>
+        <div class="re-texto"><strong>ALERTA 1 — Briefs vacíos en 10 de 12 clientes.</strong> Los archivos brief.md y auditoria-inicial.md de la mayoría de clientes solo contienen líneas de prueba de hooks del Módulo 7 ("Test hook activo - marzo 2026"). No hay datos reales del negocio en el sistema.</div>
+      </div>
+
+      <div class="re-alerta">
+        <div class="re-nivel">🔴</div>
+        <div class="re-texto"><strong>ALERTA 2 — 5 clientes de Plan Crecimiento sin documentación.</strong> Eli Nails, Diva Estudio, La Despensa, Inmobiliaria Galota y Mercado Central pagan 950€/mes. Ninguno tiene brief, auditoría, informe ADM ni calendario. Son 4.750€/mes en riesgo directo.</div>
+      </div>
+
+      <div class="re-alerta">
+        <div class="re-nivel">🔴</div>
+        <div class="re-texto"><strong>ALERTA 3 — 11 de 12 clientes sin calendario de abril.</strong> Solo Pastelería Rico tiene calendario. Abril empieza en 4 días con el resto sin planificación de contenido.</div>
+      </div>
+
+      <div class="re-alerta">
+        <div class="re-nivel">🟡</div>
+        <div class="re-texto"><strong>ALERTA 4 — CUIDAMA tiene resultados excepcionales sin comunicar.</strong> CTR 5,70% (benchmark: 2%), CPC 0,05€ (benchmark: 0,30–0,80€). Resultados que justifican el servicio y podrían usarse para retención y upselling — pero no están siendo comunicados al cliente.</div>
+      </div>
+    </div>
+
+    <h3>Plan de acción de la semana generado por los agentes</h3>
+    <div class="codigo">
+<span class="res">Lunes 27   →</span> <span class="txt">Brief de Eli Nails (mayor riesgo) + completar orgánico CUIDAMA</span>
+<span class="res">Martes 28  →</span> <span class="txt">Bloque Galota — Inmobiliaria, Reformas y Carpintería en una sesión</span>
+<span class="res">Miércoles  →</span> <span class="txt">Brief + auditoría de La Despensa y Mercado Central de Ibi</span>
+<span class="res">Jueves 30  →</span> <span class="txt">Briefs Plan Básico: Isabel Blasco, Nobleza, La Tiendologia</span>
+<span class="res">Viernes 31 →</span> <span class="txt">Informes ADM todos los clientes Plan Crecimiento + verificar Notion</span>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>El modelo a replicar:</strong> CUIDAMA es el único cliente donde el sistema funciona con datos reales. Sus métricas son excepcionales y medibles. El objetivo de la semana que viene es replicar ese nivel de documentación al resto de la cartera.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 7: NOTION ESTANDARIZADO -->
+  <div class="seccion" id="notion">
+    <h2><span class="icon">📓</span> Notion estandarizado para todos los clientes</h2>
+    <p class="seccion-subtitulo">La base de datos que se replica para cada cliente automáticamente</p>
+
+    <p>Viste el calendario de CUIDAMA en Notion con el formato de base de datos — columnas Tema, Fecha, Tipo de contenido y Estado. Pediste que todos los clientes tuvieran ese formato. El sistema lo replicó para Pastelería Rico.</p>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Columna</th><th>Tipo</th><th>Valores posibles</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Tema</strong></td><td>Título</td><td>Nombre del post/reel/story</td></tr>
+          <tr><td><strong>Fecha de publicación</strong></td><td>Fecha</td><td>DD/MM/YYYY</td></tr>
+          <tr><td><strong>Tipo de contenido</strong></td><td>Select</td><td>POST · REELS · CARRUSEL · STORYS · VIRAL</td></tr>
+          <tr><td><strong>Estado</strong></td><td>Status</td><td>Sin empezar → Redactando → Aprobada → Publicada</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>El flujo para crear la base de datos de cualquier cliente</h3>
+    <div class="codigo">
+<span class="comentario"># Paso 1 — Generar el calendario con el agente:</span>
+<span class="agente">@bac-marketingmo</span> <span class="txt">genera el calendario de mayo para [cliente]</span>
+
+<span class="comentario"># Paso 2 — Claude Code crea la base de datos en Notion automáticamente:</span>
+<span class="txt">"Crea la base de datos en Notion con la misma estructura</span>
+<span class="txt"> que CUIDAMA - FEB 26 y rellénala con el calendario"</span>
+
+<span class="comentario"># Resultado:</span>
+<span class="res">→ Base de datos creada con estructura idéntica</span>
+<span class="res">→ Todas las entradas cargadas con fecha, tipo, caption, hashtags y CTA</span>
+<span class="res">→ URL de Notion generada automáticamente</span>
+    </div>
+
+    <div class="alerta alerta-dorado">
+      <span class="alerta-icon">🎯</span>
+      <div><strong>Próximo paso configurado:</strong> El Agente B.A.C. ya tiene la instrucción de crear siempre la base de datos en Notion automáticamente. Cuando uses <code>@bac-marketingmo</code> para generar un calendario, enviará a Notion sin que tengas que pedirlo.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 8: WORKTREES -->
+  <div class="seccion" id="worktrees">
+    <h2><span class="icon">🌿</span> Worktrees — aislamiento total</h2>
+    <p class="seccion-subtitulo">El siguiente nivel de paralelismo — cada tarea en su propio espacio</p>
+
+    <div class="alerta alerta-morado">
+      <span class="alerta-icon">💡</span>
+      <div><strong>Definición:</strong> Un worktree es una copia de trabajo aislada de tu repositorio git con su propia rama y sus propios archivos, pero compartiendo el mismo historial. Cada terminal con worktree es un Claude Code completamente independiente que no puede interferir con los demás.</div>
+    </div>
+
+    <h3>La diferencia entre agentes en paralelo y worktrees</h3>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Aspecto</th><th>Agentes en paralelo (lo que hiciste)</th><th>Worktrees (nivel siguiente)</th></tr></thead>
+        <tbody>
+          <tr><td>Aislamiento</td><td>Agentes en el mismo espacio de trabajo</td><td>Cada tarea en su propia carpeta</td></tr>
+          <tr><td>Conflictos de archivos</td><td>Posibles si dos agentes tocan el mismo archivo</td><td>Imposibles — espacios completamente separados</td></tr>
+          <tr><td>Control de cambios</td><td>Todos los cambios en la rama actual</td><td>Cada worktree en su propia rama git</td></tr>
+          <tr><td>Fusión</td><td>Automática</td><td>Tú decides qué cambios conservar</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Cómo usarías worktrees en MarketingMo</h3>
+    <div class="worktree-visual">
+      <div class="wt-titulo">🌿 Ejemplo real — Generar 12 calendarios en paralelo</div>
+      <div class="wt-grid">
+        <div class="wt-terminal">
+          <div class="wt-t-num">Terminal 1</div>
+          <div class="wt-t-cmd">claude --worktree cal-cuidama-mayo</div>
+          <div class="wt-t-task">Genera calendario CUIDAMA mayo</div>
+          <div class="wt-t-result">→ clientes/cuidama/calendario-mayo.md</div>
+        </div>
+        <div class="wt-terminal">
+          <div class="wt-t-num">Terminal 2</div>
+          <div class="wt-t-cmd">claude --worktree cal-elinails-mayo</div>
+          <div class="wt-t-task">Genera calendario Eli Nails mayo</div>
+          <div class="wt-t-result">→ clientes/eli-nails/calendario-mayo.md</div>
+        </div>
+        <div class="wt-terminal">
+          <div class="wt-t-num">Terminal 3</div>
+          <div class="wt-t-cmd">claude --worktree cal-diva-mayo</div>
+          <div class="wt-t-task">Genera calendario Diva Estudio mayo</div>
+          <div class="wt-t-result">→ clientes/diva-estudio/calendario-mayo.md</div>
+        </div>
+        <div class="wt-terminal">
+          <div class="wt-t-num">Terminal 4</div>
+          <div class="wt-t-cmd">claude --worktree cal-despensa-mayo</div>
+          <div class="wt-t-task">Genera calendario La Despensa mayo</div>
+          <div class="wt-t-result">→ clientes/la-despensa-andres/calendario-mayo.md</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="codigo">
+<span class="comentario"># Cuándo usar worktrees para MarketingMo:</span>
+<span class="val">✅ Generar varios calendarios de clientes distintos a la vez</span>
+<span class="val">✅ ACI + ADM + BAC con aislamiento total de archivos</span>
+<span class="val">✅ Preparar informes de fin de mes para todos los clientes simultáneamente</span>
+
+<span class="comentario"># Cuándo NO usar worktrees:</span>
+<span class="alerta">❌ El calendario de un cliente depende del brief que estás escribiendo ahora</span>
+<span class="alerta">❌ Tareas que duran menos de 5 minutos — overhead innecesario</span>
+<span class="alerta">❌ Cambios que necesitan coordinarse entre sí</span>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 9: PATRONES AVANZADOS -->
+  <div class="seccion" id="patrones">
+    <h2><span class="icon">🧠</span> Patrones de uso avanzado</h2>
+    <p class="seccion-subtitulo">Las combinaciones más poderosas para el trabajo diario de la agencia</p>
+
+    <h3>Patrón 1 — Diagnóstico semanal completo</h3>
+    <div class="codigo">
+<span class="comentario"># Cada lunes — estado de toda la cartera en 3 minutos:</span>
+<span class="txt">Usa </span><span class="agente">@aci-auditoria-cliente-inicial</span><span class="txt"> para revisar el estado digital de los 12 clientes,</span>
+<span class="txt"></span><span class="agente">@adm-metricas</span><span class="txt"> para detectar informes pendientes,</span>
+<span class="txt">y </span><span class="agente">@bac-marketingmo</span><span class="txt"> para identificar clientes sin calendario activo.</span>
+<span class="txt">Dame un resumen ejecutivo con alertas y plan de acción de la semana.</span>
+    </div>
+
+    <h3>Patrón 2 — Cierre de mes automatizado</h3>
+    <div class="codigo">
+<span class="comentario"># Último viernes del mes:</span>
+<span class="txt">Para cada cliente de Plan Crecimiento que tenga export de Metricool en su carpeta,</span>
+<span class="txt">usa </span><span class="agente">@adm-metricas</span><span class="txt"> para generar su informe ADM y enviarlo a Notion.</span>
+<span class="txt">Luego usa </span><span class="agente">@bac-marketingmo</span><span class="txt"> para generar el calendario del mes siguiente</span>
+<span class="txt">y crear la base de datos en Notion con el formato estándar.</span>
+    </div>
+
+    <h3>Patrón 3 — Onboarding de cliente nuevo</h3>
+    <div class="codigo">
+<span class="comentario"># Cuando cierra un contrato nuevo:</span>
+<span class="agente">@aci-auditoria-cliente-inicial</span><span class="txt"> genera la auditoría completa de [nuevo-cliente],</span>
+<span class="txt">registra el baseline Día 0 y crea su página en Notion.</span>
+<span class="txt">Luego </span><span class="cmd">/brief-cliente [nuevo-cliente]</span><span class="txt"> para el brief de onboarding.</span>
+<span class="txt">Finalmente </span><span class="agente">@bac-marketingmo</span><span class="txt"> genera el primer calendario del mes.</span>
+    </div>
+
+    <h3>Patrón 4 — Combinación con Skills</h3>
+    <div class="codigo">
+<span class="comentario"># Análisis competitivo profundo para prospecto:</span>
+<span class="txt">@competitive-analysis analiza la competencia de [prospecto] en el sector [X]</span>
+<span class="txt">y </span><span class="agente">@aci-auditoria-cliente-inicial</span><span class="txt"> genera la auditoría digital completa.</span>
+<span class="txt">Combina ambos análisis en una propuesta comercial para [prospecto].</span>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 10: ESTADO COMPLETO -->
+  <div class="seccion" id="estado">
+    <h2><span class="icon">🏛️</span> Estado completo del sistema MarketingMo</h2>
+    <p class="seccion-subtitulo">Todo lo que tienes construido al terminar los 9 módulos + módulo final</p>
+
+    <div class="estado-sistema">
+      <div class="es-titulo">✅ Sistema MarketingMo — Inventario completo</div>
+      <div class="es-item"><span class="es-check">✅</span><div class="es-nombre">Claude Code v2.1.81</div><div class="es-detalle">Instalado en Windows · Sonnet 4.6 · Cuenta Pro</div></div>
+      <div class="es-item"><span class="es-check">✅</span><div class="es-nombre">CLAUDE.md de MarketingMo</div><div class="es-detalle">12 clientes · 3 planes · 3 agentes · Instrucciones permanentes</div></div>
+      <div class="es-item"><span class="es-check">✅</span><div class="es-nombre">3 Slash Commands</div><div class="es-detalle">/brief-cliente · /informe-adm · /auditoria-aci</div></div>
+      <div class="es-item"><span class="es-check">✅</span><div class="es-nombre">3 Agentes especializados</div><div class="es-detalle">@bac-marketingmo · @adm-metricas · @aci-auditoria-cliente-inicial</div></div>
+      <div class="es-item"><span class="es-check">✅</span><div class="es-nombre">2 Hooks activos</div><div class="es-detalle">PostToolUse → log.txt · Stop → notificación ✅</div></div>
+      <div class="es-item"><span class="es-check">✅</span><div class="es-nombre">5 MCP Servers</div><div class="es-detalle">Notion · Gmail · Google Calendar · Canva · GitHub</div></div>
+      <div class="es-item"><span class="es-check">✅</span><div class="es-nombre">978 Skills instalados</div><div class="es-detalle">@pricing-strategy · @competitive-analysis · @automation y más</div></div>
+      <div class="es-item"><span class="es-check">✅</span><div class="es-nombre">VS Code integrado</div><div class="es-detalle">Extensión oficial · Conectado con /ide · Cambios en tiempo real</div></div>
+      <div class="es-item"><span class="es-check">✅</span><div class="es-nombre">Notion sincronizado</div><div class="es-detalle">Base de datos estandarizada para calendarios de todos los clientes</div></div>
+      <div class="es-item"><span class="es-check">✅</span><div class="es-nombre">GitHub conectado</div><div class="es-detalle">Repositorio privado diva_estudio accesible desde el terminal</div></div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 11: PRÓXIMOS PASOS -->
+  <div class="seccion" id="proximos">
+    <h2><span class="icon">🗺️</span> Próximos pasos</h2>
+    <p class="seccion-subtitulo">El camino desde aquí — en orden de prioridad</p>
+
+    <div class="proximos">
+      <div class="px-titulo">📋 Los 3 pasos siguientes — en orden</div>
+
+      <div class="px-paso">
+        <div class="px-num">1</div>
+        <div class="px-contenido">
+          <h4>Poblar el sistema con datos reales de los 12 clientes</h4>
+          <p>Rellenar los briefs reales, los precios reales y los informes reales de cada cliente. El sistema ya está construido — solo necesita datos. CUIDAMA es el modelo: tiene métricas reales, resultados reales y documentación real.</p>
+        </div>
+      </div>
+      <div class="px-sep"></div>
+
+      <div class="px-paso">
+        <div class="px-num">2</div>
+        <div class="px-contenido">
+          <h4>Retomar el proyecto Python/FastAPI con la API de Claude</h4>
+          <p>Tienes construida la interfaz — agent.py, chat.py, models.py, server.py. El siguiente paso es hacer correr el servidor localmente y conectarlo con los agentes de MarketingMo. Este es el producto de cara al cliente.</p>
+        </div>
+      </div>
+      <div class="px-sep"></div>
+
+      <div class="px-paso">
+        <div class="px-num">3</div>
+        <div class="px-contenido">
+          <h4>Arquitectura A2A — n8n como orquestador con Gemini + Claude</h4>
+          <p>El objetivo a largo plazo: n8n como el cerebro determinista que orquesta cuándo y cómo se activa cada agente. Gemini para la fase de ideación estratégica. Claude para la ejecución técnica. Los tres trabajando juntos de forma autónoma.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3>Lo que hace el sistema solo desde hoy</h3>
+    <div class="codigo">
+<span class="comentario"># Sin que tú hagas nada:</span>
+<span class="val">→ Cada archivo de cliente modificado queda registrado en log.txt con timestamp</span>
+<span class="val">→ Al terminar cada respuesta aparece "✅ Claude Code terminó - MarketingMo"</span>
+<span class="val">→ Los agentes tienen memoria del proyecto entre sesiones</span>
+<span class="val">→ Notion recibe automáticamente los informes y calendarios</span>
+
+<span class="comentario"># Con un solo prompt cada semana:</span>
+<span class="val">→ Diagnóstico completo de los 12 clientes</span>
+<span class="val">→ Alertas de urgencia identificadas</span>
+<span class="val">→ Plan de acción generado día por día</span>
+    </div>
+  </div>
+
+  <!-- LO QUE PRACTICASTE -->
+  <div class="seccion">
+    <h2><span class="icon">✅</span> Lo que construiste en este módulo</h2>
+
+    <div class="practica-card">
+      <div class="p-icon">1️⃣</div>
+      <div><h4>Creaste los 3 agentes especializados con /agents</h4><p>bac-marketingmo (verde), adm-metricas (cyan) y aci-auditoria-cliente-inicial (morado) — cada uno con Sonnet, memoria de proyecto y descripción completa generada automáticamente.</p></div>
+    </div>
+    <div class="practica-card">
+      <div class="p-icon">2️⃣</div>
+      <div><h4>Probaste la ejecución en paralelo con los 12 clientes</h4><p>Los 3 agentes trabajaron simultáneamente — ACI leyó auditorías, ADM revisó métricas y BAC analizó calendarios. En 3 minutos obtuviste el diagnóstico completo de toda la cartera.</p></div>
+    </div>
+    <div class="practica-card">
+      <div class="p-icon">3️⃣</div>
+      <div><h4>El Agente B.A.C. generó el calendario de Pastelería Rico</h4><p>16 publicaciones para abril con Semana Santa como eje central. El agente trabajó solo durante 2 minutos 45 segundos y guardó el resultado en la carpeta del cliente.</p></div>
+    </div>
+    <div class="practica-card">
+      <div class="p-icon">4️⃣</div>
+      <div><h4>Estandarizaste el formato de Notion para todos los clientes</h4><p>Claude Code analizó la estructura de CUIDAMA-FEB26, replicó la base de datos exacta para Pastelería Rico y la cargó con las 16 entradas del calendario — cada una con caption, hashtags y CTA.</p></div>
+    </div>
+    <div class="practica-card">
+      <div class="p-icon">5️⃣</div>
+      <div><h4>Aprendiste worktrees para el nivel siguiente</h4><p>Entendiste cómo usar terminales independientes con --worktree para generar múltiples calendarios o ejecutar múltiples agentes con aislamiento total de archivos — sin riesgo de conflictos.</p></div>
+    </div>
+    <div class="practica-card">
+      <div class="p-icon">6️⃣</div>
+      <div><h4>Recibiste el diagnóstico real de tu agencia</h4><p>Los agentes encontraron lo más importante: 11 de 12 clientes sin datos reales en el sistema y 4.750€/mes de facturación en riesgo. Más un plan de acción día por día para solucionarlo esta semana.</p></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <h3>🎓 Programa Claude Code Completado — 9 Módulos + Módulo Final</h3>
+  <p>De instalación a Arquitecto de Agentes · 3 agentes especializados · 5 MCP servers · 978 skills · Sistema MarketingMo operativo</p>
+  <div class="firma">Módulo Final · 27 de Marzo 2026 · Mónico Nieto · MarketingMo · @marketingMo · nietomonica.com</div>
+</div>
+
+</body>
+</html>

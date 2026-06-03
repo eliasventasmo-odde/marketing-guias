@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Módulo 7 — Hooks: Automatización por Eventos · Claude Code</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #e8f4fd; --bg2: #d0e9f8; --card: #ffffff;
+    --celeste: #4db8e8; --celeste-dark: #1a8bbf; --celeste-light: #b8dff5;
+    --verde: #27ae60; --verde-bg: #eafaf1; --verde-border: #a9dfbf;
+    --rojo: #e74c3c; --rojo-bg: #fdf2f2; --rojo-border: #f5c6c0;
+    --naranja: #f39c12; --naranja-bg: #fef9e7;
+    --morado: #7c3aed; --morado-bg: #f3f0ff; --morado-border: #c4b5fd;
+    --texto: #1a2a3a; --texto-suave: #4a6a8a; --borde: #c5dff0;
+    --codigo-bg: #1e3a4a; --codigo-texto: #7dd3fc;
+    --sombra: 0 4px 20px rgba(77,184,232,0.15);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--texto); line-height: 1.7; background-image: radial-gradient(circle at 20% 20%, rgba(77,184,232,0.08) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(39,174,96,0.05) 0%, transparent 50%); }
+
+  .header { background: linear-gradient(135deg, #1a3a5c 0%, #1a8bbf 50%, #27ae60 100%); color: white; padding: 60px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 40px 40px; }
+  .header-badge { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); padding: 6px 20px; border-radius: 50px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 900; margin-bottom: 12px; }
+  .header h1 span { color: #7dd3fc; }
+  .header p { font-size: 17px; opacity: 0.85; font-weight: 300; max-width: 600px; margin: 0 auto 30px; }
+  .header-meta { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+  .header-meta span { background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-size: 13px; border: 1px solid rgba(255,255,255,0.2); }
+  .header-meta span strong { color: #7dd3fc; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  .banner-agencia { background: linear-gradient(135deg, #1a3a5c, #1a8bbf); border-radius: 16px; padding: 30px 40px; margin-bottom: 30px; color: white; display: flex; align-items: center; gap: 20px; }
+  .banner-icon { font-size: 48px; flex-shrink: 0; }
+  .banner-texto h2 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 8px; }
+  .banner-texto p { font-size: 14px; opacity: 0.85; margin: 0; }
+
+  .resumen-modulo { background: var(--card); border-radius: 16px; padding: 30px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); }
+  .resumen-modulo h2 { font-family: 'Playfair Display', serif; color: var(--celeste-dark); font-size: 22px; margin-bottom: 20px; }
+  .resumen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .resumen-item { background: var(--bg); border: 1px solid var(--borde); border-radius: 10px; padding: 14px; text-align: center; }
+  .resumen-item .r-icon { font-size: 26px; margin-bottom: 6px; }
+  .resumen-item .r-titulo { font-weight: 600; font-size: 13px; color: var(--celeste-dark); }
+  .resumen-item .r-desc { font-size: 12px; color: var(--texto-suave); margin-top: 4px; }
+
+  .indice { background: var(--card); border-radius: 16px; padding: 30px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); }
+  .indice h2 { font-family: 'Playfair Display', serif; color: var(--celeste-dark); font-size: 22px; margin-bottom: 20px; }
+  .indice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .indice a { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg); border-radius: 10px; text-decoration: none; color: var(--texto); font-size: 14px; font-weight: 500; border: 1px solid var(--borde); transition: all 0.2s; }
+  .indice a:hover { background: var(--celeste-light); border-color: var(--celeste); }
+  .num { background: var(--celeste); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+
+  .seccion { background: var(--card); border-radius: 16px; padding: 40px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); position: relative; overflow: hidden; }
+  .seccion::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--celeste), var(--verde)); }
+  .seccion h2 { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--texto); margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+  .seccion h2 .icon { background: linear-gradient(135deg, var(--celeste), var(--celeste-dark)); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .seccion-subtitulo { color: var(--texto-suave); font-size: 15px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--bg2); }
+
+  .codigo { background: var(--codigo-bg); color: var(--codigo-texto); padding: 14px 18px; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 13px; margin: 10px 0; border-left: 3px solid var(--celeste); overflow-x: auto; line-height: 1.9; }
+  .codigo .comentario { color: #64748b; font-style: italic; }
+  .codigo .comando { color: #7dd3fc; }
+  .codigo .valor { color: #86efac; }
+  .codigo .resultado { color: #fbbf24; }
+  .codigo .texto-normal { color: #e2e8f0; }
+  .codigo .clave { color: #fb923c; }
+  .codigo .error { color: #f87171; }
+
+  .alerta { padding: 16px 20px; border-radius: 12px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; font-size: 14px; line-height: 1.6; }
+  .alerta-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .alerta-verde { background: var(--verde-bg); border: 1px solid var(--verde-border); color: #1a5c35; }
+  .alerta-verde .alerta-icon { color: var(--verde); }
+  .alerta-rojo { background: var(--rojo-bg); border: 1px solid var(--rojo-border); color: #7b1c14; }
+  .alerta-rojo .alerta-icon { color: var(--rojo); }
+  .alerta-celeste { background: #e8f4fd; border: 1px solid var(--celeste-light); color: #1a4a6a; }
+  .alerta-celeste .alerta-icon { color: var(--celeste-dark); }
+  .alerta-naranja { background: var(--naranja-bg); border: 1px solid #f9d98a; color: #7a4f00; }
+  .alerta-naranja .alerta-icon { color: var(--naranja); }
+  .alerta strong { font-weight: 600; }
+
+  .tabla-wrapper { overflow-x: auto; margin: 16px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { background: linear-gradient(135deg, var(--celeste-dark), var(--celeste)); color: white; padding: 12px 16px; text-align: left; font-weight: 600; }
+  th:first-child { border-radius: 8px 0 0 0; }
+  th:last-child { border-radius: 0 8px 0 0; }
+  td { padding: 12px 16px; border-bottom: 1px solid var(--bg2); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--bg); }
+  tr:last-child td { border-bottom: none; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--celeste-light); color: var(--celeste-dark); padding: 2px 6px; border-radius: 4px; }
+
+  .practica-card { background: var(--verde-bg); border: 1px solid var(--verde-border); border-radius: 12px; padding: 20px; margin: 12px 0; display: flex; gap: 14px; align-items: flex-start; }
+  .practica-card .p-icon { font-size: 24px; flex-shrink: 0; }
+  .practica-card h4 { color: var(--verde); font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .practica-card p { font-size: 13px; color: #2d6a4a; margin: 0; }
+
+  /* HOOK CARD */
+  .hook-card { border-radius: 16px; padding: 28px; margin-bottom: 20px; border: 2px solid; }
+  .hook-post { background: linear-gradient(135deg, #eafaf1, #d5f5e3); border-color: var(--verde); }
+  .hook-stop { background: linear-gradient(135deg, #e8f4fd, #d0e9f8); border-color: var(--celeste); }
+  .hook-session { background: linear-gradient(135deg, #f3f0ff, #e9e2ff); border-color: var(--morado); }
+  .hook-pre { background: linear-gradient(135deg, #fef9e7, #fdebd0); border-color: var(--naranja); }
+  .hk-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .hk-icono { font-size: 36px; }
+  .hk-titulo-grupo { flex: 1; }
+  .hk-nombre { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; }
+  .hook-post .hk-nombre { color: var(--verde); }
+  .hook-stop .hk-nombre { color: var(--celeste-dark); }
+  .hook-session .hk-nombre { color: var(--morado); }
+  .hook-pre .hk-nombre { color: var(--naranja); }
+  .hk-evento { font-size: 12px; font-weight: 600; margin-top: 2px; color: var(--texto-suave); }
+  .hk-desc { font-size: 14px; color: var(--texto); margin-bottom: 14px; line-height: 1.7; }
+  .hk-cuando { font-size: 13px; padding: 10px 14px; border-radius: 8px; background: rgba(255,255,255,0.6); margin-bottom: 12px; }
+  .hook-post .hk-cuando { color: #1a5c35; }
+  .hook-stop .hk-cuando { color: #1a4a6a; }
+  .hk-estado { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .estado-activo { background: var(--verde-bg); color: var(--verde); border: 1px solid var(--verde-border); }
+  .estado-idea { background: var(--naranja-bg); color: var(--naranja); border: 1px solid #f9d98a; }
+
+  /* ARQUITECTURA HOOK */
+  .arq-hook { background: #0f2030; border-radius: 12px; padding: 24px; margin: 16px 0; border: 1px solid #2a4a6a; }
+  .ah-linea { font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 2.2; }
+  .ah-llave { color: #e2e8f0; }
+  .ah-clave { color: #7dd3fc; }
+  .ah-valor-verde { color: #86efac; }
+  .ah-valor-amarillo { color: #fbbf24; }
+  .ah-comentario { color: #475569; font-style: italic; }
+
+  /* FLUJO HOOK */
+  .flujo-hook { background: linear-gradient(135deg, #0f2030, #1a3a5c); border-radius: 16px; padding: 32px; margin: 20px 0; border: 1px solid #2a4a6a; }
+  .fh-titulo { font-family: 'Playfair Display', serif; color: #7dd3fc; font-size: 20px; margin-bottom: 24px; }
+  .fh-paso { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
+  .fh-num { background: linear-gradient(135deg, var(--celeste), var(--verde)); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+  .fh-contenido { flex: 1; }
+  .fh-accion { color: #e2e8f0; font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .fh-detalle { color: #94a3b8; font-size: 13px; }
+  .fh-codigo { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #86efac; background: rgba(134,239,172,0.1); padding: 4px 10px; border-radius: 4px; display: inline-block; margin-top: 4px; }
+  .fh-sep { border: none; border-top: 1px solid #2a4a6a; margin: 12px 0; }
+
+  /* GITHUB SECTION */
+  .github-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin: 16px 0; }
+  .gh-item { background: var(--bg); border: 1px solid var(--borde); border-radius: 12px; padding: 18px; }
+  .gh-nivel { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--celeste-dark); margin-bottom: 8px; }
+  .gh-titulo { font-weight: 700; font-size: 15px; color: var(--texto); margin-bottom: 6px; }
+  .gh-desc { font-size: 13px; color: var(--texto-suave); }
+  .gh-modulo { font-size: 11px; margin-top: 8px; font-weight: 600; }
+
+  /* IDEAS HOOKS */
+  .ideas-hooks { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin: 16px 0; }
+  .idea-hook { background: var(--bg); border: 1px solid var(--borde); border-radius: 12px; padding: 18px; }
+  .ih-evento { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: white; background: var(--celeste-dark); padding: 3px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
+  .ih-nombre { font-weight: 600; font-size: 14px; color: var(--texto); margin-bottom: 6px; }
+  .ih-desc { font-size: 13px; color: var(--texto-suave); }
+  .ih-cuando { font-size: 12px; color: var(--texto-suave); margin-top: 6px; font-style: italic; }
+
+  .sep { height: 1px; background: linear-gradient(90deg, transparent, var(--celeste), transparent); margin: 24px 0; }
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  .tag-verde { background: var(--verde-bg); color: var(--verde); border: 1px solid var(--verde-border); }
+  .tag-rojo { background: var(--rojo-bg); color: var(--rojo); border: 1px solid var(--rojo-border); }
+  .tag-celeste { background: var(--celeste-light); color: var(--celeste-dark); }
+  .ruta { background: var(--bg); border: 1px solid var(--borde); border-radius: 10px; padding: 12px 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--celeste-dark); margin: 8px 0; }
+  .ruta::before { content: '📁 '; }
+
+  h3 { color: var(--celeste-dark); font-size: 18px; margin: 20px 0 12px; font-weight: 600; }
+  p { margin-bottom: 10px; color: var(--texto); font-size: 15px; }
+  ul, ol { padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 6px; font-size: 14px; color: var(--texto-suave); }
+  li strong { color: var(--texto); }
+
+  .footer { background: linear-gradient(135deg, #1a3a5c, #1a8bbf); color: white; text-align: center; padding: 40px; }
+  .footer h3 { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 10px; }
+  .footer p { opacity: 0.7; font-size: 14px; }
+  .footer .firma { margin-top: 16px; font-size: 12px; opacity: 0.4; font-style: italic; }
+
+  @media (max-width: 600px) {
+    .header h1 { font-size: 30px; }
+    .seccion { padding: 24px 16px; }
+    .banner-agencia { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">📘 Módulo 7 de 9</div>
+  <h1>Hooks: Automatización <span>por Eventos</span></h1>
+  <p>Acciones que se disparan solas cuando Claude Code hace algo. Sin que tú hagas nada — el sistema trabaja por ti.</p>
+  <div class="header-meta">
+    <span>👤 <strong>Mónico Nieto</strong> · MarketingMo</span>
+    <span>📁 <strong>claudecode-practicas</strong></span>
+    <span>✅ <strong>Módulos 1 al 6</strong> completados</span>
+    <span>⏳ <strong>45 min</strong> este módulo</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- BANNER -->
+  <div class="banner-agencia">
+    <div class="banner-icon">⚡</div>
+    <div class="banner-texto">
+      <h2>Los hooks son el motor silencioso de MarketingMo</h2>
+      <p>Cada vez que Claude Code modifica un archivo de cliente, el sistema lo registra solo. Cada vez que termina de responder, te notifica. Todo automático, sin que hagas nada.</p>
+    </div>
+  </div>
+
+  <!-- RESUMEN -->
+  <div class="resumen-modulo">
+    <h2>🎯 ¿Qué aprendes en este módulo?</h2>
+    <div class="resumen-grid">
+      <div class="resumen-item">
+        <div class="r-icon">🪝</div>
+        <div class="r-titulo">Qué es un Hook</div>
+        <div class="r-desc">Acción automática que se dispara cuando ocurre un evento</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">📋</div>
+        <div class="r-titulo">Los 8 eventos disponibles</div>
+        <div class="r-desc">PreToolUse, PostToolUse, Stop, SessionStart y más</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">🏗️</div>
+        <div class="r-titulo">Estructura de un Hook</div>
+        <div class="r-desc">Matcher, type, command — cómo se configura en settings.json</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">📝</div>
+        <div class="r-titulo">Hook de auditoría</div>
+        <div class="r-desc">Registra en log.txt cada archivo de cliente modificado</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">🔔</div>
+        <div class="r-titulo">Hook de notificación</div>
+        <div class="r-desc">Avisa cuando Claude Code termina cada respuesta</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">🐙</div>
+        <div class="r-titulo">GitHub y Smithery</div>
+        <div class="r-desc">Cómo expandir Claude Code con plugins y MCP servers externos</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÍNDICE -->
+  <div class="indice">
+    <h2>📋 Contenido de este módulo</h2>
+    <div class="indice-grid">
+      <a href="#que-es"><span class="num">1</span> Qué es un Hook</a>
+      <a href="#eventos"><span class="num">2</span> Los 8 eventos disponibles</a>
+      <a href="#estructura"><span class="num">3</span> Estructura técnica</a>
+      <a href="#hook1"><span class="num">4</span> Hook 1 — Auditoría de clientes</a>
+      <a href="#hook2"><span class="num">5</span> Hook 2 — Notificación Stop</a>
+      <a href="#script"><span class="num">6</span> El script .ps1 en Windows</a>
+      <a href="#github"><span class="num">7</span> GitHub y Smithery</a>
+      <a href="#ideas"><span class="num">8</span> Ideas de hooks futuros</a>
+      <a href="#practicaste"><span class="num">9</span> Lo que practicaste</a>
+      <a href="#no-hacer"><span class="num">10</span> Qué NO hacer</a>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 1: QUÉ ES -->
+  <div class="seccion" id="que-es">
+    <h2><span class="icon">🪝</span> Qué es un Hook</h2>
+    <p class="seccion-subtitulo">El concepto fundamental antes de entrar en la técnica</p>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>Definición simple:</strong> Un Hook es una acción automática que se configura una sola vez y se dispara sola cada vez que ocurre un evento específico en Claude Code. No necesitas escribir nada, no necesitas recordarlo — simplemente ocurre en segundo plano mientras tú trabajas.</div>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">🎯</span>
+      <div><strong>La analogía perfecta:</strong> Es exactamente como las notificaciones automáticas de tu teléfono. Tú no las activas manualmente cada vez — las configuras una vez y se disparan solas cuando pasa algo concreto. Recibir un WhatsApp → suena una notificación. Modificar un archivo de cliente → se registra en el log. Mismo concepto.</div>
+    </div>
+
+    <h3>Hooks vs lo que ya sabes</h3>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Herramienta</th><th>Cómo se activa</th><th>Cuándo usarla</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Slash commands</strong></td><td>Tú los ejecutas manualmente</td><td>Tareas específicas que tú decides cuándo hacer</td></tr>
+          <tr><td><strong>Flags CLI</strong></td><td>Tú los configuras al arrancar</td><td>Modificar el comportamiento de una sesión concreta</td></tr>
+          <tr><td><strong>CLAUDE.md</strong></td><td>Se carga automáticamente al inicio</td><td>Instrucciones estáticas del proyecto</td></tr>
+          <tr><td><strong>Hooks</strong> <span class="tag tag-verde">Este módulo</span></td><td>Se disparan solos al ocurrir un evento</td><td>Acciones automáticas en respuesta a lo que hace Claude Code</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 2: EVENTOS -->
+  <div class="seccion" id="eventos">
+    <h2><span class="icon">⚡</span> Los 8 eventos disponibles</h2>
+    <p class="seccion-subtitulo">Cada evento es un momento específico en el ciclo de trabajo de Claude Code</p>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Evento</th><th>Cuándo se dispara</th><th>Uso típico</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>PostToolUse</code></td>
+            <td>Después de que Claude Code usa una herramienta (Write, Edit, Bash...)</td>
+            <td>Registrar cambios, validar archivos, notificar modificaciones</td>
+            <td><span class="tag tag-verde">Tienes uno ✓</span></td>
+          </tr>
+          <tr>
+            <td><code>PreToolUse</code></td>
+            <td>Antes de que Claude Code use una herramienta</td>
+            <td>Validar o bloquear operaciones antes de que ocurran</td>
+            <td><span class="tag tag-celeste">Disponible</span></td>
+          </tr>
+          <tr>
+            <td><code>Stop</code></td>
+            <td>Cuando Claude Code termina de responder</td>
+            <td>Notificaciones, resúmenes automáticos, cierre de logs</td>
+            <td><span class="tag tag-verde">Tienes uno ✓</span></td>
+          </tr>
+          <tr>
+            <td><code>SessionStart</code></td>
+            <td>Al arrancar una nueva sesión</td>
+            <td>Mostrar recordatorios, cargar contexto adicional</td>
+            <td><span class="tag tag-celeste">Disponible</span></td>
+          </tr>
+          <tr>
+            <td><code>SessionEnd</code></td>
+            <td>Al cerrar Claude Code con /exit</td>
+            <td>Generar resumen de la sesión, enviar logs a Notion</td>
+            <td><span class="tag tag-celeste">Disponible</span></td>
+          </tr>
+          <tr>
+            <td><code>Notification</code></td>
+            <td>Cuando Claude Code quiere comunicarte algo</td>
+            <td>Redirigir notificaciones al sistema operativo</td>
+            <td><span class="tag tag-celeste">Disponible</span></td>
+          </tr>
+          <tr>
+            <td><code>PreCompact</code></td>
+            <td>Antes de comprimir el contexto con /compact</td>
+            <td>Guardar un snapshot antes de comprimir</td>
+            <td><span class="tag tag-celeste">Disponible</span></td>
+          </tr>
+          <tr>
+            <td><code>PostCompact</code></td>
+            <td>Después de comprimir el contexto</td>
+            <td>Notificar que el contexto fue comprimido</td>
+            <td><span class="tag tag-celeste">Disponible</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Importante sobre PostToolUseFailure:</strong> Existe también el evento <code>PostToolUseFailure</code> que se dispara cuando una herramienta falla. Útil para registrar errores automáticamente en un log separado.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 3: ESTRUCTURA -->
+  <div class="seccion" id="estructura">
+    <h2><span class="icon">🏗️</span> Estructura técnica de un Hook</h2>
+    <p class="seccion-subtitulo">Cómo se configura en el settings.json — línea por línea explicada</p>
+
+    <p>Los hooks se configuran en el archivo <code>settings.json</code> dentro de la clave <code>"hooks"</code>. Cada hook tiene tres partes esenciales: el evento, el matcher y el comando.</p>
+
+    <div class="arq-hook">
+      <div class="ah-linea"><span class="ah-llave">{</span></div>
+      <div class="ah-linea">&nbsp;&nbsp;<span class="ah-clave">"hooks"</span><span class="ah-llave">: {</span></div>
+      <div class="ah-linea">&nbsp;&nbsp;&nbsp;&nbsp;<span class="ah-clave">"PostToolUse"</span><span class="ah-llave">: [</span><span class="ah-comentario">&nbsp;&nbsp;&nbsp;&nbsp;← El EVENTO que lo dispara</span></div>
+      <div class="ah-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ah-llave">{</span></div>
+      <div class="ah-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ah-clave">"matcher"</span><span class="ah-llave">: </span><span class="ah-valor-verde">"Write|Edit"</span><span class="ah-comentario">&nbsp;&nbsp;&nbsp;← Qué herramienta lo activa</span></div>
+      <div class="ah-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ah-clave">"hooks"</span><span class="ah-llave">: [</span></div>
+      <div class="ah-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ah-llave">{</span></div>
+      <div class="ah-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ah-clave">"type"</span><span class="ah-llave">: </span><span class="ah-valor-verde">"command"</span><span class="ah-comentario">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← Tipo: siempre "command"</span></div>
+      <div class="ah-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ah-clave">"command"</span><span class="ah-llave">: </span><span class="ah-valor-amarillo">"powershell ..."</span><span class="ah-comentario">&nbsp;← El comando a ejecutar</span></div>
+      <div class="ah-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ah-clave">"statusMessage"</span><span class="ah-llave">: </span><span class="ah-valor-verde">"Registrando..."</span><span class="ah-comentario">&nbsp;← Texto visible en pantalla</span></div>
+      <div class="ah-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ah-llave">}</span></div>
+      <div class="ah-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ah-llave">]</span></div>
+      <div class="ah-linea">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ah-llave">}</span></div>
+      <div class="ah-linea">&nbsp;&nbsp;&nbsp;&nbsp;<span class="ah-llave">]</span></div>
+      <div class="ah-linea">&nbsp;&nbsp;<span class="ah-llave">}</span></div>
+      <div class="ah-linea"><span class="ah-llave">}</span></div>
+    </div>
+
+    <h3>El Matcher — qué herramienta activa el hook</h3>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Matcher</th><th>Qué activa</th><th>Ejemplo</th></tr></thead>
+        <tbody>
+          <tr><td><code>"Write"</code></td><td>Solo cuando escribe archivos nuevos</td><td>Crear brief.md, informe-adm.md</td></tr>
+          <tr><td><code>"Edit"</code></td><td>Solo cuando edita archivos existentes</td><td>Añadir líneas a un brief ya creado</td></tr>
+          <tr><td><code>"Write|Edit"</code></td><td>Cualquier modificación de archivos</td><td>Tu hook de auditoría actual</td></tr>
+          <tr><td><code>"Bash"</code></td><td>Cuando ejecuta comandos de terminal</td><td>Cada vez que corre un script</td></tr>
+          <tr><td><code>"*"</code></td><td>Cualquier herramienta sin excepción</td><td>Logging total de todas las acciones</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>El operador |</strong> significa "O" — <code>"Write|Edit"</code> se dispara si usa Write O si usa Edit. Puedes combinar tantas herramientas como necesites separándolas con <code>|</code>.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 4: HOOK 1 -->
+  <div class="seccion" id="hook1">
+    <h2><span class="icon">📝</span> Hook 1 — Auditoría automática de clientes</h2>
+    <p class="seccion-subtitulo">El que creaste hoy — registra cada archivo de cliente modificado</p>
+
+    <div class="hook-card hook-post">
+      <div class="hk-header">
+        <div class="hk-icono">📝</div>
+        <div class="hk-titulo-grupo">
+          <div class="hk-nombre">PostToolUse — registrar-edicion</div>
+          <div class="hk-evento">Evento: PostToolUse · Matcher: Write|Edit · Script: .ps1</div>
+        </div>
+        <span class="hk-estado estado-activo">✅ Activo</span>
+      </div>
+      <p class="hk-desc">Después de cada operación Write o Edit en cualquier archivo, el hook verifica si la ruta contiene <code>clientes/</code>. Si es así, escribe una línea en <code>log.txt</code> con la fecha, hora exacta y la ruta completa del archivo modificado.</p>
+      <div class="hk-cuando">🎯 <strong>Por qué es útil para MarketingMo:</strong> Tienes 12 clientes con múltiples archivos. Este hook crea un historial automático de todo lo que se toca — sin que tengas que recordar nada ni hacer nada manualmente.</div>
+    </div>
+
+    <h3>El script PowerShell que lo hace funcionar</h3>
+    <div class="ruta">C:\Users\elias\claudecode-practicas\.claude\hooks\registrar-edicion.ps1</div>
+
+    <div class="codigo">
+<span class="comentario"># Contenido del archivo registrar-edicion.ps1</span>
+<span class="texto-normal">$json = $input | Out-String</span>
+<span class="texto-normal">try {</span>
+<span class="texto-normal">    $obj = $json | ConvertFrom-Json</span>
+<span class="texto-normal">    $f = $obj.tool_input.file_path</span>
+<span class="texto-normal">    if ($f -like "*clientes*") {</span>
+<span class="texto-normal">        $linea = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') | $f"</span>
+<span class="texto-normal">        Add-Content -Path "C:/Users/elias/claudecode-practicas/log.txt" -Value $linea</span>
+<span class="texto-normal">    }</span>
+<span class="texto-normal">} catch {}</span>
+    </div>
+
+    <h3>Qué hace línea por línea</h3>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Línea</th><th>Qué hace</th></tr></thead>
+        <tbody>
+          <tr><td><code>$json = $input | Out-String</code></td><td>Recibe el JSON que envía Claude Code con información del archivo</td></tr>
+          <tr><td><code>$obj = $json | ConvertFrom-Json</code></td><td>Convierte el texto JSON en un objeto de PowerShell</td></tr>
+          <tr><td><code>$f = $obj.tool_input.file_path</code></td><td>Extrae la ruta del archivo que fue modificado</td></tr>
+          <tr><td><code>if ($f -like "*clientes*")</code></td><td>Verifica si la ruta contiene la palabra "clientes"</td></tr>
+          <tr><td><code>Add-Content ... log.txt</code></td><td>Escribe la línea con fecha, hora y ruta en el log</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Formato del log.txt generado</h3>
+    <div class="codigo">
+<span class="comentario"># Así se ve log.txt con el tiempo:</span>
+<span class="valor">2026-03-25 12:17:55 | C:\Users\elias\claudecode-practicas\clientes\inmobiliaria-galota\brief.md</span>
+<span class="valor">2026-03-25 12:45:30 | C:\Users\elias\claudecode-practicas\clientes\eli-nails\informe-adm.md</span>
+<span class="valor">2026-03-26 09:12:18 | C:\Users\elias\claudecode-practicas\clientes\diva-estudio\calendario-abril.md</span>
+<span class="valor">2026-03-26 09:15:44 | C:\Users\elias\claudecode-practicas\clientes\nobleza\brief.md</span>
+<span class="comentario"># Cada línea = una modificación = fecha + hora + archivo</span>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 5: HOOK 2 -->
+  <div class="seccion" id="hook2">
+    <h2><span class="icon">🔔</span> Hook 2 — Notificación al terminar</h2>
+    <p class="seccion-subtitulo">El aviso automático que aparece cada vez que Claude Code termina de responder</p>
+
+    <div class="hook-card hook-stop">
+      <div class="hk-header">
+        <div class="hk-icono">🔔</div>
+        <div class="hk-titulo-grupo">
+          <div class="hk-nombre">Stop — notificacion-fin</div>
+          <div class="hk-evento">Evento: Stop · Se dispara al terminar cada respuesta</div>
+        </div>
+        <span class="hk-estado estado-activo">✅ Activo</span>
+      </div>
+      <p class="hk-desc">Cada vez que Claude Code termina de procesar una respuesta, este hook se dispara y muestra el mensaje <strong>"✅ Claude Code terminó - MarketingMo"</strong> en la interfaz. Es una señal visual clara de que el trabajo está hecho y puedes revisar el resultado.</p>
+      <div class="hk-cuando">🎯 <strong>Por qué es útil:</strong> Cuando Claude Code procesa tareas largas (rellenar 12 briefs, generar informes, analizar Metricool), sabes exactamente cuándo terminó sin tener que estar mirando la pantalla constantemente.</div>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>Lo viste funcionar en tiempo real.</strong> Al final de la respuesta donde configuraste el hook Stop apareció: <code>⎿ Stop says: ✅ Claude Code terminó - MarketingMo</code>. Ese mensaje ya no requiere reinicio — el evento Stop se detecta en la sesión activa.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 6: SCRIPT PS1 -->
+  <div class="seccion" id="script">
+    <h2><span class="icon">📄</span> Por qué usamos script .ps1 en Windows</h2>
+    <p class="seccion-subtitulo">La lección técnica más importante de este módulo para Windows</p>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>El problema con hooks inline en Windows:</strong> Los hooks de Claude Code están diseñados para Linux/macOS donde los comandos Bash funcionan nativamente. En Windows, intentar escribir todo el comando inline genera errores de sintaxis. La solución correcta es usar un script externo <code>.ps1</code>.</div>
+    </div>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Método</th><th>En Linux/macOS</th><th>En Windows</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Comando inline</strong></td><td>✅ Funciona perfectamente</td><td>❌ Error de sintaxis — comillas, pipes</td></tr>
+          <tr><td><strong>Script externo .ps1</strong></td><td>✅ Funciona</td><td>✅ Funciona perfectamente</td></tr>
+          <tr><td><strong>Script externo .sh</strong></td><td>✅ Funciona</td><td>⚠️ Requiere Git Bash configurado</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Regla de oro para Windows</h3>
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>Siempre que el hook necesite lógica compleja en Windows — usa un archivo .ps1 externo.</strong> El comando del hook simplemente llama al script: <code>powershell -ExecutionPolicy Bypass -File C:/ruta/al/script.ps1</code>. El script hace todo el trabajo pesado. Más limpio, más fácil de mantener, sin errores de sintaxis.</div>
+    </div>
+
+    <h3>Estructura de carpetas de tus hooks</h3>
+    <div class="ruta">C:\Users\elias\claudecode-practicas\.claude\hooks\</div>
+    <div class="codigo">
+<span class="resultado">.claude/</span>
+├── <span class="valor">settings.json</span>          <span class="comentario">← Configuración con los hooks</span>
+├── <span class="resultado">commands/</span>              <span class="comentario">← Tus slash commands</span>
+│   ├── <span class="valor">brief-cliente.md</span>
+│   ├── <span class="valor">informe-adm.md</span>
+│   └── <span class="valor">auditoria-aci.md</span>
+└── <span class="resultado">hooks/</span>                 <span class="comentario">← Tus scripts de hooks</span>
+    └── <span class="valor">registrar-edicion.ps1</span> <span class="comentario">← Script del Hook 1</span>
+    </div>
+
+    <h3>El hook en settings.json apuntando al script</h3>
+    <div class="codigo">
+<span class="comentario"># Así queda el hook en .claude/settings.json:</span>
+<span class="valor">"hooks"</span>: {
+  <span class="valor">"PostToolUse"</span>: [
+    {
+      <span class="valor">"matcher"</span>: <span class="texto-normal">"Write|Edit"</span>,
+      <span class="valor">"hooks"</span>: [
+        {
+          <span class="valor">"type"</span>: <span class="texto-normal">"command"</span>,
+          <span class="valor">"command"</span>: <span class="texto-normal">"powershell -ExecutionPolicy Bypass -File C:/Users/elias/claudecode-practicas/.claude/hooks/registrar-edicion.ps1"</span>,
+          <span class="valor">"statusMessage"</span>: <span class="texto-normal">"Registrando edición en log..."</span>
+        }
+      ]
+    }
+  ]
+}
+    </div>
+  </div>
+
+  <!-- SECCIÓN 7: GITHUB Y SMITHERY -->
+  <div class="seccion" id="github">
+    <h2><span class="icon">🐙</span> GitHub y Smithery — Expandir Claude Code</h2>
+    <p class="seccion-subtitulo">Cómo alimentar tu sistema con recursos de la comunidad</p>
+
+    <p>Hay tres niveles para expandir Claude Code con recursos externos. Cada uno se verá en detalle en el Módulo 8 — pero es importante conocerlos ahora.</p>
+
+    <div class="github-grid">
+      <div class="gh-item">
+        <div class="gh-nivel">Nivel 1 — Ya configurado</div>
+        <div class="gh-titulo">🏛️ Repositorio oficial Anthropic</div>
+        <div class="gh-desc">Plugins y skills oficiales de Anthropic. Ya tienes configurado <code>extraKnownMarketplaces</code> en tu settings.json apuntando a este repo.</div>
+        <div class="gh-modulo" style="color:var(--verde)">✅ Activo desde el Módulo 4</div>
+      </div>
+      <div class="gh-item">
+        <div class="gh-nivel">Nivel 2 — Módulo 8</div>
+        <div class="gh-titulo">🔌 MCP Server GitHub</div>
+        <div class="gh-desc">Conecta Claude Code directamente con repositorios de GitHub. Puede leer código, crear issues, ver pull requests y gestionar repos.</div>
+        <div class="gh-modulo" style="color:var(--celeste-dark)">⏳ Lo configuramos en Módulo 8</div>
+      </div>
+      <div class="gh-item">
+        <div class="gh-nivel">Nivel 3 — Módulo 8</div>
+        <div class="gh-titulo">🌐 Smithery.ai</div>
+        <div class="gh-desc">El marketplace más grande de MCP servers de la comunidad. Más de 200 servidores listos — bases de datos, CRMs, herramientas de marketing, analíticas.</div>
+        <div class="gh-modulo" style="color:var(--celeste-dark)">⏳ Lo exploramos en Módulo 8</div>
+      </div>
+      <div class="gh-item">
+        <div class="gh-nivel">Ya conectado</div>
+        <div class="gh-titulo">📓 Notion MCP</div>
+        <div class="gh-desc">Ya tienes Notion conectado como MCP server. En el Módulo 8 lo usaremos para enviar briefs e informes automáticamente desde los slash commands.</div>
+        <div class="gh-modulo" style="color:var(--verde)">✅ Detectado en Módulo 4</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 8: IDEAS HOOKS -->
+  <div class="seccion" id="ideas">
+    <h2><span class="icon">💡</span> Ideas de hooks futuros para MarketingMo</h2>
+    <p class="seccion-subtitulo">Automatizaciones que puedes añadir cuando las necesites</p>
+
+    <div class="ideas-hooks">
+      <div class="idea-hook">
+        <div class="ih-evento">SessionEnd</div>
+        <div class="ih-nombre">Resumen diario de trabajo</div>
+        <div class="ih-desc">Al cerrar Claude Code, genera automáticamente un resumen de todos los archivos tocados en esa sesión y lo guarda en un archivo diario.</div>
+        <div class="ih-cuando">Actívalo cuando: trabajes con muchos clientes en una sesión</div>
+      </div>
+      <div class="idea-hook">
+        <div class="ih-evento">PostToolUse</div>
+        <div class="ih-nombre">Backup automático</div>
+        <div class="ih-desc">Cada vez que Claude Code modifica un archivo importante, hace una copia de seguridad automática con timestamp en una carpeta backups/.</div>
+        <div class="ih-cuando">Actívalo cuando: manejes briefs con información crítica de clientes</div>
+      </div>
+      <div class="idea-hook">
+        <div class="ih-evento">SessionStart</div>
+        <div class="ih-nombre">Recordatorio de tareas pendientes</div>
+        <div class="ih-desc">Al arrancar Claude Code, muestra automáticamente los clientes que tienen informes pendientes este mes comparando con el log.txt.</div>
+        <div class="ih-cuando">Actívalo cuando: gestiones muchos clientes con fechas de entrega</div>
+      </div>
+      <div class="idea-hook">
+        <div class="ih-evento">PreToolUse</div>
+        <div class="ih-nombre">Validador de archivos protegidos</div>
+        <div class="ih-desc">Antes de que Claude Code modifique cualquier archivo, verifica que no esté en una lista de archivos protegidos y bloquea la operación si lo está.</div>
+        <div class="ih-cuando">Actívalo cuando: tengas contratos o documentos legales en la carpeta</div>
+      </div>
+      <div class="idea-hook">
+        <div class="ih-evento">Stop</div>
+        <div class="ih-nombre">Contador de tokens por cliente</div>
+        <div class="ih-desc">Al terminar cada respuesta, registra el coste estimado en tokens y lo acumula por cliente en un archivo de costes mensuales.</div>
+        <div class="ih-cuando">Actívalo cuando: quieras controlar el coste de Claude Code por cliente</div>
+      </div>
+      <div class="idea-hook">
+        <div class="ih-evento">PostToolUse</div>
+        <div class="ih-nombre">Envío a Notion al crear informe</div>
+        <div class="ih-desc">Cada vez que se crea o actualiza un informe-adm.md, el hook lo envía automáticamente a la base de datos de informes en Notion.</div>
+        <div class="ih-cuando">Actívalo en: Módulo 8 cuando conectemos Notion completamente</div>
+      </div>
+    </div>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>Regla de oro para hooks:</strong> Si te encuentras haciendo la misma acción manual después de que Claude Code termina de trabajar (guardar un log, hacer backup, enviar a Notion), esa acción debería ser un hook automático. Los hooks son para eliminar el trabajo repetitivo post-proceso.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 9: LO QUE PRACTICASTE -->
+  <div class="seccion" id="practicaste">
+    <h2><span class="icon">✅</span> Lo que practicaste en este módulo</h2>
+    <p class="seccion-subtitulo">Todo lo que hiciste en tiempo real documentado</p>
+
+    <div class="practica-card">
+      <div class="p-icon">1️⃣</div>
+      <div>
+        <h4>Creaste tu primer Hook PostToolUse</h4>
+        <p>Configuraste un hook que se dispara después de cada Write o Edit. Primera versión usaba comandos inline — en Windows generó errores de sintaxis. Aprendiste por qué los scripts externos son la solución correcta en Windows.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">2️⃣</div>
+      <div>
+        <h4>Creaste el script registrar-edicion.ps1</h4>
+        <p>Moviste la lógica del hook a un archivo PowerShell externo en <code>.claude/hooks/registrar-edicion.ps1</code>. El hook del settings.json simplemente llama a ese script con <code>powershell -ExecutionPolicy Bypass -File</code>.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">3️⃣</div>
+      <div>
+        <h4>Verificaste el hook en acción con log.txt</h4>
+        <p>Ejecutaste una edición en <code>clientes/inmobiliaria-galota/brief.md</code> y verificaste que el hook registró automáticamente: <code>2026-03-25 12:17:55 | C:\...\clientes\inmobiliaria-galota\brief.md</code>.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">4️⃣</div>
+      <div>
+        <h4>Creaste el Hook Stop con notificación</h4>
+        <p>Añadiste un segundo hook para el evento Stop que muestra <strong>"✅ Claude Code terminó - MarketingMo"</strong> al final de cada respuesta. Lo viste funcionar en tiempo real en la misma sesión sin reiniciar.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">5️⃣</div>
+      <div>
+        <h4>Aprendiste sobre GitHub y Smithery</h4>
+        <p>Descubriste los 3 niveles para expandir Claude Code — el repositorio oficial de Anthropic (ya configurado), el MCP server de GitHub y el marketplace Smithery con 200+ servidores. Todo esto se activa en el Módulo 8.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 10: NO HACER -->
+  <div class="seccion" id="no-hacer">
+    <h2><span class="icon">🚫</span> Qué NO hacer con los Hooks</h2>
+    <p class="seccion-subtitulo">Errores comunes que pueden romper los hooks o causar problemas</p>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA uses comandos inline complejos en Windows.</strong> Los pipes, comillas anidadas y caracteres especiales en comandos inline dentro del JSON generan errores de sintaxis en Windows. Siempre usa un script <code>.ps1</code> externo para lógica compleja.</div>
+    </div>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA olvides reiniciar Claude Code después de añadir un hook nuevo.</strong> Los hooks se leen al arrancar la sesión. Si añades un hook mientras Claude Code está abierto, no lo detectará hasta que hagas <code>/exit</code> y vuelvas a abrir. El único que funciona sin reiniciar es el evento <code>Stop</code>.</div>
+    </div>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA pongas hooks que hagan operaciones destructivas sin confirmación.</strong> Un hook se dispara automáticamente sin preguntarte. Si un hook borra archivos o los modifica de forma irreversible, no hay forma de detenerlo una vez disparado. Los hooks son para operaciones seguras y reversibles.</div>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Cuidado con hooks que generan bucles.</strong> Si un hook escribe en un archivo y ese archivo está dentro del matcher del hook, puede dispararse a sí mismo indefinidamente. Por ejemplo: un hook en Write que escribe en log.txt — si log.txt está dentro del matcher, el hook se dispararía de nuevo al escribir en log.txt.</div>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Los hooks con errores no bloquean el trabajo de Claude Code.</strong> Si tu script .ps1 tiene un error, el hook falla silenciosamente pero Claude Code sigue trabajando. Verás <code>PostToolUse:Edit hook error</code> en la pantalla. Eso es una señal de que el script necesita corrección.</div>
+    </div>
+  </div>
+
+  <!-- PROGRESO -->
+  <div class="seccion">
+    <h2><span class="icon">🗺️</span> Tu progreso en el plan de 9 módulos</h2>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Módulo</th><th>Tema</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1</strong></td><td>Instalación completa + primer arranque</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>2</strong></td><td>Comandos y Flags del CLI</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>3</strong></td><td>CLAUDE.md y Memoria del Proyecto</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>4</strong></td><td>Configuración y Settings</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>5</strong></td><td>Permisos y Seguridad</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>6</strong></td><td>Skills y Slash Commands personalizados</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>7</strong></td><td>Hooks — automatización por eventos</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>8</strong></td><td>MCP Servers — Notion, Gmail, Google Calendar</td><td><span class="tag tag-celeste">⏳ Siguiente</span></td></tr>
+          <tr><td><strong>9</strong></td><td>Integración con VS Code y JetBrains</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-celeste" style="margin-top:20px">
+      <span class="alerta-icon">➡️</span>
+      <div><strong>Módulo 8 — MCP Servers:</strong> El módulo más esperado. Conectaremos Notion para que los briefs e informes se envíen automáticamente a tu base de datos. Veremos el MCP server de GitHub para gestionar repositorios desde Claude Code. Y exploraremos Smithery.ai con sus 200+ servidores de la comunidad para expandir aún más las capacidades del sistema.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <h3>Módulo 7 completado ✅ · 7 de 9 módulos dominados</h3>
+  <p>Hook PostToolUse activo · log.txt registrando automáticamente · Hook Stop con notificación · Script .ps1 funcionando · GitHub y Smithery identificados</p>
+  <div class="firma">Guía Módulo 7 · 25 de Marzo 2026 · Mónico Nieto · MarketingMo · @marketingMo · nietomonica.com</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Módulo 5 — Permisos y Seguridad · Claude Code</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #e8f4fd; --bg2: #d0e9f8; --card: #ffffff;
+    --celeste: #4db8e8; --celeste-dark: #1a8bbf; --celeste-light: #b8dff5;
+    --verde: #27ae60; --verde-bg: #eafaf1; --verde-border: #a9dfbf;
+    --rojo: #e74c3c; --rojo-bg: #fdf2f2; --rojo-border: #f5c6c0;
+    --naranja: #f39c12; --naranja-bg: #fef9e7;
+    --texto: #1a2a3a; --texto-suave: #4a6a8a; --borde: #c5dff0;
+    --codigo-bg: #1e3a4a; --codigo-texto: #7dd3fc;
+    --sombra: 0 4px 20px rgba(77,184,232,0.15);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--texto); line-height: 1.7; background-image: radial-gradient(circle at 20% 20%, rgba(77,184,232,0.08) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(39,174,96,0.05) 0%, transparent 50%); }
+
+  .header { background: linear-gradient(135deg, #1a3a5c 0%, #1a8bbf 50%, #27ae60 100%); color: white; padding: 60px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 40px 40px; }
+  .header-badge { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); padding: 6px 20px; border-radius: 50px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 900; margin-bottom: 12px; }
+  .header h1 span { color: #7dd3fc; }
+  .header p { font-size: 17px; opacity: 0.85; font-weight: 300; max-width: 600px; margin: 0 auto 30px; }
+  .header-meta { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+  .header-meta span { background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-size: 13px; border: 1px solid rgba(255,255,255,0.2); }
+  .header-meta span strong { color: #7dd3fc; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  /* BANNER MARKETINGMO */
+  .banner-agencia { background: linear-gradient(135deg, #1a3a5c, #1a8bbf); border-radius: 16px; padding: 30px 40px; margin-bottom: 30px; color: white; display: flex; align-items: center; gap: 20px; }
+  .banner-icon { font-size: 48px; flex-shrink: 0; }
+  .banner-texto h2 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 8px; }
+  .banner-texto p { font-size: 14px; opacity: 0.85; margin: 0; }
+
+  .resumen-modulo { background: var(--card); border-radius: 16px; padding: 30px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); }
+  .resumen-modulo h2 { font-family: 'Playfair Display', serif; color: var(--celeste-dark); font-size: 22px; margin-bottom: 20px; }
+  .resumen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .resumen-item { background: var(--bg); border: 1px solid var(--borde); border-radius: 10px; padding: 14px; text-align: center; }
+  .resumen-item .r-icon { font-size: 26px; margin-bottom: 6px; }
+  .resumen-item .r-titulo { font-weight: 600; font-size: 13px; color: var(--celeste-dark); }
+  .resumen-item .r-desc { font-size: 12px; color: var(--texto-suave); margin-top: 4px; }
+
+  .indice { background: var(--card); border-radius: 16px; padding: 30px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); }
+  .indice h2 { font-family: 'Playfair Display', serif; color: var(--celeste-dark); font-size: 22px; margin-bottom: 20px; }
+  .indice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .indice a { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg); border-radius: 10px; text-decoration: none; color: var(--texto); font-size: 14px; font-weight: 500; border: 1px solid var(--borde); transition: all 0.2s; }
+  .indice a:hover { background: var(--celeste-light); border-color: var(--celeste); }
+  .num { background: var(--celeste); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+
+  .seccion { background: var(--card); border-radius: 16px; padding: 40px; margin-bottom: 30px; box-shadow: var(--sombra); border: 1px solid var(--borde); position: relative; overflow: hidden; }
+  .seccion::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--celeste), var(--verde)); }
+  .seccion h2 { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--texto); margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+  .seccion h2 .icon { background: linear-gradient(135deg, var(--celeste), var(--celeste-dark)); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .seccion-subtitulo { color: var(--texto-suave); font-size: 15px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--bg2); }
+
+  .codigo { background: var(--codigo-bg); color: var(--codigo-texto); padding: 14px 18px; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: 13px; margin: 10px 0; border-left: 3px solid var(--celeste); overflow-x: auto; line-height: 1.9; }
+  .codigo .comentario { color: #64748b; font-style: italic; }
+  .codigo .comando { color: #7dd3fc; }
+  .codigo .valor { color: #86efac; }
+  .codigo .resultado { color: #fbbf24; }
+  .codigo .texto-normal { color: #e2e8f0; }
+
+  .alerta { padding: 16px 20px; border-radius: 12px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; font-size: 14px; line-height: 1.6; }
+  .alerta-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .alerta-verde { background: var(--verde-bg); border: 1px solid var(--verde-border); color: #1a5c35; }
+  .alerta-verde .alerta-icon { color: var(--verde); }
+  .alerta-rojo { background: var(--rojo-bg); border: 1px solid var(--rojo-border); color: #7b1c14; }
+  .alerta-rojo .alerta-icon { color: var(--rojo); }
+  .alerta-celeste { background: #e8f4fd; border: 1px solid var(--celeste-light); color: #1a4a6a; }
+  .alerta-celeste .alerta-icon { color: var(--celeste-dark); }
+  .alerta-naranja { background: var(--naranja-bg); border: 1px solid #f9d98a; color: #7a4f00; }
+  .alerta-naranja .alerta-icon { color: var(--naranja); }
+  .alerta strong { font-weight: 600; }
+
+  .tabla-wrapper { overflow-x: auto; margin: 16px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { background: linear-gradient(135deg, var(--celeste-dark), var(--celeste)); color: white; padding: 12px 16px; text-align: left; font-weight: 600; }
+  th:first-child { border-radius: 8px 0 0 0; }
+  th:last-child { border-radius: 0 8px 0 0; }
+  td { padding: 12px 16px; border-bottom: 1px solid var(--bg2); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--bg); }
+  tr:last-child td { border-bottom: none; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--celeste-light); color: var(--celeste-dark); padding: 2px 6px; border-radius: 4px; }
+
+  .practica-card { background: var(--verde-bg); border: 1px solid var(--verde-border); border-radius: 12px; padding: 20px; margin: 12px 0; display: flex; gap: 14px; align-items: flex-start; }
+  .practica-card .p-icon { font-size: 24px; flex-shrink: 0; }
+  .practica-card h4 { color: var(--verde); font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .practica-card p { font-size: 13px; color: #2d6a4a; margin: 0; }
+
+  /* MODOS */
+  .modos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin: 16px 0; }
+  .modo-card { border-radius: 12px; padding: 20px; border: 1px solid; }
+  .modo-default { background: var(--verde-bg); border-color: var(--verde-border); }
+  .modo-accept { background: #e8f4fd; border-color: var(--celeste-light); }
+  .modo-plan { background: #f3f0ff; border-color: #c4b5fd; }
+  .modo-bypass { background: var(--rojo-bg); border-color: var(--rojo-border); }
+  .modo-dontask { background: var(--naranja-bg); border-color: #f9d98a; }
+  .modo-nombre { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 15px; margin-bottom: 8px; }
+  .modo-default .modo-nombre { color: var(--verde); }
+  .modo-accept .modo-nombre { color: var(--celeste-dark); }
+  .modo-plan .modo-nombre { color: #7c3aed; }
+  .modo-bypass .modo-nombre { color: var(--rojo); }
+  .modo-dontask .modo-nombre { color: var(--naranja); }
+  .modo-puede { font-size: 13px; margin: 4px 0; }
+  .modo-cuando { font-size: 12px; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.08); }
+
+  /* RECUENTO DE MÓDULOS */
+  .recuento { background: linear-gradient(135deg, #0f2030, #1a3a5c); border-radius: 16px; padding: 40px; margin-bottom: 30px; border: 1px solid #2a4a6a; }
+  .recuento h2 { font-family: 'Playfair Display', serif; color: #7dd3fc; font-size: 26px; margin-bottom: 8px; }
+  .recuento p { color: #94a3b8; font-size: 14px; margin-bottom: 28px; }
+  .modulo-recuento { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #2a4a6a; }
+  .modulo-recuento:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .mr-num { background: linear-gradient(135deg, var(--celeste), var(--verde)); color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; flex-shrink: 0; }
+  .mr-contenido h3 { color: #7dd3fc; font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .mr-contenido p { color: #94a3b8; font-size: 13px; margin: 0; }
+  .mr-logro { display: inline-block; background: rgba(39,174,96,0.15); border: 1px solid rgba(39,174,96,0.3); color: #86efac; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; margin-top: 8px; }
+
+  /* BENEFICIOS AGENCIA */
+  .beneficio-agencia { background: var(--verde-bg); border: 1px solid var(--verde-border); border-radius: 14px; padding: 24px; margin: 14px 0; }
+  .ba-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .ba-icon { font-size: 28px; }
+  .ba-titulo { font-weight: 700; font-size: 16px; color: var(--verde); }
+  .ba-subtitulo { font-size: 13px; color: #2d6a4a; }
+  .ba-ejemplo { background: var(--codigo-bg); border-radius: 8px; padding: 12px 16px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #86efac; margin-top: 12px; line-height: 1.8; }
+
+  .sep { height: 1px; background: linear-gradient(90deg, transparent, var(--celeste), transparent); margin: 24px 0; }
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  .tag-verde { background: var(--verde-bg); color: var(--verde); border: 1px solid var(--verde-border); }
+  .tag-rojo { background: var(--rojo-bg); color: var(--rojo); border: 1px solid var(--rojo-border); }
+  .tag-celeste { background: var(--celeste-light); color: var(--celeste-dark); }
+  .ruta { background: var(--bg); border: 1px solid var(--borde); border-radius: 10px; padding: 12px 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--celeste-dark); margin: 8px 0; }
+  .ruta::before { content: '📁 '; }
+
+  h3 { color: var(--celeste-dark); font-size: 18px; margin: 20px 0 12px; font-weight: 600; }
+  p { margin-bottom: 10px; color: var(--texto); font-size: 15px; }
+  ul, ol { padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 6px; font-size: 14px; color: var(--texto-suave); }
+  li strong { color: var(--texto); }
+
+  .footer { background: linear-gradient(135deg, #1a3a5c, #1a8bbf); color: white; text-align: center; padding: 40px; }
+  .footer h3 { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 10px; }
+  .footer p { opacity: 0.7; font-size: 14px; }
+  .footer .firma { margin-top: 16px; font-size: 12px; opacity: 0.4; font-style: italic; }
+
+  @media (max-width: 600px) {
+    .header h1 { font-size: 30px; }
+    .seccion { padding: 24px 16px; }
+    .banner-agencia { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">📘 Módulo 5 de 9</div>
+  <h1>Permisos y <span>Seguridad</span></h1>
+  <p>Controla exactamente qué puede y no puede hacer Claude Code en tu ordenador. El sistema que protege tu trabajo y el de tus clientes.</p>
+  <div class="header-meta">
+    <span>👤 <strong>Elias</strong> · MarketingMo</span>
+    <span>📁 <strong>claudecode-practicas</strong></span>
+    <span>✅ <strong>Módulos 1 al 4</strong> completados</span>
+    <span>⏳ <strong>40 min</strong> este módulo</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- BANNER AGENCIA -->
+  <div class="banner-agencia">
+    <div class="banner-icon">🏢</div>
+    <div class="banner-texto">
+      <h2>Este módulo es clave para MarketingMo</h2>
+      <p>Tienes 12 clientes activos con información confidencial en tu ordenador. El sistema de permisos es lo que garantiza que Claude Code nunca toque lo que no debe — ni por accidente.</p>
+    </div>
+  </div>
+
+  <!-- RESUMEN -->
+  <div class="resumen-modulo">
+    <h2>🎯 ¿Qué aprendes en este módulo?</h2>
+    <div class="resumen-grid">
+      <div class="resumen-item">
+        <div class="r-icon">🛡️</div>
+        <div class="r-titulo">Por qué existen los permisos</div>
+        <div class="r-desc">Claude Code tiene acceso real a tu ordenador — los permisos lo controlan</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">🔄</div>
+        <div class="r-titulo">Los 5 modos</div>
+        <div class="r-desc">default, acceptEdits, plan, bypassPermissions, dontAsk</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">✅</div>
+        <div class="r-titulo">Allow y Deny</div>
+        <div class="r-desc">Reglas permanentes de lo que siempre puede y nunca puede hacer</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">👁️</div>
+        <div class="r-titulo">Panel /permissions</div>
+        <div class="r-desc">Ver y gestionar todas las reglas activas en tiempo real</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">↩️</div>
+        <div class="r-titulo">Comando /rewind</div>
+        <div class="r-desc">Deshacer cualquier cambio que hizo Claude Code</div>
+      </div>
+      <div class="resumen-item">
+        <div class="r-icon">🏢</div>
+        <div class="r-titulo">Aplicación en MarketingMo</div>
+        <div class="r-desc">Cómo usar permisos para proteger los datos de tus clientes</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÍNDICE -->
+  <div class="indice">
+    <h2>📋 Contenido de este módulo</h2>
+    <div class="indice-grid">
+      <a href="#por-que"><span class="num">1</span> Por qué existen los permisos</a>
+      <a href="#modos"><span class="num">2</span> Los 5 modos explicados</a>
+      <a href="#panel"><span class="num">3</span> Panel /permissions</a>
+      <a href="#allow-deny"><span class="num">4</span> Reglas Allow y Deny</a>
+      <a href="#rewind"><span class="num">5</span> Comando /rewind</a>
+      <a href="#marketingmo"><span class="num">6</span> Beneficio real para MarketingMo</a>
+      <a href="#practicaste"><span class="num">7</span> Lo que practicaste</a>
+      <a href="#recuento"><span class="num">8</span> Recuento de los 5 módulos</a>
+      <a href="#no-hacer"><span class="num">9</span> Qué NO hacer</a>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 1: POR QUÉ -->
+  <div class="seccion" id="por-que">
+    <h2><span class="icon">🛡️</span> Por qué existen los permisos</h2>
+    <p class="seccion-subtitulo">El fundamento de seguridad antes de entender los modos</p>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>La realidad:</strong> Claude Code no es solo un chat. Tiene acceso real a tu ordenador — puede leer, crear, editar y borrar archivos. También puede ejecutar comandos en el sistema. Eso es poder real que necesita control real.</div>
+    </div>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">🎯</span>
+      <div><strong>La analogía perfecta:</strong> Es como darle a un empleado llave de toda la oficina. Es muy útil para trabajar — pero necesitas definir a qué cuartos puede entrar, qué cajones puede abrir y qué nunca debe tocar. Los permisos son esas reglas escritas.</div>
+    </div>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Sin permisos configurados</th><th>Con permisos configurados</th></tr></thead>
+        <tbody>
+          <tr><td>Claude Code pregunta por todo, todo el tiempo</td><td>Solo pregunta lo que tú decides que debe preguntar</td></tr>
+          <tr><td>Puede intentar ejecutar cualquier comando</td><td>Ciertos comandos están bloqueados para siempre</td></tr>
+          <tr><td>Puede leer cualquier archivo incluyendo credenciales</td><td>Los archivos sensibles están en la lista deny</td></tr>
+          <tr><td>Si se equivoca no hay red de seguridad</td><td>/rewind permite deshacer cualquier cambio</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 2: LOS 5 MODOS -->
+  <div class="seccion" id="modos">
+    <h2><span class="icon">🔄</span> Los 5 modos de permisos</h2>
+    <p class="seccion-subtitulo">Cada modo define cuánto control tienes sobre las acciones de Claude Code</p>
+
+    <div class="modos-grid">
+      <div class="modo-card modo-default">
+        <div class="modo-nombre">default <span class="tag tag-verde">Tu modo actual ✓</span></div>
+        <div class="modo-puede">✓ Lee archivos sin preguntar</div>
+        <div class="modo-puede">⚡ Pregunta antes de editar</div>
+        <div class="modo-puede">⚡ Pregunta antes de ejecutar Bash</div>
+        <div class="modo-cuando"><strong>Úsalo para:</strong> Trabajo diario con clientes reales. El más seguro.</div>
+      </div>
+      <div class="modo-card modo-accept">
+        <div class="modo-nombre">acceptEdits</div>
+        <div class="modo-puede">✓ Lee archivos sin preguntar</div>
+        <div class="modo-puede">✓ Edita archivos sin preguntar</div>
+        <div class="modo-puede">⚡ Pregunta antes de ejecutar Bash</div>
+        <div class="modo-cuando"><strong>Úsalo para:</strong> Cuando tienes que editar muchos archivos de golpe — como rellenar los 12 briefs de clientes.</div>
+      </div>
+      <div class="modo-card modo-plan">
+        <div class="modo-nombre">plan</div>
+        <div class="modo-puede">✓ Lee y analiza sin preguntar</div>
+        <div class="modo-puede">❌ No puede editar nada</div>
+        <div class="modo-puede">❌ No puede ejecutar comandos</div>
+        <div class="modo-cuando"><strong>Úsalo para:</strong> Revisar proyectos de clientes sin riesgo de cambios accidentales.</div>
+      </div>
+      <div class="modo-card modo-bypass">
+        <div class="modo-nombre">bypassPermissions</div>
+        <div class="modo-puede">✓ Todo sin preguntar nunca</div>
+        <div class="modo-puede">⚠️ Sin ninguna protección</div>
+        <div class="modo-cuando"><strong>SOLO para:</strong> Servidores Docker aislados. NUNCA en tu ordenador personal con datos de clientes.</div>
+      </div>
+      <div class="modo-card modo-dontask">
+        <div class="modo-nombre">dontAsk</div>
+        <div class="modo-puede">✓ Solo lo que está en allow</div>
+        <div class="modo-puede">❌ Todo lo demás denegado</div>
+        <div class="modo-cuando"><strong>Úsalo para:</strong> Cuando quieres control máximo — solo ejecuta lo que tú hayas aprobado explícitamente.</div>
+      </div>
+    </div>
+
+    <h3>Cómo cambiar de modo</h3>
+    <div class="codigo">
+<span class="comentario"># Durante la sesión (sin cerrar Claude Code):</span>
+<span class="texto-normal">Shift+Tab → cicla entre modos</span>
+
+<span class="comentario"># Al arrancar con un modo específico:</span>
+<span class="comando">claude --permission-mode acceptEdits</span>
+<span class="comando">claude --permission-mode plan</span>
+
+<span class="comentario"># Como modo por defecto en settings.json:</span>
+<span class="valor">"permissions"</span>: {
+  <span class="valor">"defaultMode"</span>: <span class="texto-normal">"acceptEdits"</span>
+}
+    </div>
+  </div>
+
+  <!-- SECCIÓN 3: PANEL /PERMISSIONS -->
+  <div class="seccion" id="panel">
+    <h2><span class="icon">👁️</span> Panel /permissions</h2>
+    <p class="seccion-subtitulo">Tu centro de control visual para gestionar todas las reglas</p>
+
+    <div class="alerta alerta-celeste">
+      <span class="alerta-icon">💡</span>
+      <div><strong>¿Qué es /permissions?</strong> Es un panel visual dentro de Claude Code que muestra todas las reglas activas organizadas en 4 pestañas. Puedes añadir, ver y gestionar permisos sin tocar el settings.json.</div>
+    </div>
+
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Pestaña</th><th>Qué muestra</th><th>Tu contenido actual</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Allow</strong></td>
+            <td>Comandos que ejecutan sin preguntar nunca</td>
+            <td>git status, git diff, git log, mkdir, ls, dir</td>
+          </tr>
+          <tr>
+            <td><strong>Ask</strong></td>
+            <td>Comandos que siempre piden confirmación</td>
+            <td>Todo lo no incluido en allow o deny</td>
+          </tr>
+          <tr>
+            <td><strong>Deny</strong></td>
+            <td>Comandos bloqueados para siempre</td>
+            <td>rm -rf, sudo, leer archivos .env</td>
+          </tr>
+          <tr>
+            <td><strong>Workspace</strong></td>
+            <td>Carpetas de trabajo autorizadas</td>
+            <td>C:\Users\elias\claudecode-practicas</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Las reglas duplicadas son normales.</strong> Cuando veas la misma regla dos veces en Allow (por ejemplo <code>Bash(mkdir *)</code>), es porque está tanto en el settings global como en el settings de proyecto. No afecta al funcionamiento — simplemente se aplica una vez.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 4: ALLOW Y DENY -->
+  <div class="seccion" id="allow-deny">
+    <h2><span class="icon">✅</span> Reglas Allow y Deny</h2>
+    <p class="seccion-subtitulo">El sistema de reglas permanentes que configuras una vez y funcionan siempre</p>
+
+    <h3>Tus reglas actuales</h3>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Tipo</th><th>Regla</th><th>Qué significa</th><th>Por qué la tienes</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag tag-verde">ALLOW</span></td><td><code>Bash(git status)</code></td><td>Ver estado del repositorio</td><td>Frecuente y seguro — sin riesgo</td></tr>
+          <tr><td><span class="tag tag-verde">ALLOW</span></td><td><code>Bash(git diff *)</code></td><td>Ver diferencias en archivos</td><td>Solo lectura — no modifica nada</td></tr>
+          <tr><td><span class="tag tag-verde">ALLOW</span></td><td><code>Bash(mkdir *)</code></td><td>Crear carpetas</td><td>Necesario para crear estructuras de clientes</td></tr>
+          <tr><td><span class="tag tag-verde">ALLOW</span></td><td><code>Bash(ls *)</code></td><td>Listar archivos</td><td>Solo lectura — necesario para navegar</td></tr>
+          <tr><td><span class="tag tag-rojo">DENY</span></td><td><code>Bash(rm -rf *)</code></td><td>Borrar carpetas completas</td><td>Irreversible — demasiado peligroso</td></tr>
+          <tr><td><span class="tag tag-rojo">DENY</span></td><td><code>Bash(sudo *)</code></td><td>Comandos de administrador</td><td>Acceso total al sistema — bloqueado</td></tr>
+          <tr><td><span class="tag tag-rojo">DENY</span></td><td><code>Read(*.env)</code></td><td>Leer archivos de credenciales</td><td>Contienen contraseñas y API keys</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Cómo añadir reglas nuevas</h3>
+    <div class="codigo">
+<span class="comentario"># Opción 1 — Desde el panel /permissions:</span>
+<span class="valor">/permissions</span> → pestaña Allow → "Add a new rule…"
+
+<span class="comentario"># Opción 2 — Desde lenguaje natural:</span>
+<span class="texto-normal">Añade al settings.json global en deny: Bash(git push *)</span>
+
+<span class="comentario"># Opción 3 — Editando el settings.json directamente:</span>
+<span class="valor">"permissions"</span>: {
+  <span class="valor">"deny"</span>: [
+    <span class="texto-normal">"Bash(rm -rf *)"</span>,
+    <span class="texto-normal">"Bash(git push *)"</span>   <span class="comentario">← nueva regla añadida</span>
+  ]
+}
+    </div>
+  </div>
+
+  <!-- SECCIÓN 5: /REWIND -->
+  <div class="seccion" id="rewind">
+    <h2><span class="icon">↩️</span> Comando /rewind — Tu red de seguridad</h2>
+    <p class="seccion-subtitulo">El comando más importante cuando algo no sale como esperabas</p>
+
+    <div class="alerta alerta-verde">
+      <span class="alerta-icon">✅</span>
+      <div><strong>¿Qué hace /rewind?</strong> Muestra el historial completo de cambios que hizo Claude Code en la sesión actual. Puedes seleccionar cualquier punto anterior y restaurar el código y la conversación a ese estado exacto. Es como Ctrl+Z pero para toda una sesión de trabajo.</div>
+    </div>
+
+    <h3>Cómo funciona en la práctica</h3>
+    <div class="codigo">
+<span class="comentario"># 1. Escribe /rewind en el prompt:</span>
+<span class="valor">/rewind</span>
+
+<span class="comentario"># 2. Verás el historial de la sesión:</span>
+<span class="resultado">Añade una línea al archivo brief.md...</span>
+<span class="resultado">  brief.md +2 -0    ← lo que cambió</span>
+<span class="resultado">> (current)         ← donde estás ahora</span>
+
+<span class="comentario"># 3. Subes con flecha arriba hasta el punto que quieres</span>
+<span class="comentario"># 4. Pulsas Enter y eliges:</span>
+<span class="texto-normal">1. Restore code and conversation  ← restaura todo</span>
+<span class="texto-normal">2. Restore conversation            ← solo el chat</span>
+<span class="texto-normal">3. Restore code                    ← solo los archivos</span>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Limitación importante:</strong> /rewind NO afecta a archivos editados manualmente por ti o mediante comandos Bash directos. Solo deshace los cambios que hizo Claude Code a través de sus herramientas Write y Edit.</div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 6: BENEFICIO MARKETINGMO -->
+  <div class="seccion" id="marketingmo">
+    <h2><span class="icon">🏢</span> Beneficio real para MarketingMo</h2>
+    <p class="seccion-subtitulo">Cómo aplicar el sistema de permisos en tu trabajo diario con 12 clientes</p>
+
+    <div class="beneficio-agencia">
+      <div class="ba-header">
+        <div class="ba-icon">📋</div>
+        <div>
+          <div class="ba-titulo">Flujo 1 — Rellenar briefs de clientes (modo acceptEdits)</div>
+          <div class="ba-subtitulo">Cuando necesitas actualizar muchos archivos de clientes sin interrupciones</div>
+        </div>
+      </div>
+      <p style="font-size:14px; color:#2d6a4a; margin-bottom:8px;">Arrancar con acceptEdits cuando vas a hacer una sesión intensiva de trabajo con archivos de clientes. Claude Code edita sin preguntar — tú revisas al final con /rewind si algo no está bien.</p>
+      <div class="ba-ejemplo">
+claude --permission-mode acceptEdits
+→ Rellena el brief de Eli Nails con toda la información del cliente
+→ Actualiza el calendario de contenido de Diva Estudio para abril
+→ Genera el informe ADM de Pastelería Rico del mes de marzo
+← Al terminar: /rewind para revisar todos los cambios de golpe
+      </div>
+    </div>
+
+    <div class="beneficio-agencia">
+      <div class="ba-header">
+        <div class="ba-icon">🔍</div>
+        <div>
+          <div class="ba-titulo">Flujo 2 — Auditoría de cliente sin riesgo (modo plan)</div>
+          <div class="ba-subtitulo">Cuando el Agente ACI analiza un prospecto sin poder modificar nada</div>
+        </div>
+      </div>
+      <p style="font-size:14px; color:#2d6a4a; margin-bottom:8px;">Usar el modo plan cuando quieres que Claude Code analice la información de un cliente potencial sin riesgo de tocar archivos de clientes activos.</p>
+      <div class="ba-ejemplo">
+claude --permission-mode plan
+→ Analiza todos los archivos del prospecto Clínica Dental Pérez
+→ Compara con los benchmarks del sector salud
+→ Dame un informe de qué necesita mejorar en su presencia digital
+← Claude analiza y reporta — no puede modificar nada
+      </div>
+    </div>
+
+    <div class="beneficio-agencia">
+      <div class="ba-header">
+        <div class="ba-icon">🔐</div>
+        <div>
+          <div class="ba-titulo">Flujo 3 — Proteger datos de clientes con reglas Deny</div>
+          <div class="ba-subtitulo">Reglas recomendadas para añadir a tu settings.json para MarketingMo</div>
+        </div>
+      </div>
+      <p style="font-size:14px; color:#2d6a4a; margin-bottom:8px;">Reglas adicionales que deberías añadir cuando tu carpeta de prácticas evolucione a producción real con datos reales de clientes.</p>
+      <div class="ba-ejemplo">
+"deny": [
+  "Bash(rm -rf *)",          ← Ya tienes esta
+  "Bash(sudo *)",            ← Ya tienes esta
+  "Read(*.env)",             ← Ya tienes esta
+  "Read(*contraseña*)",      ← Añadir: archivos de contraseñas
+  "Read(*password*)",        ← Añadir: archivos de passwords
+  "Bash(git push *)"         ← Añadir: evitar push accidentales
+]
+      </div>
+    </div>
+
+    <div class="beneficio-agencia">
+      <div class="ba-header">
+        <div class="ba-icon">⚡</div>
+        <div>
+          <div class="ba-titulo">Flujo 4 — Deshacer con /rewind cuando algo falla</div>
+          <div class="ba-subtitulo">Tu protocolo de emergencia cuando Claude Code hace algo inesperado</div>
+        </div>
+      </div>
+      <p style="font-size:14px; color:#2d6a4a; margin-bottom:8px;">Si Claude Code modifica un archivo de cliente de forma incorrecta — por ejemplo escribe en el brief de Eli Nails información de otro cliente — usa /rewind inmediatamente.</p>
+      <div class="ba-ejemplo">
+Situación: Claude Code mezcló datos de dos clientes en un brief
+Solución inmediata:
+  /rewind
+  → Selecciona el punto antes del error
+  → "Restore code and conversation"
+  → Todo vuelve al estado anterior en segundos
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 7: LO QUE PRACTICASTE -->
+  <div class="seccion" id="practicaste">
+    <h2><span class="icon">✅</span> Lo que practicaste en este módulo</h2>
+    <p class="seccion-subtitulo">Todo lo que hiciste en tiempo real documentado</p>
+
+    <div class="practica-card">
+      <div class="p-icon">1️⃣</div>
+      <div>
+        <h4>Abriste el panel /permissions</h4>
+        <p>Viste las 4 pestañas — Allow, Ask, Deny y Workspace — con todas las reglas activas. Detectaste que algunas reglas estaban duplicadas porque vienen del settings global y del settings de proyecto.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">2️⃣</div>
+      <div>
+        <h4>Viste los 5 modos en una tabla real</h4>
+        <p>Claude Code te generó la tabla completa de modos con sus diferencias. Confirmaste que tu modo actual es <strong>default</strong> — el más seguro para trabajo diario con clientes.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">3️⃣</div>
+      <div>
+        <h4>Viste el sistema de permisos en acción</h4>
+        <p>Pediste editar el archivo <code>clientes/eli-nails/brief.md</code>. El modo default detuvo la operación, te mostró exactamente qué iba a escribir y esperó tu confirmación. Confirmaste y el cambio se aplicó.</p>
+      </div>
+    </div>
+
+    <div class="practica-card">
+      <div class="p-icon">4️⃣</div>
+      <div>
+        <h4>Usaste /rewind para deshacer</h4>
+        <p>Abriste el historial de cambios de la sesión, seleccionaste el punto antes de la edición de brief.md y restauraste el código y la conversación. El archivo volvió a su estado anterior.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 8: RECUENTO DE MÓDULOS -->
+  <div class="recuento" id="recuento">
+    <h2>📚 Recuento — Los 5 módulos completados</h2>
+    <p>Todo lo que has aprendido hasta aquí y cómo se conecta con tu trabajo en MarketingMo</p>
+
+    <div class="modulo-recuento">
+      <div class="mr-num">1</div>
+      <div class="mr-contenido">
+        <h3>Instalación y primer arranque</h3>
+        <p>Instalaste Claude Code v2.1.81 en Windows con Git, VS Code y Node.js. Configuraste la ruta de Git Bash, autenticaste con tu cuenta Pro y arrancaste por primera vez. Creaste la carpeta <code>claudecode-practicas</code> como base de trabajo.</p>
+        <span class="mr-logro">✓ Sistema operativo y funcionando</span>
+      </div>
+    </div>
+
+    <div class="modulo-recuento">
+      <div class="mr-num">2</div>
+      <div class="mr-contenido">
+        <h3>Comandos y Flags del CLI</h3>
+        <p>Aprendiste qué es un flag y cómo usarlo. Practicaste <code>-p</code> para tareas sin abrir el chat, <code>-s</code> para dar roles específicos y <code>-c</code> para continuar sesiones. Creaste tu primer archivo real y la carpeta <code>clientes/</code> con lenguaje natural.</p>
+        <span class="mr-logro">✓ Control completo desde el terminal</span>
+      </div>
+    </div>
+
+    <div class="modulo-recuento">
+      <div class="mr-num">3</div>
+      <div class="mr-contenido">
+        <h3>CLAUDE.md y Memoria del Proyecto</h3>
+        <p>Creaste el CLAUDE.md completo de MarketingMo con los 3 agentes (B.A.C., A.D.M., A.C.I.), 12 clientes activos, planes de servicio e instrucciones permanentes. Creaste 36 archivos en 12 carpetas de clientes en segundos. Verificaste que la memoria funciona al reiniciar.</p>
+        <span class="mr-logro">✓ MarketingMo documentado y operativo</span>
+      </div>
+    </div>
+
+    <div class="modulo-recuento">
+      <div class="mr-num">4</div>
+      <div class="mr-contenido">
+        <h3>Configuración y Settings</h3>
+        <p>Configuraste el settings.json global con Sonnet por defecto, español, canal stable y permisos base. Creaste el settings.json de proyecto con acceso libre a la carpeta <code>clientes/</code>. Verificaste todo con <code>/status</code> y descubriste que ya tienes 4 MCP servers conectados (Google Calendar, Gmail, Notion, Canva).</p>
+        <span class="mr-logro">✓ Sistema configurado a medida de la agencia</span>
+      </div>
+    </div>
+
+    <div class="modulo-recuento">
+      <div class="mr-num">5</div>
+      <div class="mr-contenido">
+        <h3>Permisos y Seguridad</h3>
+        <p>Aprendiste los 5 modos de permiso y cuándo usar cada uno. Viste el panel <code>/permissions</code> con tus reglas activas. Comprobaste el modo default en acción al editar un archivo de cliente. Aprendiste a deshacer con <code>/rewind</code>. Tienes protocolos de seguridad para los 12 clientes.</p>
+        <span class="mr-logro">✓ Datos de clientes protegidos</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 9: NO HACER -->
+  <div class="seccion" id="no-hacer">
+    <h2><span class="icon">🚫</span> Qué NO hacer con los permisos</h2>
+    <p class="seccion-subtitulo">Errores que comprometen la seguridad de tu agencia y los datos de tus clientes</p>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA uses bypassPermissions en tu ordenador con datos reales de clientes.</strong> Este modo deshabilita todas las protecciones. Si Claude Code comete un error en este modo, no hay red de seguridad. Solo existe para entornos Docker completamente aislados.</div>
+    </div>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA quites rm -rf del deny.</strong> Este comando puede borrar la carpeta entera de un cliente en un segundo de forma irreversible. No hay /rewind que lo recupere porque es un comando Bash directo.</div>
+    </div>
+
+    <div class="alerta alerta-rojo">
+      <span class="alerta-icon">❌</span>
+      <div><strong>NUNCA aceptes "Yes, allow all edits during this session" sin pensarlo.</strong> Esta opción desactiva todas las confirmaciones para el resto de la sesión. Si Claude Code malinterpreta una instrucción puede modificar archivos de múltiples clientes sin que te enteres.</div>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>Cuidado con el modo acceptEdits cuando trabajas con varios clientes a la vez.</strong> Si tienes briefs de Eli Nails y Diva Estudio abiertos en el contexto y usas acceptEdits, Claude Code puede editar ambos sin preguntar. Trabaja cliente por cliente en este modo.</div>
+    </div>
+
+    <div class="alerta alerta-naranja">
+      <span class="alerta-icon">⚠️</span>
+      <div><strong>/rewind tiene límites.</strong> Solo deshace cambios de la sesión actual. Si cierras Claude Code y vuelves a abrirlo, el historial de /rewind se resetea. Para proyectos importantes usa git para tener un historial permanente de cambios.</div>
+    </div>
+  </div>
+
+  <!-- PROGRESO -->
+  <div class="seccion">
+    <h2><span class="icon">🗺️</span> Tu progreso en el plan de 9 módulos</h2>
+    <div class="tabla-wrapper">
+      <table>
+        <thead><tr><th>Módulo</th><th>Tema</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1</strong></td><td>Instalación completa + primer arranque</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>2</strong></td><td>Comandos y Flags del CLI</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>3</strong></td><td>CLAUDE.md y Memoria del Proyecto</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>4</strong></td><td>Configuración y Settings</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>5</strong></td><td>Permisos y Seguridad</td><td><span class="tag tag-verde">✅ Completado</span></td></tr>
+          <tr><td><strong>6</strong></td><td>Skills y Slash Commands personalizados</td><td><span class="tag tag-celeste">⏳ Siguiente</span></td></tr>
+          <tr><td><strong>7</strong></td><td>Hooks — automatización por eventos</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+          <tr><td><strong>8</strong></td><td>MCP Servers — integraciones externas</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+          <tr><td><strong>9</strong></td><td>Integración con VS Code y JetBrains</td><td><span class="tag tag-rojo">Pendiente</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alerta alerta-celeste" style="margin-top:20px">
+      <span class="alerta-icon">➡️</span>
+      <div><strong>Módulo 6 — Skills y Slash Commands personalizados:</strong> Aprenderás a crear tus propios comandos slash para MarketingMo — por ejemplo <code>/brief-cliente</code> que genere automáticamente el brief completo de un nuevo cliente, o <code>/informe-adm</code> que arranque el agente A.D.M. con un solo comando.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <h3>Módulo 5 completado ✅ · 5 de 9 módulos dominados</h3>
+  <p>Permisos configurados · Modos aprendidos · /rewind dominado · 12 clientes protegidos · Sistema de seguridad activo</p>
+  <div class="firma">Guía Módulo 5 · 25 de Marzo 2026 · Elias · MarketingMo · nietomonica.com</div>
+</div>
+
+</body>
+</html>
