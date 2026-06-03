@@ -57,7 +57,22 @@ document.addEventListener('DOMContentLoaded', () => {
             // Extraer el texto limpiando el número
             const titleText = item.textContent.replace(/^\s*\d+\s*/, '').trim();
             topbarTitle.textContent = titleText;
+            
+            // Si estamos en móvil, cerrar el menú lateral tras hacer clic
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+            }
         });
     });
+
+    // --- Lógica del Menú Móvil ---
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+    }
 
 });

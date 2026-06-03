@@ -350,3 +350,62 @@ body {
     border: none;
     background-color: white;
 }
+
+/* ------------------------
+   RESPONSIVE DESIGN (MÓVIL)
+------------------------ */
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #0f172a;
+    cursor: pointer;
+    margin-right: 15px;
+    padding: 5px;
+}
+
+@media (max-width: 768px) {
+    .app-container {
+        position: relative;
+    }
+    
+    .sidebar {
+        position: absolute;
+        left: -320px; /* Ocultar fuera de la pantalla */
+        top: 0;
+        height: 100%;
+        z-index: 1000;
+        transition: left 0.3s ease;
+        box-shadow: 4px 0 15px rgba(0,0,0,0.5);
+    }
+    
+    .sidebar.open {
+        left: 0; /* Mostrar menú */
+    }
+    
+    .mobile-menu-btn {
+        display: block;
+    }
+    
+    .topbar {
+        padding: 0 20px;
+        justify-content: flex-start;
+    }
+    
+    .topbar-title {
+        font-size: 15px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 60vw;
+    }
+    
+    .user-profile {
+        margin-left: auto;
+    }
+    
+    .user-profile span {
+        display: none; /* Oculta el nombre en móvil para ahorrar espacio */
+    }
+}
