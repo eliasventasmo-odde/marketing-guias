@@ -3,124 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guías MarketingMo - Índice Central</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #e8f4fd;
-            --card: #ffffff;
-            --celeste: #4db8e8;
-            --celeste-dark: #1a8bbf;
-            --verde: #27ae60;
-            --texto: #1a2a3a;
-            --texto-suave: #4a6a8a;
-            --borde: #c5dff0;
-            --sombra: 0 4px 20px rgba(77,184,232,0.15);
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--texto);
-            line-height: 1.7;
-            padding: 40px 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            background: linear-gradient(135deg, #1a3a5c 0%, #1a8bbf 50%, #27ae60 100%);
-            color: white;
-            padding: 60px 40px;
-            border-radius: 20px;
-            box-shadow: var(--sombra);
-        }
-        .header h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 42px;
-            margin-bottom: 15px;
-        }
-        .card {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: var(--sombra);
-            border: 1px solid var(--borde);
-        }
-        .list-group {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .list-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px 20px;
-            background: var(--bg);
-            border: 1px solid var(--borde);
-            border-radius: 12px;
-            text-decoration: none;
-            color: var(--texto);
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        .list-item:hover {
-            background: #d0e9f8;
-            border-color: var(--celeste);
-            transform: translateY(-2px);
-        }
-        .num {
-            background: var(--celeste);
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-        .pdf-tag {
-            background: #e74c3c;
-            color: white;
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: auto;
-            text-transform: uppercase;
-            font-weight: 700;
-        }
-    </style>
+    <title>MarketingMo - Plataforma de Agentes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Guías MarketingMo</h1>
-            <p>Repositorio central de documentación y configuración de agentes</p>
-        </div>
-        
-        <div class="card">
-            <h2 style="margin-bottom: 20px; color: var(--celeste-dark); font-family: 'Playfair Display', serif;">📚 Módulos y Documentos</h2>
-            <div class="list-group">
-                <a href="01-guia-claude-code-elias.html" class="list-item"><span class="num">1</span> Guía Claude Code Elias</a>
-                <a href="02-guia-modulo2-comandos-flags.html" class="list-item"><span class="num">2</span> Comandos y Flags del CLI</a>
-                <a href="03-guia-modulo3-claude-md-memoria.html" class="list-item"><span class="num">3</span> El Archivo CLAUDE.md y la Memoria</a>
-                <a href="04-guia-modulo4-settings-configuracion.html" class="list-item"><span class="num">4</span> Settings y Configuración</a>
-                <a href="05-guia-modulo5-permisos-seguridad.html" class="list-item"><span class="num">5</span> Permisos y Seguridad</a>
-                <a href="06-guia-modulo6-slash-commands.html" class="list-item"><span class="num">6</span> Slash Commands Interfaz</a>
-                <a href="07-guia-modulo7-hooks-automatizacion.html" class="list-item"><span class="num">7</span> Hooks y Automatización</a>
-                <a href="08-guia-modulo8-mcp-servers.html" class="list-item"><span class="num">8</span> MCP Servers (Model Context Protocol)</a>
-                <a href="09-guia-modulo9-vscode-integracion.html" class="list-item"><span class="num">9</span> Integración con VS Code</a>
-                <a href="10-guia-modulo-final-arquitecto-agentes.html" class="list-item"><span class="num">10</span> Arquitecto de Agentes (Módulo Final)</a>
-                <a href="11-Guia_Agente_MarketingMo.pdf" class="list-item" target="_blank"><span class="num">11</span> Guía Agente MarketingMo <span class="pdf-tag">PDF</span></a>
+
+    <!-- PANTALLA DE LOGIN -->
+    <div id="login-screen" class="login-overlay active">
+        <div class="login-card">
+            <div class="login-logo">
+                <span class="icon">🤖</span>
+                <h2>MarketingMo</h2>
             </div>
+            <h3>Acceso Restringido</h3>
+            <p>Por favor, ingresa la contraseña para ver las guías privadas de configuración.</p>
+            <div class="input-group">
+                <input type="password" id="password-input" placeholder="Contraseña..." />
+                <button id="login-btn">Acceder</button>
+            </div>
+            <p id="error-msg" class="error-msg">Contraseña incorrecta</p>
         </div>
     </div>
+
+    <!-- APLICACIÓN PRINCIPAL -->
+    <div id="app-container" class="app-container">
+        
+        <!-- BARRA LATERAL (SIDEBAR) -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <span class="icon">📘</span>
+                <h2>Base de Conocimiento</h2>
+                <span class="badge">Privado</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">Módulos Principales</div>
+                
+                <a href="#" class="nav-item active" data-target="01-guia-claude-code-elias.html">
+                    <span class="nav-num">1</span> Guía Claude Code Elias
+                </a>
+                <a href="#" class="nav-item" data-target="02-guia-modulo2-comandos-flags.html">
+                    <span class="nav-num">2</span> Comandos y Flags del CLI
+                </a>
+                <a href="#" class="nav-item" data-target="03-guia-modulo3-claude-md-memoria.html">
+                    <span class="nav-num">3</span> El Archivo CLAUDE.md
+                </a>
+                <a href="#" class="nav-item" data-target="04-guia-modulo4-settings-configuracion.html">
+                    <span class="nav-num">4</span> Settings y Configuración
+                </a>
+                <a href="#" class="nav-item" data-target="05-guia-modulo5-permisos-seguridad.html">
+                    <span class="nav-num">5</span> Permisos y Seguridad
+                </a>
+                <a href="#" class="nav-item" data-target="06-guia-modulo6-slash-commands.html">
+                    <span class="nav-num">6</span> Slash Commands Interfaz
+                </a>
+                <a href="#" class="nav-item" data-target="07-guia-modulo7-hooks-automatizacion.html">
+                    <span class="nav-num">7</span> Hooks y Automatización
+                </a>
+                <a href="#" class="nav-item" data-target="08-guia-modulo8-mcp-servers.html">
+                    <span class="nav-num">8</span> MCP Servers
+                </a>
+                <a href="#" class="nav-item" data-target="09-guia-modulo9-vscode-integracion.html">
+                    <span class="nav-num">9</span> Integración con VS Code
+                </a>
+                <a href="#" class="nav-item" data-target="10-guia-modulo-final-arquitecto-agentes.html">
+                    <span class="nav-num">10</span> Arquitecto de Agentes
+                </a>
+                
+                <div class="nav-section" style="margin-top: 20px;">Recursos Extra</div>
+                
+                <a href="11-Guia_Agente_MarketingMo.pdf" class="nav-item pdf" target="_blank">
+                    <span class="nav-num">11</span> Guía Agente MarketingMo
+                    <span class="pdf-badge">PDF</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                Elias · MarketingMo © 2026
+            </div>
+        </aside>
+
+        <!-- ÁREA PRINCIPAL (CONTENIDO) -->
+        <main class="main-content">
+            <!-- Barra superior decorativa -->
+            <header class="topbar">
+                <div class="topbar-title" id="current-title">Guía Claude Code Elias</div>
+                <div class="user-profile">
+                    <span>Elias</span>
+                    <div class="avatar">E</div>
+                </div>
+            </header>
+            
+            <!-- Visor de guías (iframe) -->
+            <div class="content-wrapper">
+                <iframe id="content-frame" src="01-guia-claude-code-elias.html" frameborder="0"></iframe>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>
