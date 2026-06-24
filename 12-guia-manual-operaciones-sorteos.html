@@ -1,0 +1,50 @@
+<meta charset="utf-8">
+<style>body{font-family: Arial, sans-serif; padding: 40px; line-height: 1.6;} h1{color: #7B2CBF;} h2{color: #333; border-bottom: 1px solid #ccc; padding-bottom: 5px;}</style>
+<h1>Manual de Operaciones: SORTEO//OS</h1>
+<p><em>Plataforma de Sorteos Privada de MarketingMo</em></p>
+<hr />
+<h2>1. ¿Qué hemos construido?</h2>
+<p>SORTEO//OS es una aplicación de grado profesional diseñada exclusivamente para la agencia MarketingMo. Permite gestionar sorteos en eventos presenciales (catas, inauguraciones, etc.) de manera ágil, segura y estética.</p>
+<p><strong>Características principales:</strong>
+- <strong>Privacidad Total:</strong> Los correos de los usuarios se almacenan exclusivamente en el disco duro local de la agencia (nada se envía a terceros).
+- <strong>Protección Anti-Bots:</strong> Cuenta con un escudo invisible (<em>Honeypot</em>) que bloquea registros automáticos de bots sin molestar a los usuarios reales.
+- <strong>Página de Ganadores Pública:</strong> Los resultados se exponen en una interfaz corporativa morada, censurando parcialmente los correos electrónicos para cumplir con la ley de protección de datos, ideal para compartir en Historias de Instagram.
+- <strong>Túnel de Conexión Segura:</strong> Utiliza la infraestructura global de Cloudflare para crear un puente directo y temporal entre internet y el ordenador de la agencia.</p>
+<hr />
+<h2>2. Protocolo de Uso (Paso a Paso)</h2>
+<p>Este es el manual de operaciones que debes seguir cada sábado o día de evento. Todo ocurre dentro de la carpeta <code>sorteos</code> de tu ordenador.</p>
+<h3>Fase 1: Encendido (10 minutos antes del evento)</h3>
+<ol>
+<li><strong>Arrancar el Motor:</strong> Abre la carpeta <code>sorteos</code> y haz doble clic en el archivo <code>arrancar.bat</code> (o simplemente <code>arrancar</code>). Se abrirá una ventana negra. <strong>No la cierres.</strong></li>
+<li><strong>Levantar el Puente:</strong> Haz doble clic en el archivo <code>activar_qr.bat</code>. Se abrirá otra ventana negra con texto. <strong>No la cierres.</strong></li>
+<li><strong>Obtener el Enlace Público:</strong> En la segunda ventana negra, busca un enlace que termine en <code>.trycloudflare.com</code> y cópialo. </li>
+</ol>
+<h3>Fase 2: Creación del Sorteo</h3>
+<ol>
+<li>Abre tu navegador web favorito (Chrome, Edge, etc.).</li>
+<li>Pega el enlace de Cloudflare que acabas de copiar y pulsa Enter.</li>
+<li>Entrarás a tu panel de control de administrador (SORTEO//OS).</li>
+<li>Dale al botón <strong>Crear Sorteo</strong>, ponle el nombre del cliente (ej. <em>Cata de Vinos La Despensa</em>), indica el número de ganadores y guárdalo.</li>
+<li>El sistema te dará automáticamente un <strong>Código QR</strong> y un <strong>Enlace para Compartir</strong>. </li>
+<li><em>Nota:</em> Ya puedes imprimir/proyectar el QR o enviar el enlace por redes sociales.</li>
+</ol>
+<h3>Fase 3: La Acción (Durante el Evento)</h3>
+<ol>
+<li>Los asistentes escanearán el QR y verán la pantalla de registro morada en sus móviles.</li>
+<li>Ingresarán su Nombre Completo y Correo Electrónico. El sistema anti-bots se encargará de rechazar conexiones extrañas.</li>
+<li>En tu ordenador, si refrescas la página del panel, irás viendo en tiempo real cómo sube el contador de participantes.</li>
+</ol>
+<h3>Fase 4: La Traca Final (El Sorteo)</h3>
+<ol>
+<li>Cuando decidas cerrar la participación, entra al sorteo en tu panel y haz clic en el botón <strong>"🎰 Realizar Sorteo"</strong>.</li>
+<li>Automáticamente el algoritmo seleccionará a los ganadores al azar.</li>
+<li>El botón de sortear desaparecerá y aparecerá un nuevo botón morado brillante: <strong>"🏆 Ver Ganadores (Público)"</strong>.</li>
+<li>Haz clic en él. Esa nueva página hermosa es la que debes enseñar al público o capturar en pantalla para subir a las Historias de Instagram del cliente.</li>
+</ol>
+<h3>Fase 5: Apagado y Resguardo</h3>
+<ol>
+<li>Cuando termine todo, simplemente <strong>cierra las dos ventanas negras</strong> de tu ordenador.</li>
+<li>¡Listo! El puente se destruye, internet se desconecta de tu ordenador y la base de datos queda guardada a salvo en tu disco duro para siempre.</li>
+</ol>
+<hr />
+<p><em>Desarrollado con ❤️ para MarketingMo.</em></p>
