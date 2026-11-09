@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{font-family: Arial, sans-serif; padding: 40px; line-height: 1.6; max-width: 980px;} h1{color: #7B2CBF;} h2{color: #333; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 32px;} h3{color: #444;} table{border-collapse: collapse; width: 100%; margin: 12px 0;} th, td{border: 1px solid #ddd; padding: 6px 8px; text-align: left; vertical-align: top;} th{background: #f4f0fa;} code{background: #f3f3f3; padding: 1px 4px; border-radius: 3px;} pre{background: #f7f7f7; padding: 10px; overflow-x: auto;} blockquote{border-left: 4px solid #7B2CBF; margin: 12px 0; padding: 4px 12px; color: #555;}</style>
+<title>Guía: Carta digital y pedidos RICO</title>
+</head>
+<body>
+<h1>Guía: Carta digital y pedidos · RICO Artesanos</h1>
+<h1>Guía para replicar el sistema «Carta digital + Pedidos en mesa + Panel con IA»</h1>
+<p><strong>Proyecto de referencia:</strong> APP RICO (RICO Artesanos · Pastelería Rico, Ibi)
+<strong>Responsable:</strong> Elias · MarketingMo
+<strong>Última actualización:</strong> 28/10/2026
+<strong>Para qué sirve esta guía:</strong> montar el mismo sistema para otro negocio de hostelería o comercio (cafetería, bar, restaurante, pastelería, heladería…) sabiendo qué se hizo, en qué orden y por qué.</p>
+<hr />
+<h2>1. Qué es el sistema (en una frase por pieza)</h2>
+<table>
+<thead>
+<tr>
+<th>Pieza</th>
+<th>Quién la usa</th>
+<th>Qué hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Carta pública</strong> (<code>/</code>)</td>
+<td>El cliente final, desde su móvil</td>
+<td>Ve los productos con foto, precio y descripción, en español o inglés, con filtros y buscador.</td>
+</tr>
+<tr>
+<td><strong>Pedido desde la mesa</strong> (<code>/?mesa=5</code>)</td>
+<td>El cliente sentado en la mesa</td>
+<td>Escanea el QR de su mesa, añade productos y envía el pedido. Lo puede modificar o cancelar mientras no se esté preparando.</td>
+</tr>
+<tr>
+<td><strong>Pantalla del mostrador</strong> (<code>/pedidos</code>)</td>
+<td>La dependienta, en una tablet o móvil</td>
+<td>Recibe los pedidos con aviso sonoro, los marca como «Preparando» y «Servido» y puede corregirlos siempre.</td>
+</tr>
+<tr>
+<td><strong>Panel de administración</strong> (<code>/admin</code>)</td>
+<td>El dueño del negocio o la agencia</td>
+<td>Gestiona productos, precios, fotos y agotados; genera publicaciones para redes con IA; imprime los QR.</td>
+</tr>
+<tr>
+<td><strong>Generador de publicaciones</strong></td>
+<td>El dueño del negocio o la agencia</td>
+<td>Toma la foto <strong>real</strong> de un producto, le pone el diseño de la marca y le pide a Claude el titular y el texto para Instagram.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>2. Qué servicios externos se usan y por qué</h2>
+<h3>2.1 Supabase: la base de datos y las fotos</h3>
+<ul>
+<li><strong>Qué es:</strong> un servicio en la nube que da una base de datos (Postgres) y un almacén de archivos con un panel web fácil de usar.</li>
+<li><strong>Para qué lo usamos:</strong></li>
+<li>guardar las <strong>categorías</strong>, los <strong>productos</strong>, las <strong>promociones</strong> generadas y los <strong>pedidos</strong>;</li>
+<li>guardar las <strong>fotos de los productos</strong> en el bucket <code>product-images</code>.</li>
+<li><strong>Por qué este y no otro:</strong></li>
+<li><strong>El plan gratuito sobra</strong> para un negocio local: 500 MB de datos y 1 GB de fotos.</li>
+<li>Desde su panel se ejecuta el SQL con copiar y pegar, sin instalar nada.</li>
+<li>Tiene seguridad por filas (RLS): el público solo puede <strong>leer</strong> la carta y nunca escribir.</li>
+<li>Se puede entrar <strong>con la cuenta de GitHub</strong>, sin crear otra cuenta.</li>
+<li>⚠️ <strong>A tener en cuenta:</strong> en el plan gratuito, Supabase <strong>pausa el proyecto si pasa 7 días sin uso</strong>. Con la carta en marcha, las visitas de los clientes cuentan como uso y no debería pausarse. Si un cliente cierra por vacaciones, conviene entrar al panel de vez en cuando o pasar a un plan de pago.</li>
+</ul>
+<h3>2.2 Cloudflare Pages: la web pública y el «servidor»</h3>
+<ul>
+<li><strong>Qué es:</strong> alojamiento web con pequeñas funciones de servidor (Pages Functions).</li>
+<li><strong>Para qué lo usamos:</strong></li>
+<li><strong>publicar la web</strong> (la carta, el panel y la pantalla de pedidos);</li>
+<li>hacer de <strong>intermediario seguro</strong> entre el navegador y Supabase o Claude. Las claves secretas viven ahí y <strong>nunca llegan al móvil del cliente</strong>.</li>
+<li><strong>Por qué este:</strong></li>
+<li>Es gratis: hasta 100.000 llamadas al servidor al día, de sobra para un local.</li>
+<li>Es muy rápido en España.</li>
+<li>Da un enlace propio (<code>nombre.pages.dev</code>) y admite un dominio propio.</li>
+<li>Se publica con un solo comando.</li>
+<li><strong>Alternativa descartada:</strong> Hostinger. Ya lo usamos para webs WordPress, pero no ejecuta este tipo de funciones de servidor modernas.</li>
+</ul>
+<h3>2.3 Anthropic (Claude): solo para los textos</h3>
+<ul>
+<li><strong>Para qué:</strong> redactar el titular, la línea secundaria, el caption y los hashtags de cada publicación, respetando el tono de la marca.</li>
+<li><strong>Coste:</strong> se paga por uso. Las pruebas reales costaron <strong>menos de 2 céntimos por dos publicaciones</strong>. Conviene poner un <strong>límite de gasto mensual</strong> en la consola de Anthropic.</li>
+<li><strong>Por qué Claude:</strong> sigue muy bien las reglas de marca. En las pruebas, ante la instrucción agresiva «2x1 CORRE QUE VUELAN!!!», lo suavizó a «Chocolate para compartir, este viernes / 2x1 en tartas, un detalle de la casa», que es justo lo que pide el brief de Rico.</li>
+<li><strong>La clave</strong> se crea en console.anthropic.com → API Keys, con nombre <code>app-[cliente]</code> y caducidad «Nunca».</li>
+</ul>
+<h3>2.4 Lo que probamos y descartamos (y por qué)</h3>
+<table>
+<thead>
+<tr>
+<th>Probado</th>
+<th>Para qué</th>
+<th>Por qué se quitó</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Kie AI</strong></td>
+<td>Generar imágenes con IA</td>
+<td>Es un servicio de pago aparte. Elias ya paga Google, así que se cambió por Gemini.</td>
+</tr>
+<tr>
+<td><strong>Google Gemini (imagen)</strong></td>
+<td>Generar imágenes con IA</td>
+<td>La suscripción de Gemini <strong>no incluye la API</strong>: se paga aparte. Pero sobre todo, <strong>la IA reinventa el producto</strong>: la tarta que saca no es la tarta real del obrador.</td>
+</tr>
+<tr>
+<td><strong>Decisión final</strong></td>
+<td>—</td>
+<td><strong>La imagen no usa IA.</strong> Se monta en el navegador con la <strong>foto real</strong> del producto, más los colores y el logotipo de la marca y el titular que escribe Claude. Es más honesto con el cliente final, sale gratis y el resultado es igual de profesional.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Lección para próximos clientes:</strong> en alimentación, el cliente quiere ver <strong>su</strong> producto. No ofrecer imágenes generadas por IA del producto. La IA se usa para el texto.</p>
+</blockquote>
+<h3>2.5 Herramientas en el ordenador (todas gratuitas)</h3>
+<ul>
+<li><strong>Node.js:</strong> necesario para compilar y probar la app.</li>
+<li><strong>Git:</strong> guarda el historial de cambios.</li>
+<li><strong>Wrangler:</strong> la herramienta de Cloudflare para probar en local y publicar. No hay que instalarla aparte: se usa con <code>npx wrangler</code>.</li>
+</ul>
+<hr />
+<h2>3. Tecnología del proyecto (por si hay que explicarlo)</h2>
+<ul>
+<li><strong>Vite + React + Tailwind.</strong> Vite es un motor rápido que convierte el código en una web ligera. React organiza la interfaz en piezas reutilizables. Tailwind gestiona los estilos y los colores de marca desde un solo archivo.</li>
+<li><strong>Pages Functions</strong> (carpeta <code>functions/api</code>): el «servidor» que habla con Supabase y Claude.</li>
+<li><strong>Librería <code>qrcode</code>:</strong> genera los QR en el propio navegador, sin servicios externos.</li>
+<li><strong>No usamos la librería oficial de Supabase en el navegador:</strong> todo pasa por las Functions con la clave de servicio, así nadie puede manipular la base de datos desde fuera.</li>
+</ul>
+<h3>Estructura de carpetas</h3>
+<p><code>APP RICO/
+├─ src/                         ← lo que se ve en pantalla
+│  ├─ pages/Menu.jsx            carta pública + pedido en mesa
+│  ├─ pages/Staff.jsx           pantalla del mostrador (/pedidos)
+│  ├─ pages/Admin.jsx           panel de administración
+│  ├─ components/OrderSheet.jsx hoja «Tu pedido» del cliente
+│  ├─ components/admin/         Catálogo · Formulario de producto · Generador · QR
+│  ├─ lib/useOrdering.js        lógica de la cesta y los pedidos del cliente
+│  ├─ lib/promoCanvas.js        monta la imagen de la publicación (foto real + marca)
+│  ├─ lib/image.js              optimiza las fotos antes de subirlas (WebP, 1600 px)
+│  └─ i18n.js                   todos los textos en ES/EN, dirección y sellos
+├─ functions/api/               ← el «servidor» (Cloudflare)
+│  ├─ menu.js                   carta pública
+│  ├─ login.js                  entrada al panel (contraseña)
+│  ├─ staff-login.js            entrada al mostrador (PIN)
+│  ├─ orders.js, orders/[id].js pedidos del cliente (crear, consultar, modificar, cancelar)
+│  ├─ staff/…                   pedidos vistos desde el mostrador
+│  ├─ admin/…                   productos, subida de fotos y generador con Claude
+│  ├─ _lib.js                   utilidades: seguridad, validaciones y cálculo de precios
+│  └─ _seed.js                  productos de ejemplo (modo demo)
+├─ supabase/
+│  ├─ schema.sql                crea todas las tablas
+│  ├─ seed.sql                  productos de ejemplo
+│  ├─ instalar-todo.sql         schema + seed en un solo archivo
+│  └─ pedidos.sql               tabla de pedidos (también incluida en schema.sql)
+├─ fotos/                       carpetas para dejar las fotos reales (no se sube a git)
+├─ .dev.vars                    CLAVES SECRETAS en local (no se sube a git)
+└─ .dev.vars.example            plantilla de claves, sin valores reales</code></p>
+<hr />
+<h2>4. Seguridad: decisiones tomadas y por qué</h2>
+<ol>
+<li><strong>Ninguna clave está en el navegador.</strong> Las claves de Supabase y Anthropic solo existen en <code>.dev.vars</code> (en local) y en los secretos de Cloudflare (en producción).</li>
+<li><strong>La contraseña del panel se comprueba en el servidor.</strong> Al acertar, se entrega un pase firmado que dura 12 horas.</li>
+<li>Si se falla, la respuesta se retrasa a propósito para frenar a quien intente adivinarla.</li>
+<li>La comparación se hace de forma que no se puede deducir la contraseña por lo que tarda en responder.</li>
+<li><strong>Hay dos accesos distintos:</strong></li>
+<li>el <strong>panel</strong> (contraseña), que puede cambiar precios y productos;</li>
+<li>el <strong>mostrador</strong> (PIN), que solo ve y gestiona pedidos. <strong>Con el PIN no se entra al panel</strong>: está comprobado.</li>
+<li><strong>El precio lo pone siempre el servidor.</strong> El móvil del cliente solo envía «producto 2, cantidad 1». El precio se lee de la base de datos, así que nadie puede trucarlo.</li>
+<li><strong>Cada pedido tiene una llave privada (token)</strong> guardada en el móvil que lo hizo. Solo ese móvil puede modificarlo o cancelarlo.</li>
+<li><strong>Límites contra bromas:</strong></li>
+<li>solo se admiten las mesas de 1 a <code>TABLES</code>;</li>
+<li>una mesa no puede tener más de 5 pedidos pendientes a la vez;</li>
+<li>máximo 50 unidades por producto;</li>
+<li>nota de 300 caracteres como máximo.</li>
+<li><strong>Seguridad por filas en Supabase:</strong> el público solo lee la carta (los productos ocultos no se ven). Los pedidos y las promociones no son accesibles sin la clave de servicio.</li>
+<li><strong>Las fotos se optimizan antes de subir</strong> (WebP, 1600 px, 5 MB como máximo): la carta carga rápido en el móvil y se gasta menos almacenamiento.</li>
+</ol>
+<hr />
+<h2>5. Paso a paso para un cliente nuevo</h2>
+<h3>Fase 0 — Recoger del cliente (antes de tocar nada)</h3>
+<ul>
+<li>[ ] Logo en buena calidad (PNG transparente o vector).</li>
+<li>[ ] Colores y tipografías de la marca, si los tiene.</li>
+<li>[ ] Carta completa: categorías, productos, <strong>precios reales</strong> y descripción.</li>
+<li>[ ] <strong>Alérgenos de cada producto.</strong> Es obligatorio en la UE (Reglamento 1169/2011, 14 alérgenos). En Rico aún está pendiente de añadir.</li>
+<li>[ ] Una foto real de cada producto, con buena luz, preferiblemente horizontal.</li>
+<li>[ ] Número de mesas, y si sirven en mesa o el cliente recoge en barra.</li>
+<li>[ ] Si tienen una tablet o un móvil para el mostrador.</li>
+<li>[ ] Dirección y texto legal del pie («Precios con IVA incluido»).</li>
+<li>[ ] Brief de tono de marca (para las reglas de Claude): qué sí, qué no, palabras prohibidas.</li>
+</ul>
+<h3>Fase 1 — Copiar el proyecto</h3>
+<ol>
+<li>Copiar la carpeta <code>APP RICO</code> y renombrarla, por ejemplo <code>APP [CLIENTE]</code>, en el Escritorio. <strong>No copiar</strong> <code>node_modules</code>, <code>.wrangler</code>, <code>dist</code>, <code>fotos</code> ni <code>.dev.vars</code>.</li>
+<li>En esa carpeta, abrir una terminal y ejecutar <code>npm install</code>.</li>
+<li>Iniciar un historial nuevo con git: <code>git init</code>.</li>
+</ol>
+<blockquote>
+<p>💡 Con Claude Code basta con decir: «copia APP RICO como base para [cliente]» y adapta lo de la Fase 2.</p>
+</blockquote>
+<h3>Fase 2 — Adaptar la marca (archivos a tocar)</h3>
+<table>
+<thead>
+<tr>
+<th>Qué</th>
+<th>Archivo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Colores y tipografías</td>
+<td><code>tailwind.config.js</code> (colores <code>salvia</code>, <code>crema</code>, <code>tinta</code>) e <code>index.html</code> (Google Fonts)</td>
+</tr>
+<tr>
+<td>Logotipo</td>
+<td><code>src/components/Wordmark.jsx</code>, y el <code>wordmark()</code> de <code>src/lib/promoCanvas.js</code> para las publicaciones</td>
+</tr>
+<tr>
+<td>Icono de la pestaña</td>
+<td><code>public/favicon.svg</code></td>
+</tr>
+<tr>
+<td>Textos, dirección y frase del encabezado</td>
+<td><code>src/i18n.js</code></td>
+</tr>
+<tr>
+<td>Colores de las publicaciones</td>
+<td><code>THEMES</code> en <code>src/lib/promoCanvas.js</code></td>
+</tr>
+<tr>
+<td><strong>Reglas de tono para Claude</strong></td>
+<td><code>BRAND_SYSTEM</code> en <code>functions/api/admin/generate.js</code>. Es lo más importante: copiarlo del brief del cliente.</td>
+</tr>
+<tr>
+<td>Productos de ejemplo</td>
+<td><code>functions/api/_seed.js</code>; después ejecutar <code>node scripts/gen-seed-sql.mjs</code> para regenerar <code>supabase/seed.sql</code></td>
+</tr>
+<tr>
+<td>Texto de los QR impresos</td>
+<td><code>printTables()</code> en <code>src/components/admin/QrPanel.jsx</code></td>
+</tr>
+</tbody>
+</table>
+<h3>Fase 3 — Supabase (unos 10 minutos)</h3>
+<ol>
+<li>Entrar en <strong>supabase.com</strong> con la cuenta de GitHub.</li>
+<li>Organización: <strong>MarketingMo</strong> (ya existe; se pueden tener 2 proyectos gratis por organización).</li>
+<li><strong>New project:</strong></li>
+<li>Nombre: <code>app-[cliente]</code>.</li>
+<li>Región: <strong>Paris</strong> (la más cercana a España).</li>
+<li>Contraseña de base de datos: generarla y guardarla.</li>
+<li>Plan: Free.</li>
+<li>Esperar a que el proyecto esté en verde («healthy»).</li>
+<li><strong>SQL Editor</strong>, con el enlace directo <code>https://supabase.com/dashboard/project/[REF]/sql/new</code>:</li>
+<li>pegar <code>supabase/instalar-todo.sql</code>, pulsar <strong>Run</strong> y confirmar el aviso de «destructive operation»;</li>
+<li>en el plan original la tabla de pedidos se creó aparte con <code>pedidos.sql</code>, pero ya está incluida en <code>schema.sql</code>.</li>
+<li><strong>Project Settings → API Keys:</strong></li>
+<li>Copiar la <strong>Project URL</strong>.</li>
+<li>Copiar la <strong>service_role key</strong>: pulsar «Reveal» y copiarla. Es secreta.</li>
+<li>⚠️ Si Chrome ofrece traducir la página de Supabase, <strong>desactivarlo</strong>: el traductor rompe el panel.</li>
+</ol>
+<h3>Fase 4 — Claves en local</h3>
+<ol>
+<li>Copiar <code>.dev.vars.example</code> como <code>.dev.vars</code> y rellenarlo:
+   <code>ADMIN_PASSWORD=contraseña-robusta-del-panel
+   SESSION_SECRET=cadena-larga-aleatoria
+   SUPABASE_URL=https://[REF].supabase.co
+   SUPABASE_SERVICE_ROLE_KEY=eyJ…
+   ANTHROPIC_API_KEY=sk-ant-…
+   ANTHROPIC_MODEL=claude-sonnet-5-5
+   STAFF_PIN=PIN-de-6-cifras
+   TABLES=número-de-mesas</code></li>
+<li><strong>Nunca</strong> pegar las claves en un chat ni en un documento compartido. Se escriben directamente en el archivo con el Bloc de notas y se guardan con Ctrl+S.</li>
+</ol>
+<h3>Fase 5 — Probar en local</h3>
+<p><code>bash
+npm run dev:full</code>
+- Carta: http://127.0.0.1:8788
+- Mesa de prueba: http://127.0.0.1:8788/?mesa=5
+- Mostrador: http://127.0.0.1:8788/pedidos
+- Panel: http://127.0.0.1:8788/admin</p>
+<p>Comprobaciones mínimas:
+- [ ] Cambiar un precio en el panel y verlo cambiado en la carta.
+- [ ] Ocultar un producto (agotado) y comprobar que desaparece de la carta.
+- [ ] Subir una foto desde el panel.
+- [ ] Generar una publicación con el generador y descargar la imagen.
+- [ ] Hacer un pedido desde la mesa 5 y verlo llegar al mostrador con sonido.
+- [ ] Modificar el pedido desde el móvil mientras está «Recibido».
+- [ ] Pasarlo a «Preparando» y comprobar que el cliente ya no puede tocarlo.
+- [ ] Editarlo desde el mostrador (cambiar la mesa, añadir un producto).
+- [ ] Marcarlo como «Servido» y reabrirlo desde el historial.</p>
+<blockquote>
+<p><strong>Si la app sigue en «modo demo»</strong> después de poner las claves, hay un servidor antiguo encendido. Hay que cerrar las terminales de wrangler (o reiniciar el ordenador) y volver a lanzar el comando.</p>
+</blockquote>
+<h3>Fase 6 — Fotos reales</h3>
+<ol>
+<li>Crear dentro de <code>fotos/</code> una carpeta por categoría y otra por producto (en Rico ya está hecho como ejemplo, con <code>LEEME</code>).</li>
+<li>El cliente o Elias deja una foto en cada carpeta.</li>
+<li>Subirlas desde el panel (Catálogo → Editar → Foto) o pedírselo a Claude Code, que las optimiza y las sube de golpe.</li>
+</ol>
+<h3>Fase 7 — Publicar en internet (Cloudflare)</h3>
+<p>Una sola vez por ordenador:
+<code>bash
+npx wrangler login            # se abre el navegador → cuenta de Cloudflare → Allow</code>
+Por cada cliente:
+<code>bash
+npx wrangler pages project create app-[cliente] --production-branch main
+npm run deploy
+npx wrangler pages secret put ADMIN_PASSWORD --project-name app-[cliente]
+npx wrangler pages secret put SESSION_SECRET --project-name app-[cliente]
+npx wrangler pages secret put SUPABASE_URL --project-name app-[cliente]
+npx wrangler pages secret put SUPABASE_SERVICE_ROLE_KEY --project-name app-[cliente]
+npx wrangler pages secret put ANTHROPIC_API_KEY --project-name app-[cliente]
+npx wrangler pages secret put STAFF_PIN --project-name app-[cliente]
+npx wrangler pages secret put TABLES --project-name app-[cliente]
+npm run deploy                # se vuelve a publicar para que lea los secretos</code>
+- La web queda en <code>https://app-[cliente].pages.dev</code>.
+- En <code>package.json</code>, el script <code>deploy</code> lleva el nombre del proyecto: hay que cambiar <code>app-rico</code> por el del cliente.
+- <strong>Dominio propio (opcional),</strong> por ejemplo <code>carta.cliente.com</code>: en Cloudflare, Pages → el proyecto → Custom domains.</p>
+<blockquote>
+<p>En Rico, esta fase <strong>aún está pendiente</strong>: falta ejecutar <code>npx wrangler login</code>.</p>
+</blockquote>
+<h3>Fase 8 — QR e instalación en el local</h3>
+<ol>
+<li>Abrir el panel publicado → <strong>Códigos QR</strong>.</li>
+<li>Comprobar que la URL es la de producción, <strong>no</strong> la de <code>127.0.0.1</code>.</li>
+<li><strong>QR general</strong> (escaparate, redes, Google): descargar el SVG para la imprenta o el PNG.</li>
+<li><strong>QR de mesas:</strong> pulsar «Imprimir QR de las N mesas». Salen 6 tarjetas por A4, cada una con «MESA N» y el texto en ES/EN. Plastificarlas.</li>
+<li>En la tablet del mostrador:</li>
+<li>abrir <code>/pedidos</code>, entrar con el PIN y <strong>tocar «Activar sonido»</strong>;</li>
+<li>dejar la pantalla sin bloqueo automático y el volumen alto;</li>
+<li>añadirla a la pantalla de inicio para que funcione como una app.</li>
+<li>Hacer un pedido real desde una mesa delante del personal y enseñarle los botones Editar, Preparando, Servido y Reabrir.</li>
+</ol>
+<h3>Fase 9 — Entrega y cierre</h3>
+<ul>
+<li>[ ] Cambiar la contraseña del panel y el PIN por unos que elija el cliente (en los secretos de Cloudflare) y volver a publicar.</li>
+<li>[ ] Poner un límite de gasto en la consola de Anthropic.</li>
+<li>[ ] Borrar los productos y pedidos de prueba.</li>
+<li>[ ] Entregar al cliente una hoja con:</li>
+<li>el enlace de la carta;</li>
+<li>el enlace del panel y su contraseña (en mano, no por WhatsApp);</li>
+<li>el enlace del mostrador y el PIN.</li>
+<li>[ ] Guardar el proyecto en git (<code>git add -A &amp;&amp; git commit</code>).</li>
+<li>[ ] Anotar en <code>ESTADO_ACTUAL.md</code> las URLs y el estado.</li>
+</ul>
+<hr />
+<h2>6. Costes mensuales del sistema</h2>
+<table>
+<thead>
+<tr>
+<th>Servicio</th>
+<th>Plan</th>
+<th>Coste</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Supabase</td>
+<td>Free</td>
+<td>0 € (pasar a Pro, unos 25 $/mes, solo si se queda corto o no se quiere arriesgar la pausa por inactividad)</td>
+</tr>
+<tr>
+<td>Cloudflare Pages</td>
+<td>Free</td>
+<td>0 €</td>
+</tr>
+<tr>
+<td>Anthropic (Claude)</td>
+<td>Pago por uso</td>
+<td>Céntimos por publicación generada</td>
+</tr>
+<tr>
+<td>Dominio propio (opcional)</td>
+<td>—</td>
+<td>Unos 10–15 €/año</td>
+</tr>
+<tr>
+<td><strong>Total habitual</strong></td>
+<td></td>
+<td><strong>Casi 0 € al mes</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Todo lo que se cobre al cliente por montar, personalizar y mantener el sistema es margen de servicio de la agencia.</p>
+<hr />
+<h2>7. Mantenimiento habitual</h2>
+<ul>
+<li><strong>Cambiar precios, agotados o productos:</strong> lo hace el propio negocio desde <code>/admin</code> y el cambio es inmediato. La carta tarda como mucho unos 30 segundos en refrescarse.</li>
+<li><strong>Cambios de diseño o de funciones:</strong> se editan con Claude Code, se prueban en local y se ejecuta <code>npm run deploy</code>.</li>
+<li><strong>Historial de pedidos:</strong> el mostrador muestra las últimas 12 horas. Todo queda guardado en Supabase (tabla <code>orders</code>) por si en el futuro se quieren sacar estadísticas de ventas por producto o por hora.</li>
+</ul>
+<hr />
+<h2>8. Ideas para ampliar (no hechas todavía)</h2>
+<ul>
+<li>Alérgenos visibles en cada producto (prioritario por la ley).</li>
+<li>Variantes de producto (tamaños de tarta, porciones).</li>
+<li>Pedido para recoger en barra con número de turno, en vez de mesa.</li>
+<li>Pedidos por WhatsApp para llevar.</li>
+<li>Estadísticas de ventas en el panel (lo más pedido, horas punta).</li>
+<li>Historial de publicaciones generadas en el panel (ya se guardan en la tabla <code>promotions</code>).</li>
+</ul>
+<hr />
+<h2>9. Cronología del proyecto Rico (referencia)</h2>
+<table>
+<thead>
+<tr>
+<th>Paso</th>
+<th>Qué se hizo</th>
+<th>Commit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Carta pública, panel de administración, generador con IA y funciones de Cloudflare</td>
+<td><code>4e25191</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Supabase conectado: tablas, productos de ejemplo y bucket de fotos</td>
+<td>—</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Imágenes con Kie AI sustituidas por Gemini</td>
+<td><code>8f1dbb3</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Se elimina la IA de imagen: foto real + diseño de marca; Claude solo para el texto</td>
+<td><code>61aaed0</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Carpetas de fotos por producto para el cliente</td>
+<td>—</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Clave de Anthropic conectada y probada con el tono de marca</td>
+<td>—</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Pedidos desde la mesa, pantalla del mostrador, edición por cliente y personal, y QR por mesa</td>
+<td><code>d113e5d</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Pendiente:</strong> fotos reales, precios reales, alérgenos, publicar en Cloudflare e imprimir los QR</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>10. Cómo funciona el pedido desde la mesa (de principio a fin)</h2>
+<p><strong>Resumen:</strong> el cliente escanea el QR de su mesa, elige productos desde su móvil y envía el pedido. El pedido aparece en la pantalla del mostrador con aviso sonoro. El personal lo prepara y lo marca como servido. Mientras no se esté preparando, el cliente puede modificarlo o cancelarlo.</p>
+<h3>10.1 Pasos del cliente</h3>
+<ol>
+<li><strong>Escanea el QR de su mesa</strong> (por ejemplo <code>…/?mesa=5</code>). La carta se abre con la mesa ya identificada.</li>
+<li><strong>Busca o filtra</strong> por categoría. Cada producto muestra foto, nombre, descripción, precio y el botón <strong>Añadir</strong>.</li>
+<li>Pulsa <strong>Añadir</strong> en cada producto. Aparece el botón <strong>Ver pedido</strong> con el número de productos.</li>
+<li>En la hoja <strong>Tu pedido</strong> puede ajustar cantidades, escribir una <strong>indicación</strong> (por ejemplo, «café sin azúcar») y ver el <strong>total</strong>.</li>
+<li>Pulsa <strong>Enviar pedido</strong>. Aparece «¡Pedido recibido! Enseguida te lo llevamos.» y la nota «Se paga en la barra al terminar».</li>
+<li>En la misma pantalla queda la lista <strong>Tus pedidos</strong>, con el estado de cada uno.</li>
+</ol>
+<h3>10.2 Estados del pedido</h3>
+<table>
+<thead>
+<tr>
+<th>Lo que ve el cliente</th>
+<th>Lo que ve el personal</th>
+<th>Qué puede hacer el cliente</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Recibido</strong></td>
+<td>Nuevos</td>
+<td>Modificar o cancelar</td>
+</tr>
+<tr>
+<td><strong>En preparación</strong></td>
+<td>Preparando</td>
+<td>Ya no puede tocarlo; si necesita un cambio, debe avisar al personal</td>
+</tr>
+<tr>
+<td><strong>Servido</strong></td>
+<td>Historial</td>
+<td>Nada</td>
+</tr>
+<tr>
+<td><strong>Cancelado</strong></td>
+<td>Historial</td>
+<td>Nada</td>
+</tr>
+</tbody>
+</table>
+<p>Cuando el pedido pasa a «En preparación», el cliente ve el aviso: «Ya estamos preparando este pedido. Si necesitas cambiar algo, avisa al personal».</p>
+<h3>10.3 Lo que se guarda en cada pedido</h3>
+<ul>
+<li>Mesa, productos, cantidades, notas e importe total.</li>
+<li><strong>Precio calculado en el servidor</strong>, nunca en el móvil del cliente.</li>
+<li><strong>Token privado</strong> guardado en el navegador del cliente: solo ese móvil puede modificar o cancelar su pedido.</li>
+</ul>
+<hr />
+<h2>11. Cómo se ve en cada pantalla</h2>
+<blockquote>
+<p>Esta sección describe la interfaz a partir del código de la aplicación (textos y estructura). Antes de entregarla al cliente, conviene comprobarla con capturas reales en un móvil y en la tablet.</p>
+</blockquote>
+<h3>11.1 Pantalla del cliente (carta y pedido, móvil)</h3>
+<ul>
+<li><strong>Cabecera:</strong> nombre de la pastelería, «Obrador artesanal desde 1913», dirección del puesto y selector de idioma <strong>ES / EN</strong>.</li>
+<li><strong>Buscador:</strong> «Buscar en la carta…».</li>
+<li><strong>Filtros:</strong> botón <strong>Todo</strong> y una pastilla por cada categoría.</li>
+<li><strong>Tarjetas de producto:</strong> foto, nombre, descripción, precio (con la nota «Precios con IVA incluido») e insignias como «Recomendación de la casa» o «De temporada». Botón <strong>Añadir</strong>.</li>
+<li><strong>Barra inferior:</strong> botón <strong>Ver pedido</strong> con el contador de productos.</li>
+<li><strong>Hoja «Tu pedido»:</strong> productos con − / + y total; campo <strong>Indicaciones (opcional)</strong>; botón <strong>Enviar pedido</strong>. Si ya hay un pedido activo, aparece <strong>Modificando el pedido</strong>, con <strong>Guardar cambios</strong> y <strong>Descartar cambios</strong>.</li>
+<li><strong>Tus pedidos:</strong> tarjetas con el número de pedido, los productos y el estado (Recibido, En preparación, Servido o Cancelado). Mientras sea posible, incluyen <strong>Modificar</strong> y <strong>Cancelar pedido</strong>. Al cancelar pide confirmación: <strong>Sí, cancelar</strong> / <strong>No</strong>.</li>
+<li><strong>Errores:</strong> si no se envía, aparece «No se ha podido enviar. Inténtalo de nuevo o avisa al personal».</li>
+</ul>
+<h3>11.2 Pantalla del mostrador (<code>/pedidos</code>, tablet o móvil)</h3>
+<ul>
+<li><strong>Cabecera:</strong> «RICO · Pedidos», con el botón de <strong>sonido</strong> (🔕 «Toca para activar el sonido» / 🔔 «Sonido activado») y <strong>Salir</strong>.</li>
+<li><strong>Entrada:</strong> pide el <strong>PIN</strong> del mostrador. El toque en <strong>Entrar</strong> activa el sonido, porque los navegadores no reproducen audio sin un toque previo.</li>
+<li><strong>Dos columnas:</strong></li>
+<li><strong>Nuevos:</strong> pedidos recibidos. Si hay alguno, el contador se pone en ámbar y suena el aviso.</li>
+<li><strong>Preparando:</strong> pedidos en curso.</li>
+<li>Cada tarjeta muestra mesa, hora, productos y notas, con dos botones: <strong>Editar</strong> y el paso siguiente (<strong>▶ Preparando</strong> o <strong>✔ Servido</strong>).</li>
+<li><strong>Historial plegable:</strong> «Servidos y cancelados (últimas 12 h)», con su contador. Desde ahí se puede reabrir un pedido.</li>
+<li><strong>Editar pedido nº …:</strong> ventana con la <strong>mesa</strong> (desplegable), los productos con − / + y 🗑 para quitar, un desplegable <strong>Añadir producto</strong>, el campo <strong>Nota</strong>, <strong>Guardar cambios</strong> y <strong>Cancelar pedido</strong> (con confirmación).</li>
+</ul>
+<h3>11.3 Panel de administración (<code>/admin</code>, ordenador)</h3>
+<ul>
+<li>Acceso con contraseña y pase de sesión de 12 horas.</li>
+<li><strong>Catálogo:</strong> productos por categoría, con precio editable en línea, visible/agotado y foto.</li>
+<li><strong>Formulario de producto:</strong> nombre, descripción, precio, categoría, foto y estado.</li>
+<li><strong>Generador de publicaciones:</strong> foto real del producto + diseño de marca + texto de Claude, en formato post (1080×1080) o historia (1080×1920).</li>
+<li><strong>Códigos QR:</strong> QR general (PNG/SVG) y hoja de QR por mesa para imprimir.</li>
+</ul>
+<hr />
+<h2>12. Estado de Rico</h2>
+<ul>
+<li>La aplicación está desarrollada y probada en local, pero <strong>aún no está publicada en Cloudflare</strong>: falta el inicio de sesión de Wrangler.</li>
+<li>Faltan: precios reales, fotos reales, alérgenos (obligatorio en la UE) y las contraseñas definitivas del panel y del PIN del mostrador.</li>
+</ul>
+</body>
+</html>
