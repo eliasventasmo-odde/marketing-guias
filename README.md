@@ -15,5 +15,7 @@ Bienvenido al repositorio central de guías de MarketingMo. Aquí encontrarás t
 9. [09. Integración con VS Code](09-guia-modulo9-vscode-integracion.html)
 10. [10. Arquitecto de Agentes (Módulo Final)](10-guia-modulo-final-arquitecto-agentes.html)
 11. [11. Guía Agente MarketingMo (PDF)](11-Guia_Agente_MarketingMo.pdf)
+12. [12. Manual de Sorteos](12-guia-manual-operaciones-sorteos.html)
+13. [13. App de Calendarios](13-guia-app-calendarios.html)
 
 > **Nota:** Puedes visualizar estas guías online si habilitas [GitHub Pages](https://pages.github.com/) en este repositorio.

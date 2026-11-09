@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{font-family: Arial, sans-serif; padding: 40px; line-height: 1.6; max-width: 980px;} h1{color: #7B2CBF;} h2{color: #333; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 32px;} table{border-collapse: collapse; width: 100%; margin: 12px 0;} th, td{border: 1px solid #ddd; padding: 6px 8px; text-align: left; vertical-align: top;} th{background: #f4f0fa;} code{background: #f3f3f3; padding: 1px 4px; border-radius: 3px;} blockquote{border-left: 4px solid #7B2CBF; margin: 12px 0; padding: 4px 12px; color: #555;}</style>
+<title>Guía: App de calendarios MarketingMo</title>
+</head>
+<body>
+<h1>Guía interna: app de calendarios y proyectos creados</h1>
+<p>Registro de lo que hemos construido, cómo funciona y qué queda pendiente. Es para nosotros (Elias y el equipo técnico), no para clientes.</p>
+<p><strong>Última actualización:</strong> 09/11/2026</p>
+<hr />
+<h2>1. Resumen de lo creado</h2>
+<table>
+<thead>
+<tr>
+<th>Qué</th>
+<th>Dónde</th>
+<th>Estado</th>
+<th>Fecha</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>App web de calendarios de contenido</td>
+<td><code>nietomonica.com/calendarios/</code> (repositorio <code>marketingmo-calendarios</code>)</td>
+<td><strong>En producción</strong></td>
+<td>01-02/11/2026</td>
+</tr>
+<tr>
+<td>Login propio de la app con roles</td>
+<td><code>api.php</code> + <code>data/roles.json</code></td>
+<td>En producción</td>
+<td>02/11/2026</td>
+</tr>
+<tr>
+<td>Acceso por script para O.M.O.</td>
+<td><code>scripts/calendarios_cli.py</code></td>
+<td>Probado en local</td>
+<td>02/11/2026</td>
+</tr>
+<tr>
+<td>Usuario <code>omo</code> (rol editor)</td>
+<td><code>data/roles.json</code></td>
+<td>Creado</td>
+<td>02/11/2026</td>
+</tr>
+<tr>
+<td><strong>Calendario de noviembre de Pastelería Rico Ibi</strong></td>
+<td>Dentro de la app: <code>pasteleria-rico-2026-11</code></td>
+<td>Cargado (16 piezas)</td>
+<td>01/11/2026</td>
+</tr>
+<tr>
+<td>Servidor Hetzner de O.M.O. (<code>panel-monica-chatwoot</code>)</td>
+<td>Proyecto <code>panel-interno-monica</code></td>
+<td><strong>Bloqueado</strong>, ver sección 7</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>2. Calendario de Pastelería Rico Ibi (noviembre 2026)</h2>
+<ul>
+<li><strong>Origen:</strong> <code>clientes/pasteleria-rico/calendario-noviembre.md</code> (en el workspace).</li>
+<li><strong>En la app:</strong> id <code>pasteleria-rico-2026-11</code>, ventana 2 nov → 1 dic 2026, 16 piezas (8 reels, 3 carruseles, 2 posts, 2 historias y 1 reel de cierre).</li>
+<li><strong>Importación:</strong> la hace <code>scripts/generar_store.py</code>, que lee los <code>.md</code> y genera <code>data/store.json</code>. Este script solo se usa para sembrar la base; no volver a ejecutarlo sobre la versión publicada, porque borraría los cambios hechos en la web.</li>
+<li><strong>En Notion:</strong> existe también "Calendario Noviembre 2026 - Pastelería Rico Ibi". Notion sigue siendo la fuente de B.A.C. hasta que decidamos otra cosa (ver pendientes).</li>
+<li><strong>Edición:</strong> el copy y los estados se editan en la app. Los cambios son en vivo.</li>
+</ul>
+<hr />
+<h2>3. Arquitectura de la app</h2>
+<ul>
+<li><strong>Frontend:</strong> <code>index.html</code>, <code>app.js</code>, <code>styles.css</code>. Interfaz tipo Notion: barra de clientes, vista Calendario, Por fecha, Por tipo, Por estado, panel de página y notas.</li>
+<li><strong>Backend:</strong> <code>api.php</code> (PHP). Lee y escribe <code>data/store.json</code> con bloqueo de archivo para que dos personas no se pisen.</li>
+<li><strong>Datos:</strong> <code>data/store.json</code> (clientes, calendarios, piezas, notas). Solo lo lee y escribe <code>api.php</code>.</li>
+<li><strong>Acceso:</strong> sesión PHP tras iniciar sesión con usuario y contraseña. Las contraseñas están guardadas como hash bcrypt en <code>data/roles.json</code>.</li>
+<li><strong>Protección de archivos:</strong> <code>data/.htaccess</code> impide descargar <code>data/</code> directamente.</li>
+<li><strong>Logo:</strong> <code>img/logo-marketingmo.jpg</code>.</li>
+</ul>
+<p>Ya no se usa <code>.htpasswd</code> de Hostinger. Eso era el origen de los errores 401 que tuvimos.</p>
+<hr />
+<h2>4. Roles</h2>
+<table>
+<thead>
+<tr>
+<th>Usuario</th>
+<th>Nombre que se muestra</th>
+<th>Rol</th>
+<th>Puede</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>elias</code></td>
+<td>Elias</td>
+<td>admin</td>
+<td>Todo, incluido crear clientes y borrar notas</td>
+</tr>
+<tr>
+<td><code>monica</code></td>
+<td>Mónica</td>
+<td>editor</td>
+<td>Editar y añadir piezas, borrar piezas, crear calendarios, dejar notas</td>
+</tr>
+<tr>
+<td><code>zoraida</code></td>
+<td>Zoraida</td>
+<td>comunidad</td>
+<td>Marcar piezas como publicadas, dejar notas</td>
+</tr>
+<tr>
+<td><code>omo</code></td>
+<td>O.M.O.</td>
+<td>editor</td>
+<td>Igual que Mónica (lo usa el agente)</td>
+</tr>
+<tr>
+<td>(cualquier otro)</td>
+<td>—</td>
+<td>lectura</td>
+<td>No puede entrar: no tiene usuario en <code>roles.json</code></td>
+</tr>
+</tbody>
+</table>
+<p>Decisiones tomadas: Zoraida puede marcar publicadas; Mónica puede borrar piezas, pero no crear clientes ni borrar notas. Están pendientes de confirmación formal por Elias.</p>
+<hr />
+<h2>5. Publicación (Hostinger)</h2>
+<p>Carpeta en el servidor: <code>public_html/calendarios/</code>. Sube estos archivos desde <code>paquete-hostinger\</code>:</p>
+<ul>
+<li><code>index.html</code>, <code>app.js</code>, <code>styles.css</code>, <code>api.php</code>, <code>.htaccess</code></li>
+<li><code>img/logo-marketingmo.jpg</code></li>
+<li><code>data/.htaccess</code>, <code>data/roles.json</code></li>
+<li><code>data/store.json</code> <strong>solo la primera vez</strong></li>
+</ul>
+<p><strong>Nunca</strong> subas <code>store.json</code> después: borraría los cambios hechos en la web.</p>
+<p><strong>Cambiar contraseñas o usuarios:</strong>
+1. En el ordenador, ejecuta <code>python scripts\crear_usuarios.py</code> (pide las contraseñas por consola).
+2. Sube el <code>roles.json</code> nuevo a <code>public_html/calendarios/data/</code>.</p>
+<p><strong>Probado:</strong> entrada de <code>elias</code> correcta, calendarios visibles, edición en vivo, acceso de <code>omo</code> por script.
+<strong>Pendiente de comprobar:</strong> los permisos de <code>zoraida</code> y <code>monica</code> en la web (solo probados en código).</p>
+<hr />
+<h2>6. Acceso de O.M.O. a la app</h2>
+<ul>
+<li>O.M.O. accede con <code>scripts/calendarios_cli.py</code>, que usa las variables de entorno <code>CALENDARIOS_USUARIO</code> y <code>CALENDARIOS_CLAVE</code>. Nunca se guardan contraseñas en archivos.</li>
+<li>Comandos: <code>clientes</code>, <code>calendario &lt;id&gt;</code>, <code>pieza &lt;cal&gt; &lt;pieza&gt; &lt;campo&gt; "&lt;valor&gt;"</code>, <code>nota &lt;cal|general&gt; "&lt;texto&gt;"</code>.</li>
+<li>Regla de O.M.O.: antes de cualquier cambio, propone y espera el "sí" de Elias. Lo pendiente queda en <code>.claude/agent-memory/omo-orquestador/pendientes.md</code> y lo ya hecho en <code>registro.md</code>.</li>
+<li>El flujo de Telegram de n8n ejecuta O.M.O. por SSH en el servidor Hetzner, donde debe estar el script y las dos variables.</li>
+</ul>
+<hr />
+<h2>7. Estado del servidor Hetzner (O.M.O.)</h2>
+<ul>
+<li><strong>Servidor:</strong> <code>panel-monica-chatwoot</code>, CPX12, proyecto <code>panel-interno-monica</code> (la IP está en la memoria del proyecto).</li>
+<li><strong>Lo que hay:</strong> <code>/opt/marketingmo-workspace</code> con sus carpetas, <code>claude</code> y <code>node</code> instalados. <code>n8n</code> no aparece en <code>which</code>.</li>
+<li><strong>Lo que falta:</strong> clonar <code>app-calendarios</code> dentro del workspace, configurar <code>CALENDARIOS_USUARIO</code> y <code>CALENDARIOS_CLAVE</code> en <code>/etc/environment</code>, y hacer <code>git pull</code> del workspace.</li>
+<li><strong>Problema de acceso:</strong> la contraseña de root no permite entrar por SSH. La consola de Hetzner sí permite entrar, pero no se puede pegar en ella. El modo rescate quedó activado y no se ha desactivado.</li>
+<li><strong>Aviso de seguridad:</strong> se ha quitado la clave SSH guardada de este servidor en el PC, porque cambió al activar el rescate.</li>
+</ul>
+<hr />
+<h2>8. Pendientes</h2>
+<ol>
+<li><strong>Acceso al servidor Hetzner:</strong> decidir entre recuperar el acceso (desactivar rescate, revisar el acceso SSH y usar clave) o crear un servidor nuevo.</li>
+<li><strong>Clonar la app en el servidor</strong> y configurar las variables de <code>omo</code>.</li>
+<li><strong>Cambiar la contraseña de prueba de <code>omo</code>:</strong> se ha visto en capturas. Elias ha decidido no cambiarla por ahora.</li>
+<li><strong>Decidir Notion:</strong> si B.A.C. sigue creando calendarios en Notion o pasan a hacerse en la app.</li>
+<li><strong>Confirmar los permisos</strong> de Zoraida (marcar publicadas) y Mónica (borrar piezas).</li>
+<li><strong>Comprobar en la web</strong> los roles de Mónica y Zoraida.</li>
+<li><strong>Mantener O.M.O.:</strong> el contexto de todos los agentes queda para más adelante.</li>
+</ol>
+<hr />
+<h2>9. Historial de decisiones</h2>
+<ul>
+<li><strong>01/11/2026:</strong> publicación de la app en <code>nietomonica.com/calendarios/</code> con <code>.htpasswd</code> de Hostinger. Fallos 401 durante la prueba: el archivo tenía <code>\r\n</code> y luego la protección de Hostinger no reconocía las contraseñas.</li>
+<li><strong>02/11/2026:</strong> se cambia a login propio de la app con <code>roles.json</code> (hash bcrypt). Se elimina la protección de Hostinger de la carpeta. Funciona.</li>
+<li><strong>02/11/2026:</strong> se crea el usuario <code>omo</code> y el script <code>calendarios_cli.py</code> para O.M.O.</li>
+<li><strong>02/11/2026:</strong> O.M.O. pasa a documentarse como agente de Telegram con regla de confirmar antes de cambiar nada, y con memoria de sesión en archivos (<code>pendientes.md</code>, <code>registro.md</code>).</li>
+</ul>
+</body>
+</html>
