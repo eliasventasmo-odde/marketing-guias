@@ -33,17 +33,18 @@
 </ol>
 <h3>Flujo 2 &middot; Aprobar y publicar (uno por reseña)</h3>
 <ol>
-<li><strong>Pedir aprobación por Telegram:</strong> te manda la reseña, las estrellas, el autor y el borrador, con dos botones: <strong>&#9989; Publicar</strong> y <strong>&#9999;&#65039; Corregir o descartar</strong>. Espera hasta 48 horas.</li>
-<li><strong>Si pulsas Publicar:</strong> publica el borrador como respuesta en Google y marca la reseña como <code>publicada</code>.</li>
+<li><strong>Enviar aviso con botones:</strong> te manda a Telegram la reseña, las estrellas, el autor y el borrador, con dos botones: <strong>&#9989; Publicar</strong> y <strong>&#9999;&#65039; Corregir o descartar</strong>.</li>
+<li><strong>Esperar tu decisión:</strong> el flujo se pausa hasta que pulses un botón (máximo 48 horas). Al pulsarlo, el navegador te devuelve directamente al chat de Telegram.</li>
+<li><strong>Si pulsas Publicar:</strong> publica el borrador como respuesta en Google, marca la reseña como <code>publicada</code> y <strong>el mismo aviso de Telegram cambia a &laquo;&#9989; RESPONDIDA&raquo;</strong>, con la respuesta publicada y sin botones.</li>
 <li><strong>Si pulsas Corregir o descartar:</strong> el bot te pide que escribas tu versión.
   <ul>
-  <li>Si escribes una respuesta, se publica <em>esa</em>, se marca como <code>corregida</code> y queda guardada como ejemplo de estilo para las siguientes.</li>
-  <li>Si escribes <code>NO</code>, no se responde y la reseña queda como <code>descartada</code>.</li>
+  <li>Si escribes una respuesta, se publica <em>esa</em>, se marca como <code>corregida</code>, queda guardada como ejemplo de estilo y el aviso pasa a &laquo;RESPONDIDA&raquo;.</li>
+  <li>Si escribes <code>NO</code>, no se responde, la reseña queda como <code>descartada</code> y el aviso pasa a &laquo;&#128465;&#65039; DESCARTADA&raquo;.</li>
   </ul>
 </li>
-<li><strong>Confirmación por Telegram:</strong> tras publicar te llega &laquo;&#9989; Respuesta publicada en Google&raquo; con el texto final; tras descartar, &laquo;Reseña descartada, no se ha publicado ninguna respuesta&raquo;. La pantalla en inglés &laquo;Got it, thanks&raquo; que se abre al pulsar un botón es la página fija de n8n que solo confirma que ha recibido el clic; la confirmación real es este mensaje.</li>
 <li>Si el flujo falla en cualquier punto, un aviso por Telegram dice qué paso falló.</li>
 </ol>
+<p><em>Nota técnica:</em> no se usa el nodo &laquo;enviar y esperar&raquo; de Telegram porque no permite editar el mensaje después y su pantalla de confirmación sale en inglés y no se puede cambiar.</p>
 
 <h2>3. Qué hemos creado</h2>
 <table>
