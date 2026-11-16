@@ -18,5 +18,6 @@ Bienvenido al repositorio central de guías de MarketingMo. Aquí encontrarás t
 12. [12. Manual de Sorteos](12-guia-manual-operaciones-sorteos.html)
 13. [13. App de Calendarios](13-guia-app-calendarios.html)
 14. [14. Carta Digital RICO](14-guia-carta-digital-rico.html)
+15. [15. Reseñas de Google con n8n](15-guia-resenas-google-n8n.html)
 
 > **Nota:** Puedes visualizar estas guías online si habilitas [GitHub Pages](https://pages.github.com/) en este repositorio.

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{font-family: Arial, sans-serif; padding: 40px; line-height: 1.6; max-width: 980px;} h1{color: #7B2CBF;} h2{color: #333; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 32px;} h3{color: #555; margin-top: 22px;} table{border-collapse: collapse; width: 100%; margin: 12px 0;} th, td{border: 1px solid #ddd; padding: 6px 8px; text-align: left; vertical-align: top;} th{background: #f4f0fa;} code{background: #f3f3f3; padding: 1px 4px; border-radius: 3px;} blockquote{border-left: 4px solid #7B2CBF; margin: 12px 0; padding: 4px 12px; color: #555;} .ok{color:#1a7f37;font-weight:bold;} .warn{color:#b35900;font-weight:bold;}</style>
+<title>Guía: Respuesta automática a reseñas de Google</title>
+</head>
+<body>
+<h1>Guía interna: respuesta automática a reseñas de Google (n8n)</h1>
+<p>Cómo funciona la automatización que redacta las respuestas a las reseñas de Google de <strong>La Despensa de Andrés</strong>, qué hemos construido, cómo se montó paso a paso y cómo mantenerla. Es para nosotros (Elias y el equipo técnico), no para clientes.</p>
+<p><strong>Estado:</strong> <span class="ok">en producción desde el 16/11/2026</span> · <strong>Última actualización:</strong> 16/11/2026</p>
+<blockquote>Regla de oro: <strong>nada se publica en Google sin que alguien pulse &laquo;Publicar&raquo; en Telegram.</strong> La IA solo propone.</blockquote>
+<hr />
+
+<h2>1. Qué hace, en una frase</h2>
+<p>Cada hora, n8n lee las reseñas nuevas de Google, Claude redacta una respuesta con la voz de la marca, un control de calidad la revisa, y te llega por Telegram para que la apruebes, la corrijas o la descartes. Al aprobar, se publica sola en Google.</p>
+
+<h2>2. Qué pasa con cada reseña (el proceso paso a paso)</h2>
+<h3>Flujo 1 &middot; Detectar y redactar (se ejecuta cada hora, al minuto :07)</h3>
+<ol>
+<li><strong>Configuración del cliente:</strong> carga el nombre del cliente, el chat de Telegram al que avisar y el máximo de reseñas por ejecución (10).</li>
+<li><strong>Leer guía de marca:</strong> coge de la tabla <code>resenas_guia</code> el prompt de marca (tono, reglas) del cliente.</li>
+<li><strong>Leer ejemplos corregidos:</strong> coge las últimas respuestas que corregimos a mano (tabla <code>resenas_registro</code>) para que Claude imite ese estilo.</li>
+<li><strong>Leer reseñas de Google:</strong> trae las reseñas de la ficha de La Despensa de Andrés a través de la API de Google Business Profile.</li>
+<li><strong>Preparar reseñas y contexto:</strong> separa las que ya tienen respuesta de las pendientes, se queda con el texto original que escribió el cliente (descarta la traducción automática de Google), detecta nombres propios que aparezcan en la reseña, elige un &laquo;ángulo&raquo; de respuesta distinto cada vez y arma las instrucciones para Claude, incluyendo las últimas respuestas ya publicadas para no repetirlas.</li>
+<li><strong>Descartar las ya tratadas:</strong> quita las reseñas que ya están en el registro, para no responder dos veces.</li>
+<li><strong>Máximo por ejecución:</strong> se queda con las 10 más recientes.</li>
+<li><strong>Claude redacta 3 opciones:</strong> el modelo escribe tres respuestas distintas entre sí.</li>
+<li><strong>Control de calidad y elección:</strong> elige la primera opción que cumpla todas las reglas (ver sección 5). Si ninguna cumple, elige la menos mala y añade un aviso visible.</li>
+<li><strong>Apuntar en el registro:</strong> guarda la reseña y el borrador como <code>pendiente</code> en <code>resenas_registro</code>.</li>
+<li><strong>Lanzar aprobación:</strong> lanza el flujo 2 una vez por cada reseña.</li>
+</ol>
+<h3>Flujo 2 &middot; Aprobar y publicar (uno por reseña)</h3>
+<ol>
+<li><strong>Pedir aprobación por Telegram:</strong> te manda la reseña, las estrellas, el autor y el borrador, con dos botones: <strong>&#9989; Publicar</strong> y <strong>&#9999;&#65039; Corregir o descartar</strong>. Espera hasta 48 horas.</li>
+<li><strong>Si pulsas Publicar:</strong> publica el borrador como respuesta en Google y marca la reseña como <code>publicada</code>.</li>
+<li><strong>Si pulsas Corregir o descartar:</strong> el bot te pide que escribas tu versión.
+  <ul>
+  <li>Si escribes una respuesta, se publica <em>esa</em>, se marca como <code>corregida</code> y queda guardada como ejemplo de estilo para las siguientes.</li>
+  <li>Si escribes <code>NO</code>, no se responde y la reseña queda como <code>descartada</code>.</li>
+  </ul>
+</li>
+<li>Si el flujo falla en cualquier punto, un aviso por Telegram dice qué paso falló.</li>
+</ol>
+
+<h2>3. Qué hemos creado</h2>
+<table>
+<thead><tr><th>Pieza</th><th>Dónde</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>Flujo 1 &middot; Detectar y redactar</td><td>n8n (cuenta de la agencia)</td><td class="ok">Activo</td></tr>
+<tr><td>Flujo 2 &middot; Aprobar y publicar</td><td>n8n</td><td class="ok">Activo</td></tr>
+<tr><td>Tabla <code>resenas_guia</code> (prompt de marca por cliente)</td><td>Data tables de n8n</td><td class="warn">Prompt provisional</td></tr>
+<tr><td>Tabla <code>resenas_registro</code> (historial de reseñas, borradores y estado)</td><td>Data tables de n8n</td><td class="ok">En uso</td></tr>
+<tr><td>Conexión con Google Business Profile</td><td>Credencial de n8n + proyecto <strong>MarketingMO</strong> en Google Cloud</td><td class="ok">Conectada</td></tr>
+<tr><td>Bot de aprobación</td><td>Telegram, <code>@MarketingMo_agencia_bot</code></td><td class="ok">En uso</td></tr>
+<tr><td>Política de privacidad (exigida por Google)</td><td><code>nietomonica.com/politica-de-privacidad/</code></td><td class="ok">Publicada</td></tr>
+</tbody>
+</table>
+<p>El flujo antiguo <em>responder/reseñas</em>, que publicaba sin revisión humana, está archivado.</p>
+
+<h2>4. Cómo se montó, paso a paso</h2>
+<h3>Fase 1 &middot; Análisis y decisiones (23/10/2026)</h3>
+<ol>
+<li>Se revisó el flujo que había hecho otra herramienta: usaba una API de Google obsoleta, publicaba sin aprobación y tenía piezas innecesarias.</li>
+<li><strong>Decisión: no hace falta un agente de IA.</strong> El proceso es siempre el mismo (leer, redactar, revisar, aprobar, publicar). Un agente con herramientas añadiría complejidad sin ventaja. Basta una llamada a Claude dentro de un flujo normal, con control de calidad en código.</li>
+<li><strong>Decisión: quitar Trello.</strong> Telegram queda solo para aprobar, y el registro permanente es una tabla de n8n.</li>
+</ol>
+<h3>Fase 2 &middot; Acceso a la API de Google (28/10/2026)</h3>
+<ol>
+<li>Las reseñas están en la API &laquo;Google My Business API&raquo;, que está bloqueada hasta que Google aprueba una solicitud de acceso. La ficha debe estar verificada y con web asociada.</li>
+<li>Se envió la solicitud de acceso básico desde el formulario oficial de Google Business Profile API.</li>
+<li>Google tardó unas semanas en aprobar y no avisó por correo. La señal de aprobación fue la cuota: <strong>300 solicitudes por minuto</strong> en lugar de 0.</li>
+</ol>
+<h3>Fase 3 &middot; Google Cloud (28/10 y 16/11/2026)</h3>
+<ol>
+<li>Proyecto de Cloud <strong>MarketingMO</strong> con las APIs de Business Profile habilitadas (cuenta, información de negocio y reseñas).</li>
+<li>Pantalla de consentimiento OAuth y cliente OAuth de tipo aplicación web, con la dirección de retorno de n8n.</li>
+<li>Para <strong>publicar la app en producción</strong> (y que el acceso no caduque a los 7 días) Google exige página principal y política de privacidad. Se creó la política en la web de Mónica Nieto y se añadió el dominio autorizado.</li>
+</ol>
+<h3>Fase 4 &middot; n8n (16/11/2026)</h3>
+<ol>
+<li>Se conectó la credencial de Google en n8n con &laquo;Sign in with Google&raquo; (cuenta que gestiona la ficha).</li>
+<li>La cuenta de Google tiene varias ubicaciones. Se identificó <strong>La Despensa de Andrés</strong> consultando los títulos a la API, y se asignó en los dos flujos.</li>
+<li>Se probó la lectura de reseñas reales, se corrigió el tratamiento del texto traducido y se conectó el bot de Telegram correcto.</li>
+</ol>
+<h3>Fase 5 &middot; Pruebas y activación (16/11/2026)</h3>
+<ol>
+<li>Prueba completa con una reseña real: borrador en Telegram, botón Publicar, respuesta publicada en Google y registro actualizado. Todo correcto.</li>
+<li>Se limpió la fila de la primera prueba fallida, se subió el máximo a 10 reseñas por ejecución y se activaron los dos flujos.</li>
+</ol>
+
+<h2>5. Reglas de redacción y control de calidad</h2>
+<table>
+<thead><tr><th>Regla</th><th>Cómo se aplica</th></tr></thead>
+<tbody>
+<tr><td>Primera persona del plural</td><td>Va en el prompt (&laquo;nosotros&raquo;).</td></tr>
+<tr><td>Máximo 2 frases y 320 caracteres</td><td>Lo comprueba el código; si no cumple, se descarta la opción.</td></tr>
+<tr><td>No repetir aperturas ni frases</td><td>El código compara cada opción con las últimas 30 respuestas publicadas y con las de la misma tanda. Descarta las que empiezan igual o se parecen demasiado.</td></tr>
+<tr><td>No nombrar a personas</td><td>Solo se puede nombrar al cliente que escribió la reseña. Los invitados a las catas cambian cada semana, así que no hay lista fija: el código detecta los nombres propios que aparecen en la reseña (por ejemplo, el invitado o el maestro quesero) y los veta automáticamente. El equipo (Andrés, Mauro, Elías y Mónica) está vetado siempre.</td></tr>
+<tr><td>Responder en el idioma de la reseña</td><td>Va en el prompt.</td></tr>
+<tr><td>No inventar datos</td><td>Sin precios, fechas ni descripciones de fotos. Va en el prompt.</td></tr>
+<tr><td>Ángulos variados</td><td>Cada reseña recibe un ángulo distinto (detalle concreto, complicidad, invitar a volver, pregunta final, agradecer la recomendación, orgullo artesano).</td></tr>
+<tr><td>Reseñas de 3 estrellas o menos</td><td>Ángulo especial: empatía, sin excusas, invitación a hablar por privado. El aviso en Telegram sale como &laquo;reseña delicada&raquo;.</td></tr>
+</tbody>
+</table>
+<p>Si el control no encuentra ninguna opción válida, elige la menos mala y el mensaje de Telegram lleva una línea &laquo;Ojo&raquo; con el motivo. Aun así, tú decides.</p>
+
+<h2>6. Cómo se modifica una respuesta</h2>
+<ol>
+<li>En el aviso de Telegram pulsa <strong>&#9999;&#65039; Corregir o descartar</strong>.</li>
+<li>El bot manda un segundo mensaje con el botón <em>Escribir respuesta</em>.</li>
+<li>Escribe la respuesta tal y como quieres publicarla y envía. Se publica la tuya y queda guardada como ejemplo de estilo.</li>
+<li>Si prefieres no responder, escribe <code>NO</code>.</li>
+</ol>
+<p>Cuantas más respuestas corrijas, más se parece el estilo de Claude al tuyo.</p>
+
+<h2>7. Mantenimiento</h2>
+<table>
+<thead><tr><th>Quiero&hellip;</th><th>Qué hacer</th></tr></thead>
+<tbody>
+<tr><td>Cambiar el tono o las reglas de la marca</td><td>Editar la columna <code>prompt_marca</code> de la tabla <code>resenas_guia</code>. No hace falta tocar el flujo.</td></tr>
+<tr><td>Cambiar cuántas reseñas llegan por hora</td><td>En el flujo 1, nodo &laquo;Configuración del cliente&raquo;, valor <code>max_por_ejecucion</code>.</td></tr>
+<tr><td>Cambiar quién recibe los avisos</td><td>En el mismo nodo, valor <code>telegram_chat_id</code>, y en el nodo de aviso de errores.</td></tr>
+<tr><td>Pausar la automatización</td><td>Desactivar los dos flujos en n8n.</td></tr>
+<tr><td>Reconectar Google (si falla con &laquo;Unable to sign without access token&raquo;)</td><td>n8n &rarr; Credentials &rarr; credencial de Google Business Profile &rarr; Sign in with Google con la cuenta que gestiona la ficha. Si sale &laquo;app no verificada&raquo;: Avanzado &rarr; continuar.</td></tr>
+<tr><td>Ver qué ha pasado con una reseña</td><td>Tabla <code>resenas_registro</code>: estados <code>pendiente</code>, <code>publicada</code>, <code>corregida</code> o <code>descartada</code>.</td></tr>
+<tr><td>Volver a tratar una reseña</td><td>Borrar su fila en <code>resenas_registro</code>; el flujo la tratará como nueva.</td></tr>
+<tr><td>Replicarlo para otro cliente</td><td>Duplicar los dos flujos, cambiar cliente, ubicación de Google y chat de Telegram, y añadir su fila en <code>resenas_guia</code>. Requiere que la ficha del cliente esté en una cuenta que podamos autorizar.</td></tr>
+</tbody>
+</table>
+
+<h2>8. Problemas que encontramos (y cómo se resolvieron)</h2>
+<table>
+<thead><tr><th>Problema</th><th>Causa</th><th>Solución</th></tr></thead>
+<tbody>
+<tr><td>No aparecía la API de reseñas en Google Cloud</td><td>Está oculta hasta que Google aprueba el acceso. La &laquo;Business Profile Performance API&raquo; que sí aparece solo sirve para métricas, no para reseñas.</td><td>Solicitar el acceso básico y esperar la aprobación (cuota de 0 a 300).</td></tr>
+<tr><td>Google no avisó de la aprobación</td><td>No manda correo; el silencio es habitual.</td><td>Comprobar la cuota en Cloud Console: 300 = aprobado.</td></tr>
+<tr><td>La API no estaba habilitada en el proyecto que mirábamos</td><td>Se habían creado varios proyectos y cuentas de Google; el acceso estaba en el proyecto <strong>MarketingMO</strong>.</td><td>Buscar el proyecto que tiene el cliente OAuth y la API aprobada.</td></tr>
+<tr><td>El botón &laquo;Publicar app&raquo; estaba en gris</td><td>Google exige página principal y política de privacidad para pasar a producción.</td><td>Crear la política de privacidad en la web y rellenar la marca de la app.</td></tr>
+<tr><td>La credencial de n8n no tenía token</td><td>El inicio de sesión no se había completado; además, en modo &laquo;Prueba&raquo; el token caduca a los 7 días.</td><td>Publicar la app a producción y reconectar.</td></tr>
+<tr><td>Telegram: &laquo;chat not found&raquo;</td><td>Los flujos usaban un bot antiguo (el de Chatwoot) con el que esa cuenta nunca había hablado.</td><td>Usar el bot de la agencia <code>@MarketingMo_agencia_bot</code>.</td></tr>
+<tr><td>Texto de reseña mezclado en español e inglés</td><td>Google añade la traducción automática al final del comentario.</td><td>El código se queda solo con el texto original del cliente.</td></tr>
+<tr><td>Una reseña mencionaba a una invitada de la cata</td><td>La lista fija de nombres vetados no cubre a los invitados.</td><td>Detección automática de nombres propios en cada reseña.</td></tr>
+</tbody>
+</table>
+
+<h2>9. Pendientes</h2>
+<ol>
+<li><strong>Prompt de marca definitivo</strong> de La Despensa de Andrés (ahora es provisional).</li>
+<li><strong>NIF y dirección</strong> en la política de privacidad de la web.</li>
+<li><strong>Vigilar los primeros días:</strong> volumen de avisos, calidad de las respuestas y reseñas delicadas.</li>
+<li><strong>Copia de seguridad</strong> de los dos flujos (exportar a archivo).</li>
+</ol>
+
+<h2>10. Historial de decisiones</h2>
+<ul>
+<li><strong>23/10/2026:</strong> se audita el flujo anterior, se decide no usar agente de IA y se quita Trello. El flujo antiguo se archiva.</li>
+<li><strong>28/10/2026:</strong> se solicita el acceso a la API de Google y se prepara la conexión con Google Cloud y n8n.</li>
+<li><strong>16/11/2026:</strong> Google aprueba el acceso (cuota 300). Se publica la app, se crea la política de privacidad, se conecta Google, se asigna La Despensa de Andrés y se corrige el bot de Telegram.</li>
+<li><strong>16/11/2026:</strong> los invitados a las catas cambian cada semana, así que se sustituye la lista fija de nombres vetados por detección automática. Máximo de 10 reseñas por ejecución. Activación de los dos flujos.</li>
+</ul>
+</body>
+</html>
