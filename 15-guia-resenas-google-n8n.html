@@ -41,6 +41,7 @@
   <li>Si escribes <code>NO</code>, no se responde y la reseña queda como <code>descartada</code>.</li>
   </ul>
 </li>
+<li><strong>Confirmación por Telegram:</strong> tras publicar te llega &laquo;&#9989; Respuesta publicada en Google&raquo; con el texto final; tras descartar, &laquo;Reseña descartada, no se ha publicado ninguna respuesta&raquo;. La pantalla en inglés &laquo;Got it, thanks&raquo; que se abre al pulsar un botón es la página fija de n8n que solo confirma que ha recibido el clic; la confirmación real es este mensaje.</li>
 <li>Si el flujo falla en cualquier punto, un aviso por Telegram dice qué paso falló.</li>
 </ol>
 
@@ -96,7 +97,8 @@
 <tbody>
 <tr><td>Primera persona del plural</td><td>Va en el prompt (&laquo;nosotros&raquo;).</td></tr>
 <tr><td>Máximo 2 frases y 320 caracteres</td><td>Lo comprueba el código; si no cumple, se descarta la opción.</td></tr>
-<tr><td>No repetir aperturas ni frases</td><td>El código compara cada opción con las últimas 30 respuestas publicadas y con las de la misma tanda. Descarta las que empiezan igual o se parecen demasiado.</td></tr>
+<tr><td>No repetir aperturas, frases ni cierres</td><td>El código compara cada opción con las últimas 30 respuestas publicadas y con las de la misma tanda. Descarta las que empiezan igual, se parecen demasiado o terminan con la misma frase o pregunta.</td></tr>
+<tr><td>No inventar datos</td><td>Solo se puede apoyar en lo que escribió el cliente: nada de duración de la visita, compañía, qué probó o qué sintió.</td></tr>
 <tr><td>No nombrar a personas</td><td>Solo se puede nombrar al cliente que escribió la reseña. Los invitados a las catas cambian cada semana, así que no hay lista fija: el código detecta los nombres propios que aparecen en la reseña (por ejemplo, el invitado o el maestro quesero) y los veta automáticamente. El equipo (Andrés, Mauro, Elías y Mónica) está vetado siempre.</td></tr>
 <tr><td>Responder en el idioma de la reseña</td><td>Va en el prompt.</td></tr>
 <tr><td>No inventar datos</td><td>Sin precios, fechas ni descripciones de fotos. Va en el prompt.</td></tr>
